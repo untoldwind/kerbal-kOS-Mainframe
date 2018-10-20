@@ -51,6 +51,15 @@
     <Compile Include="kOSMainFramePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="kOSMainFrameAddon.cs" />
+    <Compile Include="Orbital\LambertSolver.cs" />
+    <Compile Include="ExtraMath\Hyperbolic.cs" />
+    <Compile Include="ExtraMath\PolynomialFunction.cs" />
+    <Compile Include="ExtraMath\Function.cs" />
+    <Compile Include="ExtraMath\DerivativeFunction.cs" />
+    <Compile Include="ExtraMath\NewtonSolver.cs" />
+    <Compile Include="Orbital\GoodingSolver.cs" />
+    <Compile Include="VesselExtra\VesselInfo.cs" />
+    <Compile Include="VesselExtra\VesselExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
