@@ -34,9 +34,14 @@ namespace kOSMainframe.VesselExtra
             return isp * gForRCS * Math.Log(m0 / m1);
         }
 
-		public double VesselMass()
+        public double MonoPropellantMass()
         {
-			return 0;
+            return vessel.TotalResourceMass("MonoPropellant");
+        }
+
+        public double VesselMass()
+        {
+			return vessel.totalMass;
         }
     }
 }

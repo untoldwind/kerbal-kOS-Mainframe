@@ -60,6 +60,22 @@
     <Compile Include="Orbital\GoodingSolver.cs" />
     <Compile Include="VesselExtra\VesselInfo.cs" />
     <Compile Include="VesselExtra\VesselExtensions.cs" />
+    <Compile Include="VesselExtra\PartResourceExtensions.cs" />
+    <Compile Include="VesselExtra\PartExtensions.cs" />
+    <Compile Include="VesselExtra\StageInfo.cs" />
+    <Compile Include="VesselExtra\Simulation.cs" />
+    <Compile Include="VesselExtra\PartSim.cs" />
+    <Compile Include="VesselExtra\Pool.cs" />
+    <Compile Include="VesselExtra\AttachNodeSim.cs" />
+    <Compile Include="VesselExtra\ResourceContainer.cs" />
+    <Compile Include="VesselExtra\SimManager.cs" />
+    <Compile Include="VesselExtra\EngineSim.cs" />
+    <Compile Include="VesselExtra\AppliedForce.cs" />
+    <Compile Include="VesselExtra\Units.cs" />
+    <Compile Include="VesselExtra\CelestialBodies.cs" />
+    <Compile Include="VesselExtra\RCSSim.cs" />
+    <Compile Include="VesselExtra\ForceAccumulator.cs" />
+    <Compile Include="VesselExtra\WeightedVectorAverager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
