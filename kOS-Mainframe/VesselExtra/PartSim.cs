@@ -191,6 +191,154 @@ namespace kOSMainframe.VesselExtra
             return partSim;
         }
 
+        public void ReleasePart()
+        {
+            this.part = null;
+        }
+
+        public void CreateEngineSims(List<EngineSim> allEngines, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug)
+        {
+            if (debug) Debug.Log("CreateEngineSims for " + this.name);
+            List<ModuleEngines> cacheModuleEngines = part.FindModulesImplementing<ModuleEngines>();
+
+            try
+            {
+                if (cacheModuleEngines.Count > 0)
+                {
+                    //find first active engine, assuming that two are never active at the same time
+                    foreach (ModuleEngines engine in cacheModuleEngines)
+                    {
+                        if (engine.isEnabled)
+                        {
+                            if (debug) Debug.Log("Module: " + engine.moduleName);
+                            EngineSim engineSim = EngineSim.New(
+                                this,
+                                engine,
+                                atmosphere,
+                                (float)mach,
+                                vectoredThrust,
+                                fullThrust,
+                                debug);
+                            allEngines.Add(engineSim);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Debug.Log("[KER] Error Catch in CreateEngineSims");
+            }
+        }
+
+        public void CreateRCSSims(List<RCSSim> allRCS, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug)
+        {
+            if (debug) Debug.Log("CreateRCSSims for " + this.name);
+            List<ModuleRCS> cacheModuleRCS = part.FindModulesImplementing<ModuleRCS>();
+
+            try
+            {
+                if (cacheModuleRCS.Count > 0)
+                {
+                    //find first active engine, assuming that two are never active at the same time
+                    foreach (ModuleRCS engine in cacheModuleRCS)
+                    {
+                        if (engine.isEnabled)
+                        {
+                            if (debug) Debug.Log("Module: " + engine.moduleName);
+                            RCSSim engineSim = RCSSim.New(
+                                this,
+                                engine,
+                                atmosphere,
+                                (float)mach,
+                                vectoredThrust,
+                                fullThrust,
+                                debug);
+                            allRCS.Add(engineSim);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Debug.Log("[KER] Error Catch in CreateRCSSims");
+            }
+        }
+
+        public void SetupAttachNodes(Dictionary<Part, PartSim> partSimLookup, bool debug)
+        {
+            if (debug) Debug.Log("SetupAttachNodes for " + name + ":" + partId);
+
+            attachNodes.Clear();
+
+            for (int i = 0; i < part.attachNodes.Count; ++i)
+            {
+                AttachNode attachNode = part.attachNodes[i];
+
+                if (debug) Debug.Log("AttachNode " + attachNode.id + " = " + (attachNode.attachedPart != null ? attachNode.attachedPart.partInfo.name : "null"));
+
+                if (attachNode.attachedPart != null && attachNode.id != "Strut")
+                {
+                    PartSim attachedSim;
+                    if (partSimLookup.TryGetValue(attachNode.attachedPart, out attachedSim))
+                    {
+                        if (debug) Debug.Log("Adding attached node " + attachedSim.name + ":" + attachedSim.partId);
+
+                        attachNodes.Add(AttachNodeSim.New(attachedSim, attachNode.id, attachNode.nodeType));
+                    }
+                    else
+                    {
+                        if (debug) Debug.Log("No PartSim for attached part (" + attachNode.attachedPart.partInfo.name + ")");
+                    }
+                }
+            }
+
+            for (int i = 0; i < part.fuelLookupTargets.Count; ++i)
+            {
+                Part p = part.fuelLookupTargets[i];
+
+                if (p != null)
+                {
+                    PartSim targetSim;
+                    if (partSimLookup.TryGetValue(p, out targetSim))
+                    {
+                        if (debug) Debug.Log("Fuel target: " + targetSim.name + ":" + targetSim.partId);
+
+                        fuelTargets.Add(targetSim);
+                    }
+                    else
+                    {
+                        if (debug) Debug.Log("No PartSim for fuel target (" + p.name + ")");
+                    }
+                }
+            }
+        }
+
+        public void SetupParent(Dictionary<Part, PartSim> partSimLookup, bool debug)
+        {
+            if (part.parent != null)
+            {
+                parent = null;
+                if (partSimLookup.TryGetValue(part.parent, out parent))
+                {
+                    if (debug) Debug.Log("Parent part is " +  parent.name + ":"+ parent.partId);
+                    if (part.attachMode == AttachModes.SRF_ATTACH && part.attachRules.srfAttach && part.fuelCrossFeed && part.parent.fuelCrossFeed)
+                    {
+                        if (debug)
+                        {
+                            Debug.Log("Added " + name + ":" + partId);
+                            Debug.Log(", " + parent.name + ":" + parent.partId + " to surface mounted fuel targets.");
+                        }
+                        parent.surfaceMountFuelTargets.Add(this);
+                        surfaceMountFuelTargets.Add(parent);
+                    }
+                }
+                else
+                {
+                    if (debug) Debug.Log("No PartSim for parent part (" + part.parent.partInfo.name + ")");
+                }
+            }
+        }
+
         private int DecoupledInStage(Part thePart)
         {
             int stage = -1;
