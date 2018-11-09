@@ -104,5 +104,26 @@ namespace kOSMainframe.VesselExtra
             }
             return false;
         }
+
+        public static double GetAltitudeASL(this Vessel vessel)
+        {
+            return vessel.mainBody.GetAltitude(vessel.CoMD);
+        }
+
+        public static Vector3d GetSurfaceVelocity(this Vessel vessel)
+        {
+            return vessel.obt_velocity - vessel.mainBody.getRFrmVel(vessel.CoMD);
+        }
+
+        public static double GetSpeedSurface(this Vessel vessel)
+        {
+            return vessel.GetSurfaceVelocity().magnitude;
+        }
+
+        public static double GetSpeedSurfaceHorizontal(this Vessel vessel)
+        {
+            Vector3d up = (vessel.CoMD - vessel.mainBody.position).normalized;
+            return Vector3d.Exclude(up, vessel.GetSurfaceVelocity()).magnitude;
+        }
     }
 }
