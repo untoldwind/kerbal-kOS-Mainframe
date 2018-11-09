@@ -16,7 +16,6 @@ namespace kOSMainframe.VesselExtra
         public double thrust = 0.0;
         public double thrustToWeight = 0.0;
         public double time = 0.0;
-        public double totalCost = 0.0;
         public double totalDeltaV = 0.0;
         public double totalMass = 0.0;
         public double totalTime = 0.0;

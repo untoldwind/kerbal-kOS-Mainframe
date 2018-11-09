@@ -20,6 +20,12 @@ namespace kOSMainframe.VesselExtra
         public bool isFlamedOut;
         public bool dontDecoupleActive = true;
 
+        // A dictionary to hold a set of parts for each resource
+        Dictionary<int, HashSet<PartSim>> sourcePartSets = new Dictionary<int, HashSet<PartSim>>();
+        Dictionary<int, HashSet<PartSim>> stagePartSets = new Dictionary<int, HashSet<PartSim>>();
+
+        HashSet<PartSim> visited = new HashSet<PartSim>();
+
         public double thrust = 0;
 
         // Add thrust vector to account for directional losses
@@ -293,6 +299,180 @@ namespace kOSMainframe.VesselExtra
         public static float GetThrustPercent(float thrustPercentage)
         {
             return thrustPercentage * 0.01f;
+        }
+
+        public bool SetResourceDrains(List<PartSim> allParts, List<PartSim> allFuelLines, HashSet<PartSim> drainingParts, bool debug)
+        {
+            //DumpSourcePartSets(log, "before clear");
+            foreach (HashSet<PartSim> sourcePartSet in sourcePartSets.Values)
+            {
+                sourcePartSet.Clear();
+            }
+            //DumpSourcePartSets(log, "after clear");
+
+            for (int index = 0; index < this.resourceConsumptions.Types.Count; index++)
+            {
+                int type = this.resourceConsumptions.Types[index];
+
+                HashSet<PartSim> sourcePartSet;
+                if (!sourcePartSets.TryGetValue(type, out sourcePartSet))
+                {
+                    sourcePartSet = new HashSet<PartSim>();
+                    sourcePartSets.Add(type, sourcePartSet);
+                }
+
+                switch ((ResourceFlowMode)this.resourceFlowModes[type])
+                {
+                    case ResourceFlowMode.NO_FLOW:
+                        if (partSim.resources[type] > SimManager.RESOURCE_MIN && partSim.resourceFlowStates[type] != 0)
+                        {
+                            sourcePartSet.Add(partSim);
+                        }
+                        break;
+
+                    case ResourceFlowMode.ALL_VESSEL:
+                    case ResourceFlowMode.ALL_VESSEL_BALANCE:
+                        for (int i = 0; i < allParts.Count; i++)
+                        {
+                            PartSim aPartSim = allParts[i];
+                            if (aPartSim.resources[type] > SimManager.RESOURCE_MIN && aPartSim.resourceFlowStates[type] != 0)
+                            {
+                                sourcePartSet.Add(aPartSim);
+                            }
+                        }
+                        break;
+
+                    case ResourceFlowMode.STAGE_PRIORITY_FLOW:
+                    case ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE:
+
+                        if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
+                        foreach (HashSet<PartSim> stagePartSet in stagePartSets.Values)
+                        {
+                            stagePartSet.Clear();
+                        }
+                        var maxStage = -1;
+
+                        for (int i = 0; i < allParts.Count; i++)
+                        {
+                            var aPartSim = allParts[i];
+                            //if (log != null) log.Append(aPartSim.name, ":" + aPartSim.partId, " contains ", aPartSim.resources[type])
+                            //                  .AppendLine((aPartSim.resourceFlowStates[type] == 0) ? " (disabled)" : "");
+                            if (aPartSim.resources[type] <= SimManager.RESOURCE_MIN || aPartSim.resourceFlowStates[type] == 0)
+                            {
+                                continue;
+                            }
+
+                            int stage = aPartSim.inverseStage;
+                            if (stage > maxStage)
+                            {
+                                maxStage = stage;
+                            }
+
+                            HashSet<PartSim> tempPartSet;
+                            if (!stagePartSets.TryGetValue(stage, out tempPartSet))
+                            {
+                                tempPartSet = new HashSet<PartSim>();
+                                stagePartSets.Add(stage, tempPartSet);
+                            }
+                            tempPartSet.Add(aPartSim);
+                        }
+
+                        for (int j = maxStage; j >= -1; j--)
+                        {
+                            //if (log != null) log.AppendLine("Testing stage ", j);
+                            HashSet<PartSim> stagePartSet;
+                            if (stagePartSets.TryGetValue(j, out stagePartSet) && stagePartSet.Count > 0)
+                            {
+                                //if (log != null) log.AppendLine("Not empty");
+                                // We have to copy the contents of the set here rather than copying the set reference or 
+                                // bad things (tm) happen
+                                foreach (PartSim aPartSim in stagePartSet)
+                                {
+                                    sourcePartSet.Add(aPartSim);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+
+                    case ResourceFlowMode.STACK_PRIORITY_SEARCH:
+                    case ResourceFlowMode.STAGE_STACK_FLOW:
+                    case ResourceFlowMode.STAGE_STACK_FLOW_BALANCE:
+                        visited.Clear();
+
+                        if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
+
+                        partSim.GetSourceSet(type, allParts, visited, sourcePartSet, debug, "");
+                        break;
+
+                    default:
+                        if (debug) Debug.Log("SetResourceDrains(" + partSim.name + ":" + partSim.partId + ") Unexpected flow type for " + ResourceContainer.GetResourceName(type) + ")");
+                        break;
+                }
+
+                if (debug && sourcePartSet.Count > 0)
+                {
+                    Debug.Log("Source parts for " + ResourceContainer.GetResourceName(type) + ":");
+                    foreach (PartSim partSim in sourcePartSet)
+                    {
+                        Debug.Log(partSim.name + ":" + partSim.partId);
+                    }
+                }
+
+                //DumpSourcePartSets(log, "after " + ResourceContainer.GetResourceName(type));
+            }
+
+            // If we don't have sources for all the needed resources then return false without setting up any drains
+            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++)
+            {
+                int type = this.resourceConsumptions.Types[i];
+                HashSet<PartSim> sourcePartSet;
+                if (!sourcePartSets.TryGetValue(type, out sourcePartSet) || sourcePartSet.Count == 0)
+                {
+                    if (debug) Debug.Log("No source of " + ResourceContainer.GetResourceName(type));
+                    isActive = false;
+                    return false;
+                }
+            }
+
+            // Now we set the drains on the members of the sets and update the draining parts set
+            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++)
+            {
+                int type = this.resourceConsumptions.Types[i];
+                HashSet<PartSim> sourcePartSet = sourcePartSets[type];
+                ResourceFlowMode mode = (ResourceFlowMode)resourceFlowModes[type];
+                double consumption = resourceConsumptions[type];
+                double amount = 0d;
+                double total = 0d;
+                if (mode == ResourceFlowMode.ALL_VESSEL_BALANCE ||
+                    mode == ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE ||
+                    mode == ResourceFlowMode.STAGE_STACK_FLOW_BALANCE ||
+                    mode == ResourceFlowMode.STACK_PRIORITY_SEARCH)
+                {
+                    foreach (PartSim partSim in sourcePartSet)
+                        total += partSim.resources[type];
+                }
+                else
+                    amount = consumption / sourcePartSet.Count;
+
+                // Loop through the members of the set 
+                foreach (PartSim partSim in sourcePartSet)
+                {
+                    if (total != 0d)
+                        amount = consumption * partSim.resources[type] / total;
+
+                    if (debug) Debug.Log("Adding drain of " + amount + " " + ResourceContainer.GetResourceName(type) + " to " + partSim.name + ":" + partSim.partId);
+
+                    partSim.resourceDrains.Add(type, amount);
+                    drainingParts.Add(partSim);
+                }
+            }
+            return true;
+        }
+
+        public void DumpEngineToLog()
+        {
+            Debug.Log("[thrust = " + thrust + ", actual = " + actualThrust + ", isp = " + isp);
         }
     }
 }

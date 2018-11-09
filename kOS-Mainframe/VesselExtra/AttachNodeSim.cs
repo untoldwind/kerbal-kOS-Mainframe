@@ -1,4 +1,6 @@
 ﻿using System;
+using UnityEngine;
+
 namespace kOSMainframe.VesselExtra
 {
     public class AttachNodeSim
@@ -34,6 +36,19 @@ namespace kOSMainframe.VesselExtra
         public void Release()
         {
             pool.Release(this);
+        }
+
+        public void DumpToLog()
+        {
+            if (attachedPartSim == null)
+            {
+                Debug.Log("<staged>:<n>");
+            }
+            else
+            {
+                Debug.Log(attachedPartSim.name + ":" + attachedPartSim.partId);
+            }
+            Debug.Log("#" + nodeType + ":" + id);
         }
     }
 }

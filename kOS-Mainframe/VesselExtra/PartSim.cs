@@ -313,6 +313,7 @@ namespace kOSMainframe.VesselExtra
             }
         }
 
+
         public void SetupParent(Dictionary<Part, PartSim> partSimLookup, bool debug)
         {
             if (part.parent != null)
@@ -428,6 +429,355 @@ namespace kOSMainframe.VesselExtra
             IEnumerable<ModuleEngines> modList = part.Modules.OfType<ModuleEngines>();
 
             return modList.Any(module => module.throttleLocked);
+        }
+
+        public void RemoveAttachedParts(HashSet<PartSim> partSims)
+        {
+            // Loop through the attached parts
+            for (int i = 0; i < this.attachNodes.Count; i++)
+            {
+                AttachNodeSim attachSim = this.attachNodes[i];
+                // If the part is in the set then "remove" it by clearing the PartSim reference
+                if (partSims.Contains(attachSim.attachedPartSim))
+                {
+                    attachSim.attachedPartSim = null;
+                }
+            }
+
+            // Loop through the fuel targets (fuel line sources)
+            for (int i = 0; i < this.fuelTargets.Count; i++)
+            {
+                PartSim fuelTargetSim = this.fuelTargets[i];
+                // If the part is in the set then "remove" it by clearing the PartSim reference
+                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim))
+                {
+                    this.fuelTargets[i] = null;
+                }
+            }
+
+            // Loop through the surface attached fuel targets (surface attached parts for new flow modes)
+            for (int i = 0; i < this.surfaceMountFuelTargets.Count; i++)
+            {
+                PartSim fuelTargetSim = this.surfaceMountFuelTargets[i];
+                // If the part is in the set then "remove" it by clearing the PartSim reference
+                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim))
+                {
+                    this.surfaceMountFuelTargets[i] = null;
+                }
+            }
+        }
+
+        public void DumpPartToLog(String prefix, List<PartSim> allParts = null)
+        {
+            String msg = "";
+
+            msg += prefix;
+            msg += name;
+            msg += ":[id = " +  partId + ", decouple = " + decoupledInStage;
+            msg += ", invstage = " + inverseStage;
+
+            msg += ", isNoPhys = " + isNoPhysics;
+            msg += ", baseMass = " +  baseMass;
+            msg += ", baseMassForCoM = " + baseMassForCoM;
+
+            msg += ", fuelCF = " + fuelCrossFeed;
+            msg += ", noCFNKey = " + noCrossFeedNodeKey;
+
+            msg += ", isSep = " + isSepratron;
+
+            try
+            {
+                for (int i = 0; i < resources.Types.Count; i++)
+                {
+                    int type = resources.Types[i];
+                    msg += ", " + ResourceContainer.GetResourceName(type) + " = " + resources[type];
+                }
+            }
+            catch (Exception e)
+            {
+                msg += "error dumping part resources " + e.ToString();
+            }
+
+            try
+            {
+
+                if (attachNodes.Count > 0)
+                {
+                    msg += ", attached = <";
+                    attachNodes[0].DumpToLog();
+                    for (int i = 1; i < attachNodes.Count; i++)
+                    {
+                        msg += ", ";
+                        if (attachNodes[i] != null) attachNodes[i].DumpToLog(); //its u, isn't it?
+                    }
+                    msg += ">";
+                }
+            }
+            catch (Exception e)
+            {
+                msg += "error dumping part nodes" + e.ToString();
+
+            }
+
+            try
+            {
+                if (surfaceMountFuelTargets.Count > 0)
+                {
+                    msg += ", surface = <";
+                    if (surfaceMountFuelTargets[0] != null) msg += surfaceMountFuelTargets[0].name + ":" + surfaceMountFuelTargets[0].partId;
+                    for (int i = 1; i < surfaceMountFuelTargets.Count; i++)
+                    {
+                        if (surfaceMountFuelTargets[i] != null) msg += ", " + surfaceMountFuelTargets[i].name + ":" + surfaceMountFuelTargets[i].partId; //no it was u.
+                    }
+                    msg += ">";
+                }
+            }
+            catch (Exception e)
+            {
+                msg += "error dumping part surface fuels " + e.ToString();
+            }
+
+
+
+            // Add more info here
+
+            msg += "]";
+            Debug.Log(msg);
+
+            if (allParts != null)
+            {
+                String newPrefix = prefix + " ";
+                for (int i = 0; i < allParts.Count; i++)
+                {
+                    PartSim partSim = allParts[i];
+                    if (partSim.parent == this)
+                        partSim.DumpPartToLog(newPrefix, allParts);
+                }
+            }
+        }
+
+        public bool EmptyOf(HashSet<int> types)
+        {
+            foreach (int type in types)
+            {
+                if (resources.HasType(type) && resourceFlowStates[type] != 0 && resources[type] > SimManager.RESOURCE_PART_EMPTY_THRESH)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public double GetMass(int currentStage, bool forCoM = false)
+        {
+            if (decoupledInStage >= currentStage)
+                return 0d;
+
+            double mass = forCoM ? baseMassForCoM : baseMass;
+
+            for (int i = 0; i < resources.Types.Count; ++i)
+            {
+                mass += resources.GetResourceMass(resources.Types[i]);
+            }
+
+            if (postStageMassAdjust != 0.0 && currentStage <= inverseStage)
+            {
+                mass += postStageMassAdjust;
+            }
+
+            return mass;
+        }
+
+        public double TimeToDrainResource()
+        {
+            //if (log != null) log.AppendLine("TimeToDrainResource(", name, ":", partId, ")");
+            double time = double.MaxValue;
+
+            for (int i = 0; i < resourceDrains.Types.Count; ++i)
+            {
+                int type = resourceDrains.Types[i];
+
+                if (resourceDrains[type] > 0)
+                {
+                    time = Math.Min(time, resources[type] / resourceDrains[type]);
+                    //if (log != null) log.AppendLine("type = " + ResourceContainer.GetResourceName(type) + "  amount = " + resources[type] + "  rate = " + resourceDrains[type] + "  time = " + time);
+                }
+            }
+
+            //if (time < double.MaxValue)
+            //    if (log != null) log.Append("TimeToDrainResource(", name, ":", partId)
+            //                        .AppendLine(") = ", time);
+            return time;
+        }
+
+        public void DrainResources(double time)
+        {
+            //if (log != null) log.Append("DrainResources(", name, ":", partId)
+            //                    .AppendLine(", ", time, ")");
+            for (int i = 0; i < resourceDrains.Types.Count; ++i)
+            {
+                int type = resourceDrains.Types[i];
+
+                //if (log != null) log.AppendLine("draining ", (time * resourceDrains[type]), " ", ResourceContainer.GetResourceName(type));
+                resources.Add(type, -time * resourceDrains[type]);
+                //if (log != null) log.AppendLine(ResourceContainer.GetResourceName(type), " left = ", resources[type]);
+            }
+        }
+
+        public int GetResourcePriority()
+        {
+            return ((!resPriorityUseParentInverseStage || !(parent != null)) ? inverseStage : parent.inverseStage) * 10 + resPriorityOffset;
+        }
+
+        // This is a new function for STAGE_STACK_FLOW(_BALANCE)
+        public void GetSourceSet(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, bool debug, String indent)
+        {
+            // Initial version of support for new flow mode
+
+            // Call a modified version of the old GetSourceSet code that adds all potential sources rather than stopping the recursive scan
+            // when certain conditions are met
+            int priMax = int.MinValue;
+            GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
+            if (debug) Debug.Log(allSources.Count + " parts with priority of " + priMax);
+        }
+
+        public void GetSourceSet_Internal(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, ref int priMax, bool debug, String indent)
+        {
+            if (debug)
+            {
+                Debug.Log(indent + "GetSourceSet_Internal(" + ResourceContainer.GetResourceName(type) + ") for " + name + ":" + partId);
+                indent += "  ";
+            }
+
+            // Rule 1: Each part can be only visited once, If it is visited for second time in particular search it returns as is.
+            if (visited.Contains(this))
+            {
+                if (debug) Debug.Log(indent + "Nothing added, already visited (" + name + ":" + partId + ")");
+                return;
+            }
+
+            if (debug) Debug.Log(indent + "Adding this to visited");
+
+            visited.Add(this);
+
+            // Rule 2: Part performs scan on start of every fuel pipe ending in it. This scan is done in order in which pipes were installed.
+            // Then it makes an union of fuel tank sets each pipe scan returned. If the resulting list is not empty, it is returned as result.
+            //MonoBehaviour.print("for each fuel line");
+
+            int lastCount = allSources.Count;
+
+            for (int i = 0; i < this.fuelTargets.Count; i++)
+            {
+                PartSim partSim = this.fuelTargets[i];
+                if (partSim != null)
+                {
+                    if (visited.Contains(partSim))
+                    {
+                        if (debug) Debug.Log(indent + "Fuel target already visited, skipping (" + partSim.name + ":" + partSim.partId + ")");
+                    }
+                    else
+                    {
+                        if (debug) Debug.Log(indent + "Adding fuel target as source (" + partSim.name + ":" + partSim.partId + ")");
+
+                        partSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
+                    }
+                }
+            }
+
+            if (fuelCrossFeed)
+            {
+
+                // check surface mounted fuel targets
+                for (int i = 0; i < surfaceMountFuelTargets.Count; i++)
+                {
+                    PartSim partSim = this.surfaceMountFuelTargets[i];
+                    if (partSim != null)
+                    {
+                        if (visited.Contains(partSim))
+                        {
+                            if (debug) Debug.Log(indent + "Surface part already visited, skipping (" + partSim.name + ":" + partSim.partId + ")");
+                        }
+                        else
+                        {
+                            if (debug) Debug.Log(indent + "Adding surface part as source (" + partSim.name + ":" + partSim.partId + ")");
+
+                            partSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
+                        }
+                    }
+                }
+
+                lastCount = allSources.Count;
+                //MonoBehaviour.print("for each attach node");
+                for (int i = 0; i < this.attachNodes.Count; i++)
+                {
+                    AttachNodeSim attachSim = this.attachNodes[i];
+                    if (attachSim.attachedPartSim != null)
+                    {
+                        if (attachSim.nodeType == AttachNode.NodeType.Stack)
+                        {
+                            if ((string.IsNullOrEmpty(noCrossFeedNodeKey) == false && attachSim.id.Contains(noCrossFeedNodeKey)) == false)
+                            {
+                                if (visited.Contains(attachSim.attachedPartSim))
+                                {
+                                    if (debug) Debug.Log(indent + "Attached part already visited, skipping (" + attachSim.attachedPartSim.name + ":" + attachSim.attachedPartSim.partId + ")");
+                                }
+                                else
+                                {
+                                    bool flg = true;
+
+                                    if (attachSim.attachedPartSim.isEnginePlate) //y u make me do dis.
+                                    {
+                                        foreach (AttachNodeSim att in attachSim.attachedPartSim.attachNodes)
+                                        {
+                                            if (att.attachedPartSim == this && att.id == "bottom")
+                                                flg = false;
+                                        }
+                                    }
+
+                                    if (flg)
+                                    {
+                                        if (debug) Debug.Log(indent + "Adding attached part as source  (" + attachSim.attachedPartSim.name + ":" + attachSim.attachedPartSim.partId + ")");
+
+                                        attachSim.attachedPartSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If the part is fuel container for searched type of fuel (i.e. it has capability to contain that type of fuel and the fuel 
+            // type was not disabled) and it contains fuel, it adds itself.
+            if (resources.HasType(type) && resourceFlowStates[type] > 0.0)
+            {
+                if (resources[type] > resRequestRemainingThreshold)
+                {
+                    // Get the priority of this tank
+                    int pri = GetResourcePriority();
+                    if (pri > priMax)
+                    {
+                        // This tank is higher priority than the previously added ones so we clear the sources
+                        // and set the priMax to this priority
+                        allSources.Clear();
+                        priMax = pri;
+                    }
+                    // If this is the correct priority then add this to the sources
+                    if (pri == priMax)
+                    {
+                        if (debug) Debug.Log(indent + "Adding enabled tank as source (" + name + ":" + partId + ")");
+
+                        allSources.Add(this);
+                    }
+                }
+                else
+                {
+                    if (debug) Debug.Log(indent + name + " not enough " + ResourceContainer.GetResourceName(type) + "  Requested = " + resRequestRemainingThreshold + " actual " + resources[type]);
+                }
+            }
+            else
+            {
+                if (debug) Debug.Log(indent + name + " not fuel tank or disabled. HasType = " + resources.HasType(type) + "  FlowState = " + resourceFlowStates[type]);
+            }
         }
     }
 }

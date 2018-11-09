@@ -246,5 +246,10 @@ namespace kOSMainframe.VesselExtra
         {
             return thrustPercentage * 0.01f;
         }
+
+        public void DumpEngineToLog()
+        {
+            Debug.Log("[thrust = " + thrust + ", actual = " + actualThrust + ", isp = " + isp);
+        }
     }
 }
