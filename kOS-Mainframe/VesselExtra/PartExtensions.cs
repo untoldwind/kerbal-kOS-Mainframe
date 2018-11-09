@@ -29,6 +29,22 @@ namespace kOSMainframe.VesselExtra
             return false;
         }
 
+        // An allocation free version of GetModuleMass
+        public static float GetModuleMassNoAlloc(this Part p, float defaultMass, ModifierStagingSituation sit)
+        {
+            float mass = 0f;
+
+            for (int i = 0; i < p.Modules.Count; i++)
+            {
+                IPartMassModifier m = p.Modules[i] as IPartMassModifier;
+                if (m != null)
+                {
+                    mass += m.GetModuleMass(defaultMass, sit);
+                }
+            }
+            return mass;
+        }
+
         /// <summary>
         ///     Gets the dry mass of the part.
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Smooth.Pools;
 
 namespace kOSMainframe.VesselExtra
 {
