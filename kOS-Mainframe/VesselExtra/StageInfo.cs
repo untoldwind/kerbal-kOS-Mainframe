@@ -1,11 +1,14 @@
-﻿using System;
+﻿using kOS.Safe.Encapsulation;
+using kOS.Safe.Encapsulation.Suffixes;
+using System;
+
 namespace kOSMainframe.VesselExtra
 {
-    public class StageInfo
+	[kOS.Safe.Utilities.KOSNomenclature("StageInfo")]
+	public class StageInfo : Structure
     {
         public double actualThrust = 0.0;
         public double actualThrustToWeight = 0.0;
-        public double cost = 0.0;
         public double deltaV = 0.0;
         public double inverseTotalDeltaV = 0.0;
         public double isp = 0.0;
@@ -34,5 +37,22 @@ namespace kOSMainframe.VesselExtra
         public double RCSdeltaVEnd = 0.0;
         public double RCSTWREnd = 0.0;
         public double RCSBurnTime = 0.0;
+
+		public StageInfo() {
+			InitializeSuffixes();
+		}
+
+		private void InitializeSuffixes()
+		{
+			AddSuffix("ACTUAL_THRUST", new Suffix<ScalarDoubleValue>(() => actualThrust));
+			AddSuffix("ACTUAL_TWR", new Suffix<ScalarDoubleValue>(() => actualThrustToWeight));
+			AddSuffix("DELTA_V", new Suffix<ScalarDoubleValue>(() => deltaV));
+			AddSuffix("INVERSE_TOTAL_DELTA_V", new Suffix<ScalarDoubleValue>(() => inverseTotalDeltaV));
+			AddSuffix("ISP", new Suffix<ScalarDoubleValue>(() => isp));
+			AddSuffix("MAX_TWR", new Suffix<ScalarDoubleValue>(() => maxThrustToWeight));
+			AddSuffix("THRUST", new Suffix<ScalarDoubleValue>(() => thrust));
+			AddSuffix("TWR", new Suffix<ScalarDoubleValue>(() => thrustToWeight));
+			AddSuffix("TIME", new Suffix<ScalarDoubleValue>(() => time));
+		}
     }
 }

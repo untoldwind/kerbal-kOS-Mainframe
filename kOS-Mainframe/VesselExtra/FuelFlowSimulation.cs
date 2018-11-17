@@ -8,6 +8,7 @@ using Smooth.Pools;
 using Smooth.Slinq;
 using kOSMainframe.Utils;
 using kOSMainframe.UnityToolbag;
+using kOS;
 
 namespace kOSMainframe.VesselExtra
 {
@@ -19,6 +20,12 @@ namespace kOSMainframe.VesselExtra
         readonly Dictionary<FuelNode, Part> partLookup = new Dictionary<FuelNode, Part>();
 
         private double KpaToAtmospheres;
+
+		private readonly SharedObjects shared;
+
+		public FuelFlowSimulation(SharedObjects shared) {
+			this.shared = shared;
+		}
 
         //Takes a list of parts so that the simulation can be run in the editor as well as the flight scene
         public void Init(List<Part> parts, bool dVLinearThrust)
@@ -61,9 +68,9 @@ namespace kOSMainframe.VesselExtra
 
         //Simulate the activation and execution of each stage of the rocket,
         //and return stats for each stage
-        public Stats[] SimulateAllStages(float throttle, double staticPressureKpa, double atmDensity, double machNumber)
+        public StageStats[] SimulateAllStages(float throttle, double staticPressureKpa, double atmDensity, double machNumber)
         {
-            Stats[] stages = new Stats[simStage];
+			StageStats[] stages = new StageStats[simStage];
 
             int maxStages = simStage - 1;
 
@@ -99,7 +106,7 @@ namespace kOSMainframe.VesselExtra
 
         //Simulate (the rest of) the current stage of the simulated rocket,
         //and return stats for the stage
-        private Stats SimulateStage(float throttle, double staticPressure, double atmDensity, double machNumber)
+		private StageStats SimulateStage(float throttle, double staticPressure, double atmDensity, double machNumber)
         {
             //need to set initial consumption rates for VesselThrust and AllowedToStage to work right
             for (int i = 0; i < nodes.Count; i++)
@@ -107,7 +114,7 @@ namespace kOSMainframe.VesselExtra
                 nodes[i].SetConsumptionRates(throttle, atmDensity, machNumber);
             }
 
-            Stats stats = new Stats();
+			StageStats stats = new StageStats(shared);
             stats.startMass = VesselMass(simStage);
             stats.startThrust = VesselThrust(throttle, staticPressure, atmDensity, machNumber);
             stats.endMass = stats.startMass;
@@ -150,9 +157,9 @@ namespace kOSMainframe.VesselExtra
         //Simulate a single time step, and return stats for the time step.
         // - desiredDt is the requested time step size. Often the actual time step size
         //   with be less than this. The actual step size is reported in dt.
-        private Stats SimulateTimeStep(double desiredDt, float throttle, double staticPressure, double atmDensity, double machNumber, out double dt)
+		private StageStats SimulateTimeStep(double desiredDt, float throttle, double staticPressure, double atmDensity, double machNumber, out double dt)
         {
-            Stats stats = new Stats();
+			StageStats stats = new StageStats(shared);
 
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -363,55 +370,6 @@ namespace kOSMainframe.VesselExtra
             return activeEngines;
         }
 
-        //A Stats struct describes the result of the simulation over a certain interval of time (e.g., one stage)
-        public struct Stats
-        {
-            public double startMass;
-            public double endMass;
-            public double startThrust;
-            public double maxAccel;
-            public double deltaTime;
-            public double deltaV;
-
-            public double resourceMass;
-            public double isp;
-            public double stagedMass;
-
-            public double StartTWR(double geeASL) { return startMass > 0 ? startThrust / (9.80665 * geeASL * startMass) : 0; }
-            public double MaxTWR(double geeASL) { return maxAccel / (9.80665 * geeASL); }
-
-            public List<Part> parts;
-
-            //Computes the deltaV from the other fields. Only valid when the thrust is constant over the time interval represented.
-            public void ComputeTimeStepDeltaV()
-            {
-                if (deltaTime > 0 && startMass > endMass && startMass > 0 && endMass > 0)
-                {
-                    deltaV = startThrust * deltaTime / (startMass - endMass) * Math.Log(startMass / endMass);
-                }
-                else
-                {
-                    deltaV = 0;
-                }
-            }
-
-            //Append joins two Stats describing adjacent intervals of time into one describing the combined interval
-            public Stats Append(Stats s)
-            {
-                return new Stats
-                {
-                    startMass = this.startMass,
-                    endMass = s.endMass,
-                    resourceMass = startMass - s.endMass,
-                    startThrust = this.startThrust,
-                    maxAccel = Math.Max(this.maxAccel, s.maxAccel),
-                    deltaTime = this.deltaTime + (s.deltaTime < float.MaxValue && !double.IsInfinity(s.deltaTime) ? s.deltaTime : 0),
-                    deltaV = this.deltaV + s.deltaV,
-                    parts = this.parts,
-                    isp = this.startMass == s.endMass ? 0 : (this.deltaV + s.deltaV) / (9.80665f * Math.Log(this.startMass / s.endMass))
-                };
-            }
-        }
     }
 
     //A FuelNode is a compact summary of a Part, containing only the information needed to run the fuel flow simulation.

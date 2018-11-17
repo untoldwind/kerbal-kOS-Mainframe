@@ -97,6 +97,7 @@
     <Compile Include="alglib\solvers.cs" />
     <Compile Include="alglib\specialfunctions.cs" />
     <Compile Include="alglib\statistics.cs" />
+    <Compile Include="VesselExtra\StageStats.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
