@@ -514,5 +514,12 @@ namespace kOSMainframe.Orbital
             if (time2 < time1 && time2 > UT) return time2;
             else return time1;
         }
+
+		public static Vector3d DeltaVToManeuverNodeCoordinates(this Orbit o, double UT, Vector3d dV)
+        {
+            return new Vector3d(Vector3d.Dot(o.RadialPlus(UT), dV),
+                                Vector3d.Dot(-o.NormalPlus(UT), dV),
+                                Vector3d.Dot(o.Prograde(UT), dV));
+        }
     }
 }
