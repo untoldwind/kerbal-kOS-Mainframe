@@ -38,6 +38,7 @@ namespace kOSMainframe
 			AddSuffix("CHANGE_APOAPSIS", new ThreeArgsSuffix<Node, OrbitInfo, ScalarValue, ScalarValue>(ChangeApoapsis, "Change apoapsis of given orbit (Orbit, UT, newApR"));
 			AddSuffix("MATCH_PLANES", new TwoArgsSuffix<Node, OrbitInfo, OrbitInfo>(MatchPlanes, "Match planes of two given orbits (orbit, target)"));
 			AddSuffix("HOHMANN", new TwoArgsSuffix<Node, OrbitInfo, OrbitInfo>(Hohmann, "Regular Hohmann transfer to orbit (orbit, target)"));
+			AddSuffix("BIIMPULSIVE", new TwoArgsSuffix<Node, OrbitInfo, OrbitInfo>(BiImpulsive));
 		}
 
 		private Node CircularizeOrbit(OrbitInfo orbitInfo) 
@@ -115,6 +116,17 @@ namespace kOSMainframe
 			var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForHohmannTransfer(orbit, target, UT, out burnUT);
 
 			return NodeFromDeltaV(orbit, deltaV, burnUT);
+		}
+
+		private Node BiImpulsive(OrbitInfo orbitInfo, OrbitInfo targetInfo)
+		{
+			var UT = Planetarium.GetUniversalTime();
+            var orbit = GetOrbitFromOrbitInfo(orbitInfo);
+            var target = GetOrbitFromOrbitInfo(targetInfo);
+			double burnUT = 0;
+			var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForBiImpulsiveAnnealed(orbit, target, UT, out burnUT);
+
+            return NodeFromDeltaV(orbit, deltaV, burnUT);
 		}
 
 		private Node NodeFromDeltaV(Orbit orbit, Vector3d deltaV, double UT) {
