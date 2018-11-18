@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using kOS;
+using kOS.Serialization;
 using kOS.Suffixed.Part;
 using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
@@ -10,7 +11,7 @@ namespace kOSMainframe.VesselExtra
 {
 	//A Stats struct describes the result of the simulation over a certain interval of time (e.g., one stage)
 	[kOS.Safe.Utilities.KOSNomenclature("StageStats")]
-	public class StageStats : Structure
+	public class StageStats : Structure, IHasSharedObjects
 	{
 		public double startMass;
 		public double endMass;
@@ -28,11 +29,11 @@ namespace kOSMainframe.VesselExtra
 
 		public List<Part> parts;
 
-		private readonly SharedObjects shared;
+		public SharedObjects Shared { get; set; }
 
-		public StageStats(SharedObjects shared)
+		public StageStats(SharedObjects sharedObj)
 		{
-			this.shared = shared;
+			Shared = sharedObj;
 			InitializeSuffixes();
 		}
 
@@ -52,7 +53,7 @@ namespace kOSMainframe.VesselExtra
 		//Append joins two Stats describing adjacent intervals of time into one describing the combined interval
 		public StageStats Append(StageStats s)
 		{
-			return new StageStats(shared)
+			return new StageStats(Shared)
 			{
 				startMass = this.startMass,
 				endMass = s.endMass,
@@ -82,7 +83,7 @@ namespace kOSMainframe.VesselExtra
         
 		private ListValue GetEngines()
 		{
-			return PartValueFactory.Construct(parts.Where(part => part.IsEngine()), shared);
+			return PartValueFactory.Construct(parts.Where(part => part.IsEngine()), Shared);
 		}
 
 		public override String ToString()

@@ -98,6 +98,8 @@
     <Compile Include="alglib\specialfunctions.cs" />
     <Compile Include="alglib\statistics.cs" />
     <Compile Include="VesselExtra\StageStats.cs" />
+    <Compile Include="Maneuver.cs" />
+    <Compile Include="Utils\FourArgsSuffix.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
