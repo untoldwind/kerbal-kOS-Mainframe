@@ -13,18 +13,15 @@ namespace kOSMainframe
 	[kOS.Safe.Utilities.KOSNomenclature("MainFrameAddon")]
 	public class kOSMainFrameAddon : kOS.Suffixed.Addon
     {
-		private Maneuvers maneuvers;
-
 		public kOSMainFrameAddon(SharedObjects shared) : base(shared)
         {
-			this.maneuvers = new Maneuvers(shared);
             InitializeSuffixes();
         }
 
         private void InitializeSuffixes()
         {
 			Debug.Log("MainFrame booting...");
-			AddSuffix("MANEUVERS", new Suffix<Maneuvers>(() => maneuvers));
+			AddSuffix("MANEUVERS", new OneArgsSuffix<Maneuvers, OrbitInfo>(GetManeuvers, "Get maneuvers for a given orbit"));
 			AddSuffix("STAGESTATS_VAC", new Suffix<ListValue>(() => GetStageStatsVac(shared.Vessel)));
 			AddSuffix("STAGESTATS_ATM", new Suffix<ListValue>(() => GetStageStatsAtm(shared.Vessel)));
 			AddSuffix("TARGET_STAGESTATS_VAC", new OneArgsSuffix<ListValue, VesselTarget>(GetStageStatsVacForVessel, "Get vacuum stage stats of vessel"));
@@ -70,6 +67,11 @@ namespace kOSMainframe
             }
 
             return list;
+        }
+
+        private Maneuvers GetManeuvers(OrbitInfo orbitInfo)
+        {
+            return new Maneuvers(shared, orbitInfo);
         }
     }
 }
