@@ -100,10 +100,18 @@
     <Compile Include="VesselExtra\StageStats.cs" />
     <Compile Include="Maneuver.cs" />
     <Compile Include="Utils\FourArgsSuffix.cs" />
+    <Compile Include="VesselLaunch.cs" />
+    <Compile Include="VesselLanding.cs" />
+    <Compile Include="Landing\ReentrySimulation.cs" />
+    <Compile Include="Landing\IDescentSpeedPolicy.cs" />
+    <Compile Include="Landing\SafeDescentSpeedPolicy.cs" />
+    <Compile Include="Landing\PoweredCoastDescentSpeedPolicy.cs" />
+    <Compile Include="Landing\GravityTurnDescentSpeedPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
     <Folder Include="UnityToolbag\" />
+    <Folder Include="Landing\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

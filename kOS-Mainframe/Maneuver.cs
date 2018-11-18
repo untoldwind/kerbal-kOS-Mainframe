@@ -22,9 +22,17 @@ namespace kOSMainframe
         private readonly Orbit orbit;
         private double minUT;
 
-		public Maneuvers(SharedObjects sharedObj, OrbitInfo orbitInfo)
+        public Maneuvers(SharedObjects sharedObjs)
         {
-			Shared = sharedObj;
+            Shared = sharedObjs;
+            this.orbit = sharedObjs.Vessel.orbit;
+            this.minUT = Planetarium.GetUniversalTime();
+            InitializeSuffixes();
+        }
+
+        public Maneuvers(SharedObjects sharedObjs, OrbitInfo orbitInfo)
+        {
+			Shared = sharedObjs;
             this.orbit = GetOrbitFromOrbitInfo(orbitInfo);
             this.minUT = Planetarium.GetUniversalTime();
             InitializeSuffixes();

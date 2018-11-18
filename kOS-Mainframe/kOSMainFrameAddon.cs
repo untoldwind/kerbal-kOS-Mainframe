@@ -21,8 +21,13 @@ namespace kOSMainframe
         private void InitializeSuffixes()
         {
 			Debug.Log("MainFrame booting...");
-			AddSuffix("MANEUVERS", new OneArgsSuffix<Maneuvers, OrbitInfo>(GetManeuvers, "Get maneuvers for a given orbit"));
-			AddSuffix("STAGESTATS_VAC", new Suffix<ListValue>(() => GetStageStatsVac(shared.Vessel)));
+            AddSuffix("MANEUVERS", new Suffix<Maneuvers>(() => new Maneuvers(shared), "Get maneuvers for current vessel"));
+			AddSuffix("MANEUVERS_FOR", new OneArgsSuffix<Maneuvers, OrbitInfo>(GetManeuvers, "Get maneuvers for a given orbit"));
+            AddSuffix("LAUNCH", new Suffix<VesselLaunch>(() => new VesselLaunch(shared), "Get launch helper for current vessel"));
+            AddSuffix("LAUNCH_FOR", new OneArgsSuffix<VesselLaunch, VesselTarget>(GetLaunch, "Get launch helper for given vessel"));
+            AddSuffix("LANDING", new Suffix<VesselLanding>(() => new VesselLanding(shared), "Get landing helper for current vessel"));
+            AddSuffix("LANDING_FOR", new OneArgsSuffix<VesselLanding, VesselTarget>(GetLanding, "Get landing helper for given vessel"));
+            AddSuffix("STAGESTATS_VAC", new Suffix<ListValue>(() => GetStageStatsVac(shared.Vessel)));
 			AddSuffix("STAGESTATS_ATM", new Suffix<ListValue>(() => GetStageStatsAtm(shared.Vessel)));
 			AddSuffix("TARGET_STAGESTATS_VAC", new OneArgsSuffix<ListValue, VesselTarget>(GetStageStatsVacForVessel, "Get vacuum stage stats of vessel"));
 			AddSuffix("TARGET_STAGESTATS_ATM", new OneArgsSuffix<ListValue, VesselTarget>(GetStageAtmForVessel, "Get atmospheric stage stats of vessel (based on current height)"));
@@ -72,6 +77,16 @@ namespace kOSMainframe
         private Maneuvers GetManeuvers(OrbitInfo orbitInfo)
         {
             return new Maneuvers(shared, orbitInfo);
+        }
+
+        private VesselLaunch GetLaunch(VesselTarget vessel)
+        {
+            return new VesselLaunch(shared, vessel);
+        }
+
+        private VesselLanding GetLanding(VesselTarget vessel)
+        {
+            return new VesselLanding(shared, vessel);
         }
     }
 }
