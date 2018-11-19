@@ -115,6 +115,7 @@
     <Compile Include="Simulation\SimulatedParachute.cs" />
     <Compile Include="Simulation\SimulatedPart.cs" />
     <Compile Include="Simulation\SimulatedVessel.cs" />
+    <Compile Include="Utils\GLUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
