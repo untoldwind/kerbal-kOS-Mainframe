@@ -1,4 +1,6 @@
 ﻿using System;
+using UnityEngine;
+
 namespace kOSMainframe.ExtraMath
 {
     public static class MathExtensions
@@ -41,6 +43,16 @@ namespace kOSMainframe.ExtraMath
             var rand_normal = mu + sigma * rand_std_normal;
 
             return rand_normal;
+        }
+
+        public static Vector3 ProjectIntoPlane(this Vector3 vector, Vector3 planeNormal)
+        {
+            return vector - Vector3.Project(vector, planeNormal);
+        }
+
+        public static Vector3d ProjectOnPlane(this Vector3d vector, Vector3d planeNormal)
+        {
+            return vector - Vector3d.Project(vector, planeNormal);
         }
     }
 }

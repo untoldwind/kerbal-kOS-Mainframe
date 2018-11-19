@@ -107,11 +107,20 @@
     <Compile Include="Landing\SafeDescentSpeedPolicy.cs" />
     <Compile Include="Landing\PoweredCoastDescentSpeedPolicy.cs" />
     <Compile Include="Landing\GravityTurnDescentSpeedPolicy.cs" />
+    <Compile Include="Landing\AbsoluteVector.cs" />
+    <Compile Include="Landing\ReferenceFrame.cs" />
+    <Compile Include="Landing\CelestialBodyExtensions.cs" />
+    <Compile Include="Landing\Result.cs" />
+    <Compile Include="Simulation\SimCurves.cs" />
+    <Compile Include="Simulation\SimulatedParachute.cs" />
+    <Compile Include="Simulation\SimulatedPart.cs" />
+    <Compile Include="Simulation\SimulatedVessel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
     <Folder Include="UnityToolbag\" />
     <Folder Include="Landing\" />
+    <Folder Include="Simulation\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
