@@ -1,22 +1,45 @@
-﻿using System;
-using UnityEngine;
+﻿using KramaxReloadExtensions;
+using kOSMainframe.Debugging;
 
 namespace kOSMainframe
 {
-	[KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, false)]
-	public class kOSMainFramePlugin : MonoBehaviour
+	[KSPAddon(KSPAddon.Startup.Flight, false)]
+	public class kOSMainFramePlugin : ReloadableMonoBehaviour
     {
+        private DebuggingControl debuggingWindow = new DebuggingControl();
+        private int instanceId = -1;
+
 		public kOSMainFramePlugin()
         {
-			Debug.Log("Mainframe started");
+			Logging.Debug("Mainframe started");
         }
 
 		void Awake() {
-			Debug.Log("Mainframe woke up");
+            Logging.Debug("Mainframe woke up");
 		}
 
 		void Start() {
-			Debug.Log("Mainframe starts");
+            Logging.Debug("Mainframe starts");
 		}
+
+        void OnGUI()
+        {
+            if(debuggingWindow == null)
+            {
+                return;
+            }
+
+            if (instanceId < 0)
+            {
+                instanceId = GetInstanceID();
+            }
+
+            debuggingWindow.Draw(instanceId);
+        }
+
+        void OnDestroy()
+        {
+            Logging.Debug("Mainframe destroy");
+        }
     }
 }

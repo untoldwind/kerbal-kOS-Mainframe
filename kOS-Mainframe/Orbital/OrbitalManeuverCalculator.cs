@@ -992,13 +992,13 @@ namespace kOSMainframe.Orbital
             return ejectionVelocity - preEjectionVelocity;
         }
 
-        public static Vector3d DeltaVAndTimeForMoonReturnEjection(Orbit o, double UT, double targetPrimaryRadius, out double burnUT)
+        public static Vector3d DeltaVAndTimeForMoonReturnEjection(Orbit o, double UT, double targetPrimaryPeriapsis, out double burnUT)
         {
             CelestialBody moon = o.referenceBody;
             CelestialBody primary = moon.referenceBody;
 
             //construct an orbit at the target radius around the primary, in the same plane as the moon. This is a fake target
-            Orbit primaryOrbit = new Orbit(moon.orbit.inclination, moon.orbit.eccentricity, targetPrimaryRadius, moon.orbit.LAN, moon.orbit.argumentOfPeriapsis, moon.orbit.meanAnomalyAtEpoch, moon.orbit.epoch, primary);
+            Orbit primaryOrbit = new Orbit(moon.orbit.inclination, moon.orbit.eccentricity, primary.Radius + targetPrimaryPeriapsis, moon.orbit.LAN, moon.orbit.argumentOfPeriapsis, moon.orbit.meanAnomalyAtEpoch, moon.orbit.epoch, primary);
 
             return DeltaVAndTimeForInterplanetaryTransferEjection(o, UT, primaryOrbit, false, out burnUT);
         }

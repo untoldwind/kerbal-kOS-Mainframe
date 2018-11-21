@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
+using KramaxReloadExtensions;
 
 namespace kOSMainframe.UnityToolbag
 {
@@ -9,7 +10,7 @@ namespace kOSMainframe.UnityToolbag
     /// A system for dispatching code to execute on the main thread.
     /// </summary>
     [AddComponentMenu("UnityToolbag/Dispatcher")]
-    public class Dispatcher : MonoBehaviour
+    public class Dispatcher : ReloadableMonoBehaviour
     {
         private static Dispatcher _instance;
 
