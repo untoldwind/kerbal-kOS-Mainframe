@@ -442,10 +442,12 @@ namespace kOSMainframe.Orbital {
             else return time1;
         }
 
-        public static Vector3d DeltaVToManeuverNodeCoordinates(this Orbit o, double UT, Vector3d dV) {
-            return new Vector3d(Vector3d.Dot(o.RadialPlus(UT), dV),
+        public static NodeParameters DeltaVToNode(this Orbit o, double UT, Vector3d dV) {
+            return new NodeParameters(UT,
+                                Vector3d.Dot(o.RadialPlus(UT), dV),
                                 Vector3d.Dot(-o.NormalPlus(UT), dV),
-                                Vector3d.Dot(o.Prograde(UT), dV));
+                                Vector3d.Dot(o.Prograde(UT), dV),
+                                dV);
         }
     }
 }

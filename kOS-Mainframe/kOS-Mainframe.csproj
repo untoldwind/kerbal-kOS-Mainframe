@@ -123,6 +123,8 @@
     <Compile Include="Debugging\DebuggingControl.cs" />
     <Compile Include="Debugging\WindowContent.cs" />
     <Compile Include="Logging.cs" />
+    <Compile Include="Orbital\OrbitChange.cs" />
+    <Compile Include="Orbital\NodeParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

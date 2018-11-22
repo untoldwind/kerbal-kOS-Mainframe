@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using kOS.Suffixed;
 
 namespace kOSMainframe.Orbital {
     public static class Helper {

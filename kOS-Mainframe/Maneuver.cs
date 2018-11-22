@@ -26,21 +26,21 @@ namespace kOSMainframe {
         public Maneuvers(SharedObjects sharedObjs) {
             Shared = sharedObjs;
             this.orbit = sharedObjs.Vessel.orbit;
-            this.minUT = Planetarium.GetUniversalTime();
+            this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
 
         public Maneuvers(SharedObjects sharedObjs, OrbitInfo orbitInfo) {
             Shared = sharedObjs;
             this.orbit = GetOrbitFromOrbitInfo(orbitInfo);
-            this.minUT = Planetarium.GetUniversalTime();
+            this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
 
         private void InitializeSuffixes() {
             AddSuffix("MIN_TIME", new SetSuffix<TimeSpan>(GetMinTime, SetMinTime));
             AddSuffix("CIRCULARIZE", new NoArgsSuffix<Node>(CircularizeOrbit, "Circularize the given orbit at apoapsis if possible, otherwise at periapsis"));
-            AddSuffix("CIRCULARIZE_AT", new OneArgsSuffix<Node, ScalarValue>(CircularizeOrbitAt, "Circularize the given orbit at the given time"));
+            AddSuffix("CIRCULARIZE_AT", new OneArgsSuffix<Node, TimeSpan>(CircularizeOrbitAt, "Circularize the given orbit at the given time"));
             AddSuffix("ELLIPTICIZE", new ThreeArgsSuffix<Node, ScalarValue, ScalarValue, ScalarValue>(EllipticizeOrbit, "Ellipticize the given orbit (UT, newPeR, newApR"));
             AddSuffix("CHANGE_PERIAPSIS", new TwoArgsSuffix<Node, ScalarValue, ScalarValue>(ChangePeriapsis, "Change periapsis of given orbit (UT, newPeR"));
             AddSuffix("CHANGE_APOAPSIS", new TwoArgsSuffix<Node, ScalarValue, ScalarValue>(ChangeApoapsis, "Change apoapsis of given orbit (UT, newApR"));
@@ -65,19 +65,17 @@ namespace kOSMainframe {
         }
 
         private Node CircularizeOrbit() {
-            var UT = minUT;
+            double UT = minUT;
             if(orbit.eccentricity < 1) {
                 UT = orbit.NextApoapsisTime(UT);
             } else {
                 UT = orbit.NextPeriapsisTime(UT);
             }
-            return CircularizeOrbitAt(UT);
+            return OrbitChange.Circularize(orbit, UT).ToKOS(Shared);
         }
 
-        private Node CircularizeOrbitAt(ScalarValue UT) {
-            var deltaV = OrbitalManeuverCalculator.DeltaVToCircularize(orbit, System.Math.Max(UT, minUT));
-
-            return NodeFromDeltaV(deltaV, UT);
+        private Node CircularizeOrbitAt(TimeSpan time) {
+            return OrbitChange.Circularize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(Shared);
         }
 
         private Node EllipticizeOrbit(ScalarValue UT, ScalarValue newPeR, ScalarValue newApR) {
@@ -187,9 +185,7 @@ namespace kOSMainframe {
         }
 
         private Node NodeFromDeltaV(Vector3d deltaV, double UT) {
-            var nodeV = orbit.DeltaVToManeuverNodeCoordinates(UT, deltaV);
-
-            return new Node(UT, nodeV.x, nodeV.y, nodeV.z, Shared);
+            return orbit.DeltaVToNode(UT, deltaV).ToKOS(Shared);
         }
 
         private static Orbit GetOrbitFromOrbitInfo(OrbitInfo orbitInfo) {

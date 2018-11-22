@@ -48,12 +48,9 @@ namespace kOSMainframe.Debugging {
                 Vessel.patchedConicSolver.RemoveManeuverNode(n);
             }
 
-            var nodeV = Vessel.orbit.DeltaVToManeuverNodeCoordinates(UT, deltaV);
-            var node = Vessel.patchedConicSolver.AddManeuverNode(UT);
+            var nodeParams = Vessel.orbit.DeltaVToNode(UT, deltaV);
 
-            node.DeltaV = nodeV;
-
-            Vessel.patchedConicSolver.UpdateFlightPlan();
+            nodeParams.AddToVessel(Vessel);
         }
     }
 }

@@ -5,19 +5,6 @@ using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitalManeuverCalculator {
-        //Computes the speed of a circular orbit of a given radius for a given body.
-        public static double CircularOrbitSpeed(CelestialBody body, double radius) {
-            //v = sqrt(GM/r)
-            return Math.Sqrt(body.gravParameter / radius);
-        }
-
-        //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
-        public static Vector3d DeltaVToCircularize(Orbit o, double UT) {
-            Vector3d desiredVelocity = CircularOrbitSpeed(o.referenceBody, o.Radius(UT)) * o.Horizontal(UT);
-            Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
-            return desiredVelocity - actualVelocity;
-        }
-
         //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
         public static Vector3d DeltaVToEllipticize(Orbit o, double UT, double newPeR, double newApR) {
             double radius = o.Radius(UT);
@@ -177,7 +164,7 @@ namespace kOSMainframe.Orbital {
         public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
             CelestialBody body = vessel.mainBody;
             double latitudeDegrees = vessel.latitude;
-            double orbVel = OrbitalManeuverCalculator.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
+            double orbVel = OrbitChange.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
             double headingOne = HeadingForInclination(inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double headingTwo = HeadingForInclination(-inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double now = Planetarium.GetUniversalTime();
@@ -823,7 +810,7 @@ namespace kOSMainframe.Orbital {
 
             //time the ejection burn to intercept the target
             //idealDeltaV = DeltaVAndTimeForHohmannTransfer(planetOrbit, target, UT, out idealBurnUT);
-            double vesselOrbitVelocity = OrbitalManeuverCalculator.CircularOrbitSpeed(o.referenceBody, o.semiMajorAxis);
+            double vesselOrbitVelocity = OrbitChange.CircularOrbitSpeed(o.referenceBody, o.semiMajorAxis);
             idealDeltaV = DeltaVAndTimeForHohmannLambertTransfer(planetOrbit, target, UT, out idealBurnUT, vesselOrbitVelocity);
 
             Debug.Log("idealBurnUT = " + idealBurnUT + ", idealDeltaV = " + idealDeltaV);

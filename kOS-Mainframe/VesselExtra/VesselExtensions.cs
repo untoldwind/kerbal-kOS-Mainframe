@@ -112,32 +112,5 @@ namespace kOSMainframe.VesselExtra {
         public static double RelativeInclination(this Orbit a, Orbit b) {
             return Math.Abs(Vector3d.Angle(a.SwappedOrbitNormal(), b.SwappedOrbitNormal()));
         }
-
-        //input dV should be in world coordinates
-        public static ManeuverNode PlaceManeuverNode(this Vessel vessel, Orbit patch, Vector3d dV, double UT) {
-            //placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
-            //and log an exception if we get a bad dV vector:
-            for (int i = 0; i < 3; i++) {
-                if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i])) {
-                    throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad dV: " + dV);
-                }
-            }
-
-            if (double.IsNaN(UT) || double.IsInfinity(UT)) {
-                throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad UT: " + UT);
-            }
-
-            //It seems that sometimes the game can freak out if you place a maneuver node in the past, so this
-            //protects against that.
-            UT = Math.Max(UT, Planetarium.GetUniversalTime());
-
-            //convert a dV in world coordinates into the coordinate system of the maneuver node,
-            //which uses (x, y, z) = (radial+, normal-, prograde)
-            Vector3d nodeDV = patch.DeltaVToManeuverNodeCoordinates(UT, dV);
-            ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(UT);
-            mn.DeltaV = nodeDV;
-            vessel.patchedConicSolver.UpdateFlightPlan();
-            return mn;
-        }
     }
 }
