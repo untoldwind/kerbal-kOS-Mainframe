@@ -32,7 +32,7 @@ namespace kOSMainframe {
         }
 
         private ScalarValue HeadingForInclination(ScalarValue inclination) {
-            return OrbitalManeuverCalculator.HeadingForLaunchInclination(vessel, inclination);
+            return OrbitToGround.HeadingForLaunchInclination(vessel, inclination);
         }
     }
 }

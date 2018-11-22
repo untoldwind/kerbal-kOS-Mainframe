@@ -41,9 +41,9 @@ namespace kOSMainframe {
             AddSuffix("MIN_TIME", new SetSuffix<TimeSpan>(GetMinTime, SetMinTime));
             AddSuffix("CIRCULARIZE", new NoArgsSuffix<Node>(CircularizeOrbit, "Circularize the given orbit at apoapsis if possible, otherwise at periapsis"));
             AddSuffix("CIRCULARIZE_AT", new OneArgsSuffix<Node, TimeSpan>(CircularizeOrbitAt, "Circularize the given orbit at the given time"));
-            AddSuffix("ELLIPTICIZE", new ThreeArgsSuffix<Node, ScalarValue, ScalarValue, ScalarValue>(EllipticizeOrbit, "Ellipticize the given orbit (UT, newPeR, newApR"));
-            AddSuffix("CHANGE_PERIAPSIS", new TwoArgsSuffix<Node, ScalarValue, ScalarValue>(ChangePeriapsis, "Change periapsis of given orbit (UT, newPeR"));
-            AddSuffix("CHANGE_APOAPSIS", new TwoArgsSuffix<Node, ScalarValue, ScalarValue>(ChangeApoapsis, "Change apoapsis of given orbit (UT, newApR"));
+            AddSuffix("ELLIPTICIZE", new ThreeArgsSuffix<Node, TimeSpan, ScalarValue, ScalarValue>(EllipticizeOrbit, "Ellipticize the given orbit (UT, newPeR, newApR"));
+            AddSuffix("CHANGE_PERIAPSIS", new TwoArgsSuffix<Node, TimeSpan, ScalarValue>(ChangePeriapsis, "Change periapsis of given orbit (UT, newPeR"));
+            AddSuffix("CHANGE_APOAPSIS", new TwoArgsSuffix<Node, TimeSpan, ScalarValue>(ChangeApoapsis, "Change apoapsis of given orbit (UT, newApR"));
             AddSuffix("MATCH_PLANES", new OneArgsSuffix<Node, OrbitInfo>(MatchPlanes, "Match planes of given orbit with target orbit"));
             AddSuffix("HOHMANN", new OneArgsSuffix<Node, OrbitInfo>(Hohmann, "Regular Hohmann transfer from given orbit to target orbit"));
             AddSuffix("HOHMANN_LAMBERT", new TwoArgsSuffix<Node, OrbitInfo, ScalarValue>(HohmannLambert));
@@ -78,39 +78,31 @@ namespace kOSMainframe {
             return OrbitChange.Circularize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(Shared);
         }
 
-        private Node EllipticizeOrbit(ScalarValue UT, ScalarValue newPeR, ScalarValue newApR) {
-            var deltaV = OrbitalManeuverCalculator.DeltaVToEllipticize(orbit, System.Math.Max(UT, minUT), newPeR, newApR);
-
-            return NodeFromDeltaV(deltaV, UT);
+        private Node EllipticizeOrbit(TimeSpan time, ScalarValue newPeR, ScalarValue newApR) {
+            return OrbitChange.Ellipticize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(Shared);
         }
 
-        private Node ChangePeriapsis(ScalarValue UT, ScalarValue newPeR) {
-            var deltaV = OrbitalManeuverCalculator.DeltaVToChangePeriapsis(orbit, System.Math.Max(UT, minUT), newPeR);
-
-            return NodeFromDeltaV(deltaV, UT);
+        private Node ChangePeriapsis(TimeSpan time, ScalarValue newPeR) {
+            return OrbitChange.ChangePeriapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR).ToKOS(Shared);
         }
 
-        private Node ChangeApoapsis(ScalarValue UT, ScalarValue newApR) {
-            var deltaV = OrbitalManeuverCalculator.DeltaVToChangeApoapsis(orbit, System.Math.Max(UT, minUT), newApR);
-
-            return NodeFromDeltaV(deltaV, UT);
+        private Node ChangeApoapsis(TimeSpan time, ScalarValue newApR) {
+            return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(Shared);
         }
 
         private Node MatchPlanes(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
             var anExists = orbit.AscendingNodeExists(target);
             var dnExists = orbit.DescendingNodeExists(target);
-            double anTime = 0;
-            double dnTime = 0;
-            var anDeltaV = anExists ? OrbitalManeuverCalculator.DeltaVAndTimeToMatchPlanesAscending(orbit, target, minUT, out anTime) : Vector3d.zero;
-            var dnDeltaV = dnExists ? OrbitalManeuverCalculator.DeltaVAndTimeToMatchPlanesDescending(orbit, target, minUT, out dnTime) : Vector3d.zero;
+            var anNode = anExists ? OrbitMatch.MatchPlanesAscending(orbit, target, minUT) : NodeParameters.zero;
+            var dnNode = dnExists ? OrbitMatch.MatchPlanesDescending(orbit, target, minUT) : NodeParameters.zero;
 
             if(!anExists && !dnExists) {
                 throw new KOSException("neither ascending nor descending node with target exists.");
-            } else if(!dnExists || anTime < dnTime) {
-                return NodeFromDeltaV(anDeltaV, anTime);
+            } else if(!dnExists || anNode.time < dnNode.time) {
+                return anNode.ToKOS(Shared);
             } else {
-                return NodeFromDeltaV(dnDeltaV, dnTime);
+                return dnNode.ToKOS(Shared);
             }
         }
 

@@ -4,9 +4,7 @@ using kOSMainframe.Orbital;
 
 namespace kOSMainframe.Debugging {
     public class DebuggingControl {
-        Rect WindowRect = new Rect(50, 50, 10, 10);
-
-        GUILayoutOption[] WindowOptions = new[] { GUILayout.ExpandHeight(true) };
+        Rect WindowRect = new Rect(100, 100, 10, 10);
 
         List<IWindowContent> Contents;
 
@@ -18,13 +16,14 @@ namespace kOSMainframe.Debugging {
 
         public DebuggingControl() {
             Contents = new List<IWindowContent> {
-                new Button("ReturnFromMoon", ReturnFromMoon),
+                new Button("Circularize", Circularize),
+                new Param1Action("ReturnFromMoon", 100000, ReturnFromMoon),
             };
         }
 
         public void Draw(int instanceId) {
             GUI.skin = HighLogic.Skin;
-            GUILayout.Window(instanceId, WindowRect, DrawWindow, "kOS-MainFrame Debug", WindowOptions);
+            WindowRect = GUILayout.Window(instanceId, WindowRect, DrawWindow, "kOS-MainFrame Debug", GUILayout.ExpandHeight(true));
         }
 
         private void DrawWindow(int id) {
@@ -36,21 +35,33 @@ namespace kOSMainframe.Debugging {
             GUI.DragWindow();
         }
 
-        private void ReturnFromMoon() {
+        private void Circularize()
+        {
+            CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit, Planetarium.GetUniversalTime() + 20));
+        }
+        
+        private void ReturnFromMoon(double targetPrimaryPeriapsis) {
             double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForMoonReturnEjection(Vessel.orbit, Vessel.missionTime, 100000, out burnUT);
+            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForMoonReturnEjection(Vessel.orbit, Planetarium.GetUniversalTime(), targetPrimaryPeriapsis, out burnUT);
 
-            AddNodeFromDeltaV(deltaV, burnUT);
+            var node = CleanAndAddNode(Vessel.orbit.DeltaVToNode(burnUT, deltaV));
+
+            Logging.DumpOrbit("Current Orbit", Vessel.orbit);
+            var result = Vessel.orbit.PerturbedOrbit(burnUT, deltaV);
+            Logging.DumpOrbit("Result Orbit", result);
+            Logging.DumpOrbit("Next node patch", node.nextPatch);
+            Logging.DumpOrbit("Next node patch next", node.nextPatch.nextPatch);
+            var nextTime = result.NextTimeOfRadius(Planetarium.GetUniversalTime(), result.referenceBody.sphereOfInfluence);
+            Logging.Debug("NextTimeofRadius {0} {1}", nextTime, result.nextTT);
+            Logging.Debug("Next node time {0}", node.nextPatch.nextPatch.StartUT);
         }
 
-        private void AddNodeFromDeltaV(Vector3d deltaV, double UT) {
-            foreach (var n in Vessel.patchedConicSolver.maneuverNodes) {
-                Vessel.patchedConicSolver.RemoveManeuverNode(n);
+        private ManeuverNode CleanAndAddNode(NodeParameters nodeParams) {
+            if(Vessel.patchedConicSolver.maneuverNodes.Count > 0 ) { 
+            Vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
             }
 
-            var nodeParams = Vessel.orbit.DeltaVToNode(UT, deltaV);
-
-            nodeParams.AddToVessel(Vessel);
+            return nodeParams.AddToVessel(Vessel);
         }
-    }
+            }
 }

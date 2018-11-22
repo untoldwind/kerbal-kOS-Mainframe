@@ -6,6 +6,8 @@ namespace kOSMainframe.Orbital
 {
     public class NodeParameters
     {
+        public static readonly NodeParameters zero = new NodeParameters(0,0,0,0, Vector3d.zero);
+
         public readonly double time;
 
         public readonly double radialOut;
@@ -36,7 +38,7 @@ namespace kOSMainframe.Orbital
             }
         }
 
-        public void AddToVessel(Vessel vessel)
+        public ManeuverNode AddToVessel(Vessel vessel)
         {
             if(!Valid)
             {
@@ -48,6 +50,8 @@ namespace kOSMainframe.Orbital
             node.DeltaV = new Vector3d(this.radialOut, this.normal, this.prograde);
 
             vessel.patchedConicSolver.UpdateFlightPlan();
+
+            return node;
         }
 
         public Node ToKOS(SharedObjects sharedObj)

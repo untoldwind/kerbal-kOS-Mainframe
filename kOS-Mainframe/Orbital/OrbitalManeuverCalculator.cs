@@ -1,259 +1,9 @@
 ﻿using System;
 using kOSMainframe.ExtraMath;
-using kOSMainframe.VesselExtra;
 using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitalManeuverCalculator {
-        //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
-        public static Vector3d DeltaVToEllipticize(Orbit o, double UT, double newPeR, double newApR) {
-            double radius = o.Radius(UT);
-
-            //sanitize inputs
-            newPeR = Functions.Clamp(newPeR, 0 + 1, radius - 1);
-            newApR = Math.Max(newApR, radius + 1);
-
-            double GM = o.referenceBody.gravParameter;
-            double E = -GM / (newPeR + newApR); //total energy per unit mass of new orbit
-            double L = Math.Sqrt(Math.Abs((Math.Pow(E * (newApR - newPeR), 2) - GM * GM) / (2 * E))); //angular momentum per unit mass of new orbit
-            double kineticE = E + GM / radius; //kinetic energy (per unit mass) of new orbit at UT
-            double horizontalV = L / radius;   //horizontal velocity of new orbit at UT
-            double verticalV = Math.Sqrt(Math.Abs(2 * kineticE - horizontalV * horizontalV)); //vertical velocity of new orbit at UT
-
-            Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
-
-            //untested:
-            verticalV *= Math.Sign(Vector3d.Dot(o.Up(UT), actualVelocity));
-
-            Vector3d desiredVelocity = horizontalV * o.Horizontal(UT) + verticalV * o.Up(UT);
-            return desiredVelocity - actualVelocity;
-        }
-
-        //Computes the delta-V of the burn required to attain a given periapsis, starting from
-        //a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
-        //The computed burn is always horizontal, though this may not be strictly optimal.
-        public static Vector3d DeltaVToChangePeriapsis(Orbit o, double UT, double newPeR) {
-            double radius = o.Radius(UT);
-
-            //sanitize input
-            newPeR = Functions.Clamp(newPeR, 0 + 1, radius - 1);
-
-            //are we raising or lowering the periapsis?
-            bool raising = (newPeR > o.PeR);
-            Vector3d burnDirection = (raising ? 1 : -1) * o.Horizontal(UT);
-
-            double minDeltaV = 0;
-            double maxDeltaV;
-            if (raising) {
-                //put an upper bound on the required deltaV:
-                maxDeltaV = 0.25;
-                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).PeR < newPeR) {
-                    minDeltaV = maxDeltaV; //narrow the range
-                    maxDeltaV *= 2;
-                    if (maxDeltaV > 100000) break; //a safety precaution
-                }
-            } else {
-                //when lowering periapsis, we burn horizontally, and max possible deltaV is the deltaV required to kill all horizontal velocity
-                maxDeltaV = Math.Abs(Vector3d.Dot(o.SwappedOrbitalVelocityAtUT(UT), burnDirection));
-            }
-
-            //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01) {
-                double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
-                double testPeriapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).PeR;
-
-                if ((testPeriapsis > newPeR && raising) || (testPeriapsis < newPeR && !raising)) {
-                    maxDeltaV = testDeltaV;
-                } else {
-                    minDeltaV = testDeltaV;
-                }
-            }
-
-            return ((maxDeltaV + minDeltaV) / 2) * burnDirection;
-        }
-
-        public static bool ApoapsisIsHigher(double ApR, double than) {
-            if (than > 0 && ApR < 0) return true;
-            if (than < 0 && ApR > 0) return false;
-            return ApR > than;
-        }
-
-        //Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
-        //The computed burn is always prograde or retrograde, though this may not be strictly optimal.
-        //Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
-        public static Vector3d DeltaVToChangeApoapsis(Orbit o, double UT, double newApR) {
-            double radius = o.Radius(UT);
-
-            //sanitize input
-            if (newApR > 0) newApR = Math.Max(newApR, radius + 1);
-
-            //are we raising or lowering the periapsis?
-            bool raising = ApoapsisIsHigher(newApR, o.ApR);
-
-            Vector3d burnDirection = (raising ? 1 : -1) * o.Prograde(UT);
-
-            double minDeltaV = 0;
-            double maxDeltaV;
-            if (raising) {
-                //put an upper bound on the required deltaV:
-                maxDeltaV = 0.25;
-
-                double ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
-                while (ApoapsisIsHigher(newApR, ap)) {
-                    minDeltaV = maxDeltaV; //narrow the range
-                    maxDeltaV *= 2;
-                    ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
-                    if (maxDeltaV > 100000) break; //a safety precaution
-                }
-            } else {
-                //when lowering apoapsis, we burn retrograde, and max possible deltaV is total velocity
-                maxDeltaV = o.SwappedOrbitalVelocityAtUT(UT).magnitude;
-            }
-
-            //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01) {
-                double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
-                double testApoapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).ApR;
-
-                bool above = ApoapsisIsHigher(testApoapsis, newApR);
-
-                if ((raising && above) || (!raising && !above)) {
-                    maxDeltaV = testDeltaV;
-                } else {
-                    minDeltaV = testDeltaV;
-                }
-            }
-
-            return ((maxDeltaV + minDeltaV) / 2) * burnDirection;
-        }
-
-        //Computes the heading of the ground track of an orbit with a given inclination at a given latitude.
-        //Both inputs are in degrees.
-        //Convention: At equator, inclination    0 => heading 90 (east)
-        //                        inclination   90 => heading 0  (north)
-        //                        inclination  -90 => heading 180 (south)
-        //                        inclination ±180 => heading 270 (west)
-        //Returned heading is in degrees and in the range 0 to 360.
-        //If the given latitude is too large, so that an orbit with a given inclination never attains the
-        //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForInclination(double inclinationDegrees, double latitudeDegrees) {
-            double cosDesiredSurfaceAngle = Math.Cos(inclinationDegrees * UtilMath.Deg2Rad) / Math.Cos(latitudeDegrees * UtilMath.Deg2Rad);
-            if (Math.Abs(cosDesiredSurfaceAngle) > 1.0) {
-                //If inclination < latitude, we get this case: the desired inclination is impossible
-                if (Math.Abs(Functions.ClampDegrees180(inclinationDegrees)) < 90) return 90;
-                else return 270;
-            } else {
-                double angleFromEast = (UtilMath.Rad2Deg) * Math.Acos(cosDesiredSurfaceAngle); //an angle between 0 and 180
-                if (inclinationDegrees < 0) angleFromEast *= -1;
-                //now angleFromEast is between -180 and 180
-
-                return Functions.ClampDegrees360(90 - angleFromEast);
-            }
-        }
-
-        //See #676
-        //Computes the heading for a ground launch at the specified latitude accounting for the body rotation.
-        //Both inputs are in degrees.
-        //Convention: At equator, inclination    0 => heading 90 (east)
-        //                        inclination   90 => heading 0  (north)
-        //                        inclination  -90 => heading 180 (south)
-        //                        inclination ±180 => heading 270 (west)
-        //Returned heading is in degrees and in the range 0 to 360.
-        //If the given latitude is too large, so that an orbit with a given inclination never attains the
-        //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
-            CelestialBody body = vessel.mainBody;
-            double latitudeDegrees = vessel.latitude;
-            double orbVel = OrbitChange.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
-            double headingOne = HeadingForInclination(inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
-            double headingTwo = HeadingForInclination(-inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
-            double now = Planetarium.GetUniversalTime();
-            Orbit o = vessel.orbit;
-
-            Vector3d north = vessel.north;
-            Vector3d east = vessel.east;
-
-            Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(now), o.SwappedOrbitalVelocityAtUT(now));
-            Vector3d desiredHorizontalVelocityOne = orbVel * (Math.Sin(headingOne) * east + Math.Cos(headingOne) * north);
-            Vector3d desiredHorizontalVelocityTwo = orbVel * (Math.Sin(headingTwo) * east + Math.Cos(headingTwo) * north);
-
-            Vector3d deltaHorizontalVelocityOne = desiredHorizontalVelocityOne - actualHorizontalVelocity;
-            Vector3d deltaHorizontalVelocityTwo = desiredHorizontalVelocityTwo - actualHorizontalVelocity;
-
-            Vector3d desiredHorizontalVelocity;
-            Vector3d deltaHorizontalVelocity;
-
-            if (vessel.GetSpeedSurfaceHorizontal() < 200) {
-                // at initial launch we have to head the direction the user specifies (90 north instead of -90 south).
-                // 200 m/s of surface velocity also defines a 'grace period' where someone can catch a rocket that they meant
-                // to launch at -90 and typed 90 into the inclination box fast after it started to initiate the turn.
-                // if the rocket gets outside of the 200 m/s surface velocity envelope, then there is no way to tell MJ to
-                // take a south travelling rocket and turn north or vice versa.
-                desiredHorizontalVelocity = desiredHorizontalVelocityOne;
-                deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-            } else {
-                // now in order to get great circle tracks correct we pick the side which gives the lowest delta-V, which will get
-                // ground tracks that cross the maximum (or minimum) latitude of a great circle correct.
-                if (deltaHorizontalVelocityOne.magnitude < deltaHorizontalVelocityTwo.magnitude) {
-                    desiredHorizontalVelocity = desiredHorizontalVelocityOne;
-                    deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-                } else {
-                    desiredHorizontalVelocity = desiredHorizontalVelocityTwo;
-                    deltaHorizontalVelocity = deltaHorizontalVelocityTwo;
-                }
-            }
-
-            // if you circularize in one burn, towards the end deltaHorizontalVelocity will whip around, but we want to
-            // fall back to tracking desiredHorizontalVelocity
-            if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90) {
-                // it is important that we do NOT do the fracReserveDV math here, we want to ignore the deltaHV entirely at ths point
-                return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(desiredHorizontalVelocity, east), Vector3d.Dot(desiredHorizontalVelocity, north)));
-            }
-
-            return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(deltaHorizontalVelocity, east), Vector3d.Dot(deltaHorizontalVelocity, north)));
-        }
-
-        //Computes the delta-V of the burn required to change an orbit's inclination to a given value
-        //at a given UT. If the latitude at that time is too high, so that the desired inclination
-        //cannot be attained, the burn returned will achieve as low an inclination as possible (namely, inclination = latitude).
-        //The input inclination is in degrees.
-        //Note that there are two orbits through each point with a given inclination. The convention used is:
-        //   - first, clamp newInclination to the range -180, 180
-        //   - if newInclination > 0, do the cheaper burn to set that inclination
-        //   - if newInclination < 0, do the more expensive burn to set that inclination
-        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination) {
-            double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
-            double desiredHeading = HeadingForInclination(newInclination, latitude);
-            Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));
-            Vector3d eastComponent = actualHorizontalVelocity.magnitude * Math.Sin(UtilMath.Deg2Rad * desiredHeading) * o.East(UT);
-            Vector3d northComponent = actualHorizontalVelocity.magnitude * Math.Cos(UtilMath.Deg2Rad * desiredHeading) * o.North(UT);
-            if (Vector3d.Dot(actualHorizontalVelocity, northComponent) < 0) northComponent *= -1;
-            if (Functions.ClampDegrees180(newInclination) < 0) northComponent *= -1;
-            Vector3d desiredHorizontalVelocity = eastComponent + northComponent;
-            return desiredHorizontalVelocity - actualHorizontalVelocity;
-        }
-
-        //Computes the delta-V and time of a burn to match planes with the target orbit. The output burnUT
-        //will be equal to the time of the first ascending node with respect to the target after the given UT.
-        //Throws an ArgumentException if o is hyperbolic and doesn't have an ascending node relative to the target.
-        public static Vector3d DeltaVAndTimeToMatchPlanesAscending(Orbit o, Orbit target, double UT, out double burnUT) {
-            burnUT = o.TimeOfAscendingNode(target, UT);
-            Vector3d desiredHorizontal = Vector3d.Cross(target.SwappedOrbitNormal(), o.Up(burnUT));
-            Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(burnUT), o.SwappedOrbitalVelocityAtUT(burnUT));
-            Vector3d desiredHorizontalVelocity = actualHorizontalVelocity.magnitude * desiredHorizontal;
-            return desiredHorizontalVelocity - actualHorizontalVelocity;
-        }
-
-        //Computes the delta-V and time of a burn to match planes with the target orbit. The output burnUT
-        //will be equal to the time of the first descending node with respect to the target after the given UT.
-        //Throws an ArgumentException if o is hyperbolic and doesn't have a descending node relative to the target.
-        public static Vector3d DeltaVAndTimeToMatchPlanesDescending(Orbit o, Orbit target, double UT, out double burnUT) {
-            burnUT = o.TimeOfDescendingNode(target, UT);
-            Vector3d desiredHorizontal = Vector3d.Cross(target.SwappedOrbitNormal(), o.Up(burnUT));
-            Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(burnUT), o.SwappedOrbitalVelocityAtUT(burnUT));
-            Vector3d desiredHorizontalVelocity = actualHorizontalVelocity.magnitude * desiredHorizontal;
-            return desiredHorizontalVelocity - actualHorizontalVelocity;
-        }
 
         //Computes the dV of a Hohmann transfer burn at time UT that will put the apoapsis or periapsis
         //of the transfer orbit on top of the target orbit.
@@ -268,7 +18,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d dV;
             if (desiredApsis > o.ApR) {
-                dV = DeltaVToChangeApoapsis(o, UT, desiredApsis);
+                dV = OrbitChange.ChangeApoapsis(o, UT, desiredApsis).deltaV;
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferApTime = transferOrbit.NextApoapsisTime(UT);
                 Vector3d transferApDirection = transferOrbit.SwappedRelativePositionAtApoapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
@@ -276,7 +26,7 @@ namespace kOSMainframe.Orbital {
                 double meanAnomalyOffset = 360 * (target.TimeOfTrueAnomaly(targetTrueAnomaly, UT) - transferApTime) / target.period;
                 apsisPhaseAngle = meanAnomalyOffset;
             } else {
-                dV = DeltaVToChangePeriapsis(o, UT, desiredApsis);
+                dV = OrbitChange.ChangePeriapsis(o, UT, desiredApsis).deltaV;
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferPeTime = transferOrbit.NextPeriapsisTime(UT);
                 Vector3d transferPeDirection = transferOrbit.SwappedRelativePositionAtPeriapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
@@ -488,8 +238,8 @@ namespace kOSMainframe.Orbital {
             } else {
                 //don't time the ejection burn to intercept the target; we just care about the final peri/apoapsis
                 idealBurnUT = UT;
-                if (target.semiMajorAxis < planetOrbit.semiMajorAxis) idealDeltaV = DeltaVToChangePeriapsis(planetOrbit, idealBurnUT, target.semiMajorAxis);
-                else idealDeltaV = DeltaVToChangeApoapsis(planetOrbit, idealBurnUT, target.semiMajorAxis);
+                if (target.semiMajorAxis < planetOrbit.semiMajorAxis) idealDeltaV = OrbitChange.ChangePeriapsis(planetOrbit, idealBurnUT, target.semiMajorAxis).deltaV;
+                else idealDeltaV = OrbitChange.ChangeApoapsis(planetOrbit, idealBurnUT, target.semiMajorAxis).deltaV;
             }
 
             //Compute the actual transfer orbit this ideal burn would lead to.
@@ -920,9 +670,9 @@ namespace kOSMainframe.Orbital {
                 return Vector3d.zero;
 
             if (f > 1)
-                return OrbitalManeuverCalculator.DeltaVToChangeApoapsis(o, UT, x);
+                return OrbitChange.ChangeApoapsis(o, UT, x).deltaV;
             else
-                return OrbitalManeuverCalculator.DeltaVToChangePeriapsis(o, UT, x);
+                return OrbitChange.ChangePeriapsis(o, UT, x).deltaV;
         }
 
         // Compute the angular distance between two points on a unit sphere

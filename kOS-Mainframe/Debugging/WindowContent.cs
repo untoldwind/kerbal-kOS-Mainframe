@@ -27,4 +27,39 @@ namespace kOSMainframe.Debugging {
                 OnClick();
         }
     }
+
+    public class Param1Action : IWindowContent
+    {
+        public string Text
+        {
+            get;
+            set;
+        }
+        public Action<double> OnClick
+        {
+            get;
+            set;
+        }
+        public string Value
+        {
+            get;
+            set;
+        }
+
+        public Param1Action(string text, double value, Action<double> onClick)
+        {
+            Text = text;
+            Value = value.ToString();
+            OnClick = onClick;
+        }
+
+        public void Draw()
+        {
+            GUILayout.BeginHorizontal();
+            Value = GUILayout.TextField(Value, GUILayout.ExpandWidth(true));
+            if (GUILayout.Button(Text))
+                OnClick(double.Parse(Value));
+            GUILayout.EndHorizontal();
+        }
+    }
 }

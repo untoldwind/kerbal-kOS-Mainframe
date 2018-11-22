@@ -101,7 +101,7 @@
     <Compile Include="alglib\specialfunctions.cs" />
     <Compile Include="alglib\statistics.cs" />
     <Compile Include="VesselExtra\StageStats.cs" />
-    <Compile Include="Maneuver.cs" />
+    <Compile Include="Maneuvers.cs" />
     <Compile Include="Utils\FourArgsSuffix.cs" />
     <Compile Include="VesselLaunch.cs" />
     <Compile Include="VesselLanding.cs" />
@@ -125,6 +125,8 @@
     <Compile Include="Logging.cs" />
     <Compile Include="Orbital\OrbitChange.cs" />
     <Compile Include="Orbital\NodeParameters.cs" />
+    <Compile Include="Orbital\OrbitToGround.cs" />
+    <Compile Include="Orbital\OrbitMatch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
