@@ -9,18 +9,14 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace KramaxReloadExtensions
-{
-    public class ReloadableMonoBehaviour : MonoBehaviour
-    {
-        public MonoBehaviour AddComponentToObject(Type type, GameObject aGameObject)
-        {
+namespace KramaxReloadExtensions {
+    public class ReloadableMonoBehaviour : MonoBehaviour {
+        public MonoBehaviour AddComponentToObject(Type type, GameObject aGameObject) {
             var result = aGameObject.AddComponent(type) as MonoBehaviour;
             return result;
         }
 
-        public MonoBehaviour AddComponent(Type type)
-        {
+        public MonoBehaviour AddComponent(Type type) {
             return this.AddComponentToObject(type, this.gameObject);
         }
     }

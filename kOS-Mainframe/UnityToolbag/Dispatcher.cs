@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.Threading;
 using KramaxReloadExtensions;
 
-namespace kOSMainframe.UnityToolbag
-{
+namespace kOSMainframe.UnityToolbag {
     /// <summary>
     /// A system for dispatching code to execute on the main thread.
     /// </summary>
     [AddComponentMenu("UnityToolbag/Dispatcher")]
-    public class Dispatcher : ReloadableMonoBehaviour
-    {
+    public class Dispatcher : ReloadableMonoBehaviour {
         private static Dispatcher _instance;
 
         // We can't use the behaviour reference from other threads, so we use a separate bool
@@ -25,10 +23,8 @@ namespace kOSMainframe.UnityToolbag
         /// <summary>
         /// Gets a value indicating whether or not the current thread is the game's main thread.
         /// </summary>
-        public static bool isMainThread
-        {
-            get
-            {
+        public static bool isMainThread {
+            get {
                 return Thread.CurrentThread == _mainThread;
             }
         }
@@ -37,23 +33,17 @@ namespace kOSMainframe.UnityToolbag
         /// Queues an action to be invoked on the main game thread.
         /// </summary>
         /// <param name="action">The action to be queued.</param>
-        public static void InvokeAsync(Action action)
-        {
-            if (!_instanceExists)
-            {
+        public static void InvokeAsync(Action action) {
+            if (!_instanceExists) {
                 Debug.LogError("No Dispatcher exists in the scene. Actions will not be invoked!");
                 return;
             }
 
-            if (isMainThread)
-            {
+            if (isMainThread) {
                 // Don't bother queuing work on the main thread; just execute it.
                 action();
-            }
-            else
-            {
-                lock (_lockObject)
-                {
+            } else {
+                lock (_lockObject) {
                     _actions.Enqueue(action);
                 }
             }
@@ -64,37 +54,29 @@ namespace kOSMainframe.UnityToolbag
         /// current thread until the action has been executed.
         /// </summary>
         /// <param name="action">The action to be queued.</param>
-        public static void Invoke(Action action)
-        {
-            if (!_instanceExists)
-            {
+        public static void Invoke(Action action) {
+            if (!_instanceExists) {
                 Debug.LogError("No Dispatcher exists in the scene. Actions will not be invoked!");
                 return;
             }
 
             bool hasRun = false;
 
-            InvokeAsync(() =>
-            {
+            InvokeAsync(() => {
                 action();
                 hasRun = true;
             });
 
             // Lock until the action has run
-            while (!hasRun)
-            {
+            while (!hasRun) {
                 Thread.Sleep(5);
             }
         }
 
-        void Awake()
-        {
-            if (_instance)
-            {
+        void Awake() {
+            if (_instance) {
                 DestroyImmediate(this);
-            }
-            else
-            {
+            } else {
                 _instance = this;
                 _instanceExists = true;
                 _mainThread = Thread.CurrentThread;
@@ -102,28 +84,22 @@ namespace kOSMainframe.UnityToolbag
             }
         }
 
-        void OnDestroy()
-        {
-            if (_instance == this)
-            {
+        void OnDestroy() {
+            if (_instance == this) {
                 _instance = null;
                 _instanceExists = false;
             }
         }
 
-        void Update()
-        {
-            lock (_lockObject)
-            {
-                while (_actions.Count > 0)
-                {
+        void Update() {
+            lock (_lockObject) {
+                while (_actions.Count > 0) {
                     _actions.Dequeue()();
                 }
             }
         }
 
-        public static void CreateDispatcher()
-        {
+        public static void CreateDispatcher() {
             if (_instanceExists)
                 return;
             Debug.Log("[MechJeb2] Starting the Dispatcher");

@@ -6,35 +6,32 @@ using kOS.Safe.Encapsulation.Suffixes;
 using System;
 using kOSMainframe.Orbital;
 
-namespace kOSMainframe
-{
+namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("VesselLaunch")]
-    public class VesselLaunch : Structure, IHasSharedObjects
-    {
-        public SharedObjects Shared { get; set; }
+    public class VesselLaunch : Structure, IHasSharedObjects {
+        public SharedObjects Shared {
+            get;
+            set;
+        }
         private readonly Vessel vessel;
 
-        public VesselLaunch(SharedObjects sharedObjs)
-        {
+        public VesselLaunch(SharedObjects sharedObjs) {
             Shared = sharedObjs;
             this.vessel = sharedObjs.Vessel;
             InitializeSuffixes();
         }
 
-        public VesselLaunch(SharedObjects sharedObjs, VesselTarget vessel)
-        {
+        public VesselLaunch(SharedObjects sharedObjs, VesselTarget vessel) {
             Shared = sharedObjs;
             this.vessel = vessel.Vessel;
             InitializeSuffixes();
         }
 
-        private void InitializeSuffixes()
-        {
+        private void InitializeSuffixes() {
             AddSuffix("HEADING_FOR_INCLINATION", new OneArgsSuffix<ScalarValue, ScalarValue>(HeadingForInclination));
         }
 
-        private ScalarValue HeadingForInclination(ScalarValue inclination)
-        {
+        private ScalarValue HeadingForInclination(ScalarValue inclination) {
             return OrbitalManeuverCalculator.HeadingForLaunchInclination(vessel, inclination);
         }
     }

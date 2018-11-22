@@ -7,12 +7,10 @@ using Smooth.Pools;
 using Smooth.Dispose;
 using UnityEngine;
 
-namespace kOSMainframe.Landing
-{
+namespace kOSMainframe.Landing {
     public enum Outcome { LANDED, AEROBRAKED, TIMED_OUT, NO_REENTRY, ERROR }
 
-    public struct prediction
-    {
+    public struct prediction {
         // debuging
         public double firstDrag;
         public double firstLift;
@@ -21,8 +19,7 @@ namespace kOSMainframe.Landing
         public double dynamicPressurekPa;
     }
 
-    public class Result
-    {
+    public class Result {
         public double maxdt;
         public int steps;
 
@@ -72,31 +69,28 @@ namespace kOSMainframe.Landing
 
         private static readonly Pool<Result> pool = new Pool<Result>(Create, Reset);
 
-        public static int PoolSize
-        {
-            get { return pool.Size; }
+        public static int PoolSize {
+            get {
+                return pool.Size;
+            }
         }
 
-        private static Result Create()
-        {
+        private static Result Create() {
             return new Result();
         }
 
-        public void Release()
-        {
+        public void Release() {
             if (trajectory != null)
                 ListPool<AbsoluteVector>.Instance.Release(trajectory);
             exception = null;
             pool.Release(this);
         }
 
-        private static void Reset(Result obj)
-        {
+        private static void Reset(Result obj) {
             obj.aeroBrake = false;
         }
 
-        public static Result Borrow()
-        {
+        public static Result Borrow() {
             Result result = pool.Borrow();
             return result;
         }
@@ -104,43 +98,35 @@ namespace kOSMainframe.Landing
         // debuging
         public prediction prediction;
 
-        public Vector3d RelativeEndPosition()
-        {
+        public Vector3d RelativeEndPosition() {
             return WorldEndPosition() - body.position;
         }
 
-        public Vector3d WorldEndPosition()
-        {
+        public Vector3d WorldEndPosition() {
             return referenceFrame.WorldPositionAtCurrentTime(endPosition);
         }
 
-        public Vector3d WorldEndVelocity()
-        {
+        public Vector3d WorldEndVelocity() {
             return referenceFrame.WorldVelocityAtCurrentTime(endVelocity);
         }
 
-        public Orbit EndOrbit()
-        {
+        public Orbit EndOrbit() {
             return Helper.OrbitFromStateVectors(WorldEndPosition(), WorldEndVelocity(), body, endUT);
         }
 
-        public Vector3d WorldAeroBrakePosition()
-        {
+        public Vector3d WorldAeroBrakePosition() {
             return referenceFrame.WorldPositionAtCurrentTime(aeroBrakePosition);
         }
 
-        public Vector3d WorldAeroBrakeVelocity()
-        {
+        public Vector3d WorldAeroBrakeVelocity() {
             return referenceFrame.WorldVelocityAtCurrentTime(aeroBrakeVelocity);
         }
 
-        public Orbit AeroBrakeOrbit()
-        {
+        public Orbit AeroBrakeOrbit() {
             return Helper.OrbitFromStateVectors(WorldAeroBrakePosition(), WorldAeroBrakeVelocity(), body, endUT);
         }
 
-        public Disposable<List<Vector3d>> WorldTrajectory(double timeStep, bool world = true)
-        {
+        public Disposable<List<Vector3d>> WorldTrajectory(double timeStep, bool world = true) {
             Disposable<List<Vector3d>> ret = ListPool<Vector3d>.Instance.BorrowDisposable();
 
             if (trajectory.Count == 0) return ret;
@@ -150,11 +136,9 @@ namespace kOSMainframe.Landing
             else
                 ret.value.Add(referenceFrame.BodyPositionAtCurrentTime(trajectory[0]));
             double lastTime = trajectory[0].UT;
-            for (int i = 0; i < trajectory.Count; i++)
-            {
+            for (int i = 0; i < trajectory.Count; i++) {
                 AbsoluteVector absolute = trajectory[i];
-                if (absolute.UT > lastTime + timeStep)
-                {
+                if (absolute.UT > lastTime + timeStep) {
                     if (world)
                         ret.value.Add(referenceFrame.WorldPositionAtCurrentTime(absolute));
                     else
@@ -166,8 +150,7 @@ namespace kOSMainframe.Landing
         }
 
         // A method to calculate the overshoot (length of the component of the vector from the target to the actual landing position that is parallel to the vector from the start position to the target site.)
-        public double GetOvershoot(double targetLatitude, double targetLongitude)
-        {
+        public double GetOvershoot(double targetLatitude, double targetLongitude) {
             // Get the start, end and target positions as a set of 3d vectors that we can work with
             Vector3 end = this.body.GetWorldSurfacePosition(endPosition.latitude, endPosition.longitude, 0) - body.position;
             Vector3 target = this.body.GetWorldSurfacePosition(targetLatitude, targetLongitude, 0) - body.position;
@@ -177,8 +160,7 @@ namespace kOSMainframe.Landing
             Vector3 start2Target = target - start;
             Vector3 orthog1 = Vector3.Cross(start2Target, Vector3.up);
             // check for the spaecial case where start2target is parrallel to up. If it is then the result will be zero,and we need to try again
-            if (orthog1 == Vector3.up)
-            {
+            if (orthog1 == Vector3.up) {
                 orthog1 = Vector3.Cross(start2Target, Vector3.forward);
             }
             Vector3 orthog2 = Vector3.Cross(start2Target, orthog1);
@@ -194,16 +176,19 @@ namespace kOSMainframe.Landing
             return overshootLength;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             string resultText = "Simulation result\n{";
 
             resultText += "Inputs:\n{";
-            if (null != input_initialOrbit) { resultText += "\n input_initialOrbit: " + input_initialOrbit.ToString(); }
+            if (null != input_initialOrbit) {
+                resultText += "\n input_initialOrbit: " + input_initialOrbit.ToString();
+            }
             resultText += "\n input_UT: " + input_UT;
             //resultText += "\n input_dragMassExcludingUsedParachutes: " + input_dragMassExcludingUsedParachutes;
             resultText += "\n input_mass: " + input_mass;
-            if (null != input_descentSpeedPolicy) { resultText += "\n input_descentSpeedPolicy: " + input_descentSpeedPolicy.ToString(); }
+            if (null != input_descentSpeedPolicy) {
+                resultText += "\n input_descentSpeedPolicy: " + input_descentSpeedPolicy.ToString();
+            }
             resultText += "\n input_decelEndAltitudeASL: " + input_decelEndAltitudeASL;
             resultText += "\n input_maxThrustAccel: " + input_maxThrustAccel;
             resultText += "\n input_parachuteSemiDeployMultiplier: " + input_parachuteSemiDeployMultiplier;
@@ -216,8 +201,12 @@ namespace kOSMainframe.Landing
             resultText += "\nmaxdt: " + maxdt;
             resultText += "\ntimeToComplete: " + timeToComplete;
             resultText += "\nendUT: " + endUT;
-            if (null != referenceFrame) { resultText += "\nstartPosition: " + referenceFrame.WorldPositionAtCurrentTime(startPosition); }
-            if (null != referenceFrame) { resultText += "\nendPosition: " + referenceFrame.WorldPositionAtCurrentTime(endPosition); }
+            if (null != referenceFrame) {
+                resultText += "\nstartPosition: " + referenceFrame.WorldPositionAtCurrentTime(startPosition);
+            }
+            if (null != referenceFrame) {
+                resultText += "\nendPosition: " + referenceFrame.WorldPositionAtCurrentTime(endPosition);
+            }
             resultText += "\nendASL: " + endASL;
             resultText += "\nendVelocity: " + endVelocity.longitude + "," + endVelocity.latitude + "," + endVelocity.radius;
             resultText += "\nmaxDragGees: " + maxDragGees;

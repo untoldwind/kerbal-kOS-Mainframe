@@ -5,7 +5,7 @@ Copyright (c) Sergey Bochkanov (ALGLIB project).
 >>> SOURCE LICENSE >>>
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation (www.fsf.org); either version 2 of the 
+the Free Software Foundation (www.fsf.org); either version 2 of the
 License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -22,41 +22,62 @@ http://www.fsf.org/licensing/licenses
 #pragma warning disable 219
 using System;
 
-public partial class alglib
-{
+public partial class alglib {
 
 
     /*************************************************************************
 
     *************************************************************************/
-    public class odesolverstate : alglibobject
-    {
+    public class odesolverstate : alglibobject {
         //
         // Public declarations
         //
-        public bool needdy { get { return _innerobj.needdy; } set { _innerobj.needdy = value; } }
-        public double[] y { get { return _innerobj.y; } }
-        public double[] dy { get { return _innerobj.dy; } }
-        public double x { get { return _innerobj.x; } set { _innerobj.x = value; } }
-    
-        public odesolverstate()
-        {
+        public bool needdy {
+            get {
+                return _innerobj.needdy;
+            }
+            set {
+                _innerobj.needdy = value;
+            }
+        }
+        public double[] y {
+            get {
+                return _innerobj.y;
+            }
+        }
+        public double[] dy {
+            get {
+                return _innerobj.dy;
+            }
+        }
+        public double x {
+            get {
+                return _innerobj.x;
+            }
+            set {
+                _innerobj.x = value;
+            }
+        }
+
+        public odesolverstate() {
             _innerobj = new odesolver.odesolverstate();
         }
-        
-        public override alglib.alglibobject make_copy()
-        {
+
+        public override alglib.alglibobject make_copy() {
             return new odesolverstate((odesolver.odesolverstate)_innerobj.make_copy());
         }
-    
+
         //
         // Although some of declarations below are public, you should not use them
         // They are intended for internal use only
         //
         private odesolver.odesolverstate _innerobj;
-        public odesolver.odesolverstate innerobj { get { return _innerobj; } }
-        public odesolverstate(odesolver.odesolverstate obj)
-        {
+        public odesolver.odesolverstate innerobj {
+            get {
+                return _innerobj;
+            }
+        }
+        public odesolverstate(odesolver.odesolverstate obj) {
             _innerobj = obj;
         }
     }
@@ -65,36 +86,50 @@ public partial class alglib
     /*************************************************************************
 
     *************************************************************************/
-    public class odesolverreport : alglibobject
-    {
+    public class odesolverreport : alglibobject {
         //
         // Public declarations
         //
-        public int nfev { get { return _innerobj.nfev; } set { _innerobj.nfev = value; } }
-        public int terminationtype { get { return _innerobj.terminationtype; } set { _innerobj.terminationtype = value; } }
-    
-        public odesolverreport()
-        {
+        public int nfev {
+            get {
+                return _innerobj.nfev;
+            }
+            set {
+                _innerobj.nfev = value;
+            }
+        }
+        public int terminationtype {
+            get {
+                return _innerobj.terminationtype;
+            }
+            set {
+                _innerobj.terminationtype = value;
+            }
+        }
+
+        public odesolverreport() {
             _innerobj = new odesolver.odesolverreport();
         }
-        
-        public override alglib.alglibobject make_copy()
-        {
+
+        public override alglib.alglibobject make_copy() {
             return new odesolverreport((odesolver.odesolverreport)_innerobj.make_copy());
         }
-    
+
         //
         // Although some of declarations below are public, you should not use them
         // They are intended for internal use only
         //
         private odesolver.odesolverreport _innerobj;
-        public odesolver.odesolverreport innerobj { get { return _innerobj; } }
-        public odesolverreport(odesolver.odesolverreport obj)
-        {
+        public odesolver.odesolverreport innerobj {
+            get {
+                return _innerobj;
+            }
+        }
+        public odesolverreport(odesolver.odesolverreport obj) {
             _innerobj = obj;
         }
     }
-    
+
     /*************************************************************************
     Cash-Karp adaptive ODE solver.
 
@@ -142,33 +177,30 @@ public partial class alglib
       -- ALGLIB --
          Copyright 01.09.2009 by Bochkanov Sergey
     *************************************************************************/
-    public static void odesolverrkck(double[] y, int n, double[] x, int m, double eps, double h, out odesolverstate state)
-    {
+    public static void odesolverrkck(double[] y, int n, double[] x, int m, double eps, double h, out odesolverstate state) {
         state = new odesolverstate();
         odesolver.odesolverrkck(y, n, x, m, eps, h, state.innerobj);
         return;
     }
-    public static void odesolverrkck(double[] y, double[] x, double eps, double h, out odesolverstate state)
-    {
+    public static void odesolverrkck(double[] y, double[] x, double eps, double h, out odesolverstate state) {
         int n;
         int m;
-    
+
         state = new odesolverstate();
         n = ap.len(y);
         m = ap.len(x);
         odesolver.odesolverrkck(y, n, x, m, eps, h, state.innerobj);
-    
+
         return;
     }
-    
+
     /*************************************************************************
     This function provides reverse communication interface
     Reverse communication interface is not documented or recommended to use.
     See below for functions which provide better documented API
     *************************************************************************/
-    public static bool odesolveriteration(odesolverstate state)
-    {
-    
+    public static bool odesolveriteration(odesolverstate state) {
+
         bool result = odesolver.odesolveriteration(state.innerobj);
         return result;
     }
@@ -184,14 +216,11 @@ public partial class alglib
          Copyright 01.09.2009 by Bochkanov Sergey
 
     *************************************************************************/
-    public static void odesolversolve(odesolverstate state, ndimensional_ode_rp diff, object obj)
-    {
+    public static void odesolversolve(odesolverstate state, ndimensional_ode_rp diff, object obj) {
         if( diff==null )
             throw new alglibexception("ALGLIB: error in 'odesolversolve()' (diff is null)");
-        while( alglib.odesolveriteration(state) )
-        {
-            if( state.needdy )
-            {
+        while( alglib.odesolveriteration(state) ) {
+            if( state.needdy ) {
                 diff(state.innerobj.y, state.innerobj.x, state.innerobj.dy, obj);
                 continue;
             }
@@ -200,7 +229,7 @@ public partial class alglib
     }
 
 
-    
+
     /*************************************************************************
     ODE solver results
 
@@ -224,8 +253,7 @@ public partial class alglib
       -- ALGLIB --
          Copyright 01.09.2009 by Bochkanov Sergey
     *************************************************************************/
-    public static void odesolverresults(odesolverstate state, out int m, out double[] xtbl, out double[,] ytbl, out odesolverreport rep)
-    {
+    public static void odesolverresults(odesolverstate state, out int m, out double[] xtbl, out double[,] ytbl, out odesolverreport rep) {
         m = 0;
         xtbl = new double[0];
         ytbl = new double[0,0];
@@ -235,12 +263,9 @@ public partial class alglib
     }
 
 }
-public partial class alglib
-{
-    public class odesolver
-    {
-        public class odesolverstate : apobject
-        {
+public partial class alglib {
+    public class odesolver {
+        public class odesolverstate : apobject {
             public int n;
             public int m;
             public double xscale;
@@ -266,12 +291,10 @@ public partial class alglib
             public double[,] rkb;
             public double[,] rkk;
             public rcommstate rstate;
-            public odesolverstate()
-            {
+            public odesolverstate() {
                 init();
             }
-            public override void init()
-            {
+            public override void init() {
                 yc = new double[0];
                 escale = new double[0];
                 xg = new double[0];
@@ -287,8 +310,7 @@ public partial class alglib
                 rkk = new double[0,0];
                 rstate = new rcommstate();
             }
-            public override alglib.apobject make_copy()
-            {
+            public override alglib.apobject make_copy() {
                 odesolverstate _result = new odesolverstate();
                 _result.n = n;
                 _result.m = m;
@@ -320,19 +342,15 @@ public partial class alglib
         };
 
 
-        public class odesolverreport : apobject
-        {
+        public class odesolverreport : apobject {
             public int nfev;
             public int terminationtype;
-            public odesolverreport()
-            {
+            public odesolverreport() {
                 init();
             }
-            public override void init()
-            {
+            public override void init() {
             }
-            public override alglib.apobject make_copy()
-            {
+            public override alglib.apobject make_copy() {
                 odesolverreport _result = new odesolverreport();
                 _result.nfev = nfev;
                 _result.terminationtype = terminationtype;
@@ -395,13 +413,12 @@ public partial class alglib
              Copyright 01.09.2009 by Bochkanov Sergey
         *************************************************************************/
         public static void odesolverrkck(double[] y,
-            int n,
-            double[] x,
-            int m,
-            double eps,
-            double h,
-            odesolverstate state)
-        {
+                                         int n,
+                                         double[] x,
+                                         int m,
+                                         double eps,
+                                         double h,
+                                         odesolverstate state) {
             alglib.ap.assert(n>=1, "ODESolverRKCK: N<1!");
             alglib.ap.assert(m>=1, "ODESolverRKCK: M<1!");
             alglib.ap.assert(alglib.ap.len(y)>=n, "ODESolverRKCK: Length(Y)<N!");
@@ -420,8 +437,7 @@ public partial class alglib
           -- ALGLIB --
              Copyright 01.09.2009 by Bochkanov Sergey
         *************************************************************************/
-        public static bool odesolveriteration(odesolverstate state)
-        {
+        public static bool odesolveriteration(odesolverstate state) {
             bool result = new bool();
             int n = 0;
             int m = 0;
@@ -438,7 +454,7 @@ public partial class alglib
             int klimit = 0;
             int i_ = 0;
 
-            
+
             //
             // Reverse communication preparations
             // I know it looks ugly, but it works the same way
@@ -449,8 +465,7 @@ public partial class alglib
             //   generation - on first subroutine call
             // * values from previous call - on subsequent calls
             //
-            if( state.rstate.stage>=0 )
-            {
+            if( state.rstate.stage>=0 ) {
                 n = state.rstate.ia[0];
                 m = state.rstate.ia[1];
                 i = state.rstate.ia[2];
@@ -464,9 +479,7 @@ public partial class alglib
                 h2 = state.rstate.ra[3];
                 err = state.rstate.ra[4];
                 maxgrowpow = state.rstate.ra[5];
-            }
-            else
-            {
+            } else {
                 n = 359;
                 m = -58;
                 i = -919;
@@ -481,20 +494,18 @@ public partial class alglib
                 err = 939;
                 maxgrowpow = -526;
             }
-            if( state.rstate.stage==0 )
-            {
+            if( state.rstate.stage==0 ) {
                 goto lbl_0;
             }
-            
+
             //
             // Routine body
             //
-            
+
             //
             // prepare
             //
-            if( state.repterminationtype!=0 )
-            {
+            if( state.repterminationtype!=0 ) {
                 result = false;
                 return result;
             }
@@ -503,22 +514,21 @@ public partial class alglib
             h = state.h;
             maxgrowpow = Math.Pow(odesolvermaxgrow, 5);
             state.repnfev = 0;
-            
+
             //
             // some preliminary checks for internal errors
             // after this we assume that H>0 and M>1
             //
             alglib.ap.assert((double)(state.h)>(double)(0), "ODESolver: internal error");
             alglib.ap.assert(m>1, "ODESolverIteration: internal error");
-            
+
             //
             // choose solver
             //
-            if( state.solvertype!=0 )
-            {
+            if( state.solvertype!=0 ) {
                 goto lbl_1;
             }
-            
+
             //
             // Cask-Karp solver
             // Prepare coefficients table.
@@ -562,7 +572,7 @@ public partial class alglib
             state.rkcs[4] = (double)277/(double)14336;
             state.rkcs[5] = (double)1/(double)4;
             state.rkk = new double[6, n];
-            
+
             //
             // Main cycle consists of two iterations:
             // * outer where we travel from X[i-1] to X[i]
@@ -573,55 +583,47 @@ public partial class alglib
             state.yn = new double[n];
             state.yns = new double[n];
             xc = state.xg[0];
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.ytbl[0,i_] = state.yc[i_];
             }
-            for(j=0; j<=n-1; j++)
-            {
+            for(j=0; j<=n-1; j++) {
                 state.escale[j] = 0;
             }
             i = 1;
-        lbl_3:
-            if( i>m-1 )
-            {
+            lbl_3:
+            if( i>m-1 ) {
                 goto lbl_5;
             }
-            
+
             //
             // begin inner iteration
             //
-        lbl_6:
-            if( false )
-            {
+            lbl_6:
+            if( false ) {
                 goto lbl_7;
             }
-            
+
             //
             // truncate step if needed (beyond right boundary).
             // determine should we store X or not
             //
-            if( (double)(xc+h)>=(double)(state.xg[i]) )
-            {
+            if( (double)(xc+h)>=(double)(state.xg[i]) ) {
                 h = state.xg[i]-xc;
                 gridpoint = true;
-            }
-            else
-            {
+            } else {
                 gridpoint = false;
             }
-            
+
             //
             // Update error scale maximums
             //
             // These maximums are initialized by zeros,
             // then updated every iterations.
             //
-            for(j=0; j<=n-1; j++)
-            {
+            for(j=0; j<=n-1; j++) {
                 state.escale[j] = Math.Max(state.escale[j], Math.Abs(state.yc[j]));
             }
-            
+
             //
             // make one step:
             // 1. calculate all info needed to do step
@@ -633,161 +635,139 @@ public partial class alglib
             // replaced by x=xscale*t, and dy/dx=f(y,x) is replaced
             // by dy/dt=xscale*f(y,xscale*t).
             //
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yn[i_] = state.yc[i_];
             }
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yns[i_] = state.yc[i_];
             }
             k = 0;
-        lbl_8:
-            if( k>5 )
-            {
+            lbl_8:
+            if( k>5 ) {
                 goto lbl_10;
             }
-            
+
             //
             // prepare data for the next update of YN/YNS
             //
             state.x = state.xscale*(xc+state.rka[k]*h);
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.y[i_] = state.yc[i_];
             }
-            for(j=0; j<=k-1; j++)
-            {
+            for(j=0; j<=k-1; j++) {
                 v = state.rkb[k,j];
-                for(i_=0; i_<=n-1;i_++)
-                {
+                for(i_=0; i_<=n-1; i_++) {
                     state.y[i_] = state.y[i_] + v*state.rkk[j,i_];
                 }
             }
             state.needdy = true;
             state.rstate.stage = 0;
             goto lbl_rcomm;
-        lbl_0:
+            lbl_0:
             state.needdy = false;
             state.repnfev = state.repnfev+1;
             v = h*state.xscale;
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.rkk[k,i_] = v*state.dy[i_];
             }
-            
+
             //
             // update YN/YNS
             //
             v = state.rkc[k];
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yn[i_] = state.yn[i_] + v*state.rkk[k,i_];
             }
             v = state.rkcs[k];
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yns[i_] = state.yns[i_] + v*state.rkk[k,i_];
             }
             k = k+1;
             goto lbl_8;
-        lbl_10:
-            
+            lbl_10:
+
             //
             // estimate error
             //
             err = 0;
-            for(j=0; j<=n-1; j++)
-            {
-                if( !state.fraceps )
-                {
-                    
+            for(j=0; j<=n-1; j++) {
+                if( !state.fraceps ) {
+
                     //
                     // absolute error is estimated
                     //
                     err = Math.Max(err, Math.Abs(state.yn[j]-state.yns[j]));
-                }
-                else
-                {
-                    
+                } else {
+
                     //
                     // Relative error is estimated
                     //
                     v = state.escale[j];
-                    if( (double)(v)==(double)(0) )
-                    {
+                    if( (double)(v)==(double)(0) ) {
                         v = 1;
                     }
                     err = Math.Max(err, Math.Abs(state.yn[j]-state.yns[j])/v);
                 }
             }
-            
+
             //
             // calculate new step, restart if necessary
             //
-            if( (double)(maxgrowpow*err)<=(double)(state.eps) )
-            {
+            if( (double)(maxgrowpow*err)<=(double)(state.eps) ) {
                 h2 = odesolvermaxgrow*h;
-            }
-            else
-            {
+            } else {
                 h2 = h*Math.Pow(state.eps/err, 0.2);
             }
-            if( (double)(h2)<(double)(h/odesolvermaxshrink) )
-            {
+            if( (double)(h2)<(double)(h/odesolvermaxshrink) ) {
                 h2 = h/odesolvermaxshrink;
             }
-            if( (double)(err)>(double)(state.eps) )
-            {
+            if( (double)(err)>(double)(state.eps) ) {
                 h = h2;
                 goto lbl_6;
             }
-            
+
             //
             // advance position
             //
             xc = xc+h;
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yc[i_] = state.yn[i_];
             }
-            
+
             //
             // update H
             //
             h = h2;
-            
+
             //
             // break on grid point
             //
-            if( gridpoint )
-            {
+            if( gridpoint ) {
                 goto lbl_7;
             }
             goto lbl_6;
-        lbl_7:
-            
+            lbl_7:
+
             //
             // save result
             //
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.ytbl[i,i_] = state.yc[i_];
             }
             i = i+1;
             goto lbl_3;
-        lbl_5:
+            lbl_5:
             state.repterminationtype = 1;
             result = false;
             return result;
-        lbl_1:
+            lbl_1:
             result = false;
             return result;
-            
+
             //
             // Saving state
             //
-        lbl_rcomm:
+            lbl_rcomm:
             result = true;
             state.rstate.ia[0] = n;
             state.rstate.ia[1] = m;
@@ -830,11 +810,10 @@ public partial class alglib
              Copyright 01.09.2009 by Bochkanov Sergey
         *************************************************************************/
         public static void odesolverresults(odesolverstate state,
-            ref int m,
-            ref double[] xtbl,
-            ref double[,] ytbl,
-            odesolverreport rep)
-        {
+                                            ref int m,
+                                            ref double[] xtbl,
+                                            ref double[,] ytbl,
+                                            odesolverreport rep) {
             double v = 0;
             int i = 0;
             int i_ = 0;
@@ -844,27 +823,21 @@ public partial class alglib
             ytbl = new double[0,0];
 
             rep.terminationtype = state.repterminationtype;
-            if( rep.terminationtype>0 )
-            {
+            if( rep.terminationtype>0 ) {
                 m = state.m;
                 rep.nfev = state.repnfev;
                 xtbl = new double[state.m];
                 v = state.xscale;
-                for(i_=0; i_<=state.m-1;i_++)
-                {
+                for(i_=0; i_<=state.m-1; i_++) {
                     xtbl[i_] = v*state.xg[i_];
                 }
                 ytbl = new double[state.m, state.n];
-                for(i=0; i<=state.m-1; i++)
-                {
-                    for(i_=0; i_<=state.n-1;i_++)
-                    {
+                for(i=0; i<=state.m-1; i++) {
+                    for(i_=0; i_<=state.n-1; i_++) {
                         ytbl[i,i_] = state.ytbl[i,i_];
                     }
                 }
-            }
-            else
-            {
+            } else {
                 rep.nfev = 0;
             }
         }
@@ -874,19 +847,18 @@ public partial class alglib
         Internal initialization subroutine
         *************************************************************************/
         private static void odesolverinit(int solvertype,
-            double[] y,
-            int n,
-            double[] x,
-            int m,
-            double eps,
-            double h,
-            odesolverstate state)
-        {
+                                          double[] y,
+                                          int n,
+                                          double[] x,
+                                          int m,
+                                          double eps,
+                                          double h,
+                                          odesolverstate state) {
             int i = 0;
             double v = 0;
             int i_ = 0;
 
-            
+
             //
             // Prepare RComm
             //
@@ -895,71 +867,61 @@ public partial class alglib
             state.rstate.ra = new double[5+1];
             state.rstate.stage = -1;
             state.needdy = false;
-            
+
             //
             // check parameters.
             //
-            if( (n<=0 || m<1) || (double)(eps)==(double)(0) )
-            {
+            if( (n<=0 || m<1) || (double)(eps)==(double)(0) ) {
                 state.repterminationtype = -1;
                 return;
             }
-            if( (double)(h)<(double)(0) )
-            {
+            if( (double)(h)<(double)(0) ) {
                 h = -h;
             }
-            
+
             //
             // quick exit if necessary.
             // after this block we assume that M>1
             //
-            if( m==1 )
-            {
+            if( m==1 ) {
                 state.repnfev = 0;
                 state.repterminationtype = 1;
                 state.ytbl = new double[1, n];
-                for(i_=0; i_<=n-1;i_++)
-                {
+                for(i_=0; i_<=n-1; i_++) {
                     state.ytbl[0,i_] = y[i_];
                 }
                 state.xg = new double[m];
-                for(i_=0; i_<=m-1;i_++)
-                {
+                for(i_=0; i_<=m-1; i_++) {
                     state.xg[i_] = x[i_];
                 }
                 return;
             }
-            
+
             //
             // check again: correct order of X[]
             //
-            if( (double)(x[1])==(double)(x[0]) )
-            {
+            if( (double)(x[1])==(double)(x[0]) ) {
                 state.repterminationtype = -2;
                 return;
             }
-            for(i=1; i<=m-1; i++)
-            {
-                if( ((double)(x[1])>(double)(x[0]) && (double)(x[i])<=(double)(x[i-1])) || ((double)(x[1])<(double)(x[0]) && (double)(x[i])>=(double)(x[i-1])) )
-                {
+            for(i=1; i<=m-1; i++) {
+                if( ((double)(x[1])>(double)(x[0]) && (double)(x[i])<=(double)(x[i-1])) || ((double)(x[1])<(double)(x[0]) && (double)(x[i])>=(double)(x[i-1])) ) {
                     state.repterminationtype = -2;
                     return;
                 }
             }
-            
+
             //
             // auto-select H if necessary
             //
-            if( (double)(h)==(double)(0) )
-            {
+            if( (double)(h)==(double)(0) ) {
                 v = Math.Abs(x[1]-x[0]);
-                for(i=2; i<=m-1; i++)
-                {
+                for(i=2; i<=m-1; i++) {
                     v = Math.Min(v, Math.Abs(x[i]-x[i-1]));
                 }
                 h = 0.001*v;
             }
-            
+
             //
             // store parameters
             //
@@ -969,30 +931,24 @@ public partial class alglib
             state.eps = Math.Abs(eps);
             state.fraceps = (double)(eps)<(double)(0);
             state.xg = new double[m];
-            for(i_=0; i_<=m-1;i_++)
-            {
+            for(i_=0; i_<=m-1; i_++) {
                 state.xg[i_] = x[i_];
             }
-            if( (double)(x[1])>(double)(x[0]) )
-            {
+            if( (double)(x[1])>(double)(x[0]) ) {
                 state.xscale = 1;
-            }
-            else
-            {
+            } else {
                 state.xscale = -1;
-                for(i_=0; i_<=m-1;i_++)
-                {
+                for(i_=0; i_<=m-1; i_++) {
                     state.xg[i_] = -1*state.xg[i_];
                 }
             }
             state.yc = new double[n];
-            for(i_=0; i_<=n-1;i_++)
-            {
+            for(i_=0; i_<=n-1; i_++) {
                 state.yc[i_] = y[i_];
             }
             state.solvertype = solvertype;
             state.repterminationtype = 0;
-            
+
             //
             // Allocate arrays
             //

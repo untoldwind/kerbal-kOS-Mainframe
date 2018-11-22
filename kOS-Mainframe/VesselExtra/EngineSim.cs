@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Smooth.Pools;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class EngineSim
-    {
+namespace kOSMainframe.VesselExtra {
+    public class EngineSim {
         private static readonly Pool<EngineSim> pool = new Pool<EngineSim>(Create, Reset);
 
         private readonly ResourceContainer resourceConsumptions = new ResourceContainer();
@@ -32,21 +30,18 @@ namespace kOSMainframe.VesselExtra
         // Add thrust vector to account for directional losses
         public Vector3 thrustVec;
 
-        private static EngineSim Create()
-        {
+        private static EngineSim Create() {
             return new EngineSim();
         }
 
-        private static void Reset(EngineSim engineSim)
-        {
+        private static void Reset(EngineSim engineSim) {
             engineSim.resourceConsumptions.Reset();
             engineSim.resourceFlowModes.Reset();
             engineSim.partSim = null;
             engineSim.actualThrust = 0;
             engineSim.isActive = false;
             engineSim.isp = 0;
-            for (int i = 0; i < engineSim.appliedForces.Count; i++)
-            {
+            for (int i = 0; i < engineSim.appliedForces.Count; i++) {
                 engineSim.appliedForces[i].Release();
             }
             engineSim.appliedForces.Clear();
@@ -55,8 +50,7 @@ namespace kOSMainframe.VesselExtra
             engineSim.isFlamedOut = false;
         }
 
-        public void Release()
-        {
+        public void Release() {
             pool.Release(this);
         }
 
@@ -66,16 +60,15 @@ namespace kOSMainframe.VesselExtra
                                     float machNumber,
                                     bool vectoredThrust,
                                     bool fullThrust,
-                                    bool debug)
-        {
+                                    bool debug) {
             float maxFuelFlow = engineMod.maxFuelFlow;
             float minFuelFlow = engineMod.minFuelFlow;
             float thrustPercentage = engineMod.thrustPercentage;
             List<Transform> thrustTransforms = engineMod.thrustTransforms;
             List<float> thrustTransformMultipliers = engineMod.thrustTransformMultipliers;
             Vector3 vecThrust = CalculateThrustVector(vectoredThrust ? thrustTransforms : null,
-                                                        vectoredThrust ? thrustTransformMultipliers : null,
-                                                        debug);
+                                vectoredThrust ? thrustTransformMultipliers : null,
+                                debug);
             FloatCurve atmosphereCurve = engineMod.atmosphereCurve;
             bool atmChangeFlow = engineMod.atmChangeFlow;
             FloatCurve atmCurve = engineMod.useAtmCurve ? engineMod.atmCurve : null;
@@ -107,12 +100,10 @@ namespace kOSMainframe.VesselExtra
             engineSim.appliedForces.Clear();
 
             double flowRate = 0.0;
-            if (engineSim.partSim.hasVessel)
-            {
+            if (engineSim.partSim.hasVessel) {
                 if (debug) Debug.Log("hasVessel is true");
 
-                foreach (Propellant p in propellants)
-                {
+                foreach (Propellant p in propellants) {
                     if (p.ignoreForThrustCurve) continue;
                     double ratio = p.totalResourceAvailable / p.totalResourceCapacity;
                     if (ratio < thrustCurveRatio)
@@ -123,8 +114,7 @@ namespace kOSMainframe.VesselExtra
                 engineSim.isp = atmosphereCurve.Evaluate((float)atmosphere);
                 engineSim.thrust = GetThrust(Mathf.Lerp(minFuelFlow, maxFuelFlow, GetThrustPercent(thrustPercentage)) * flowModifier, engineSim.isp);
                 engineSim.actualThrust = engineSim.isActive ? resultingThrust : 0.0;
-                if (debug)
-                {
+                if (debug) {
                     Debug.Log("flowMod = " + flowModifier);
                     Debug.Log("isp     = " + engineSim.isp);
                     Debug.Log("thrust  = " + engineSim.thrust);
@@ -133,34 +123,25 @@ namespace kOSMainframe.VesselExtra
                     Debug.Log("resulting  = " + engineMod.resultingThrust);
                 }
 
-                if (throttleLocked)
-                {
+                if (throttleLocked) {
                     if (debug) Debug.Log("throttleLocked is true, using thrust for flowRate");
                     flowRate = GetFlowRate(engineSim.thrust, engineSim.isp);
-                }
-                else
-                {
-                    if (currentThrottle > 0.0f && engineSim.partSim.isLanded == false)
-                    {
+                } else {
+                    if (currentThrottle > 0.0f && engineSim.partSim.isLanded == false) {
                         if (debug) Debug.Log("throttled up and not landed, using actualThrust for flowRate");
                         flowRate = GetFlowRate(engineSim.actualThrust, engineSim.isp);
-                    }
-                    else
-                    {
+                    } else {
                         if (debug) Debug.Log("throttled down or landed, using thrust for flowRate");
                         flowRate = GetFlowRate(engineSim.thrust, engineSim.isp);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 if (debug) Debug.Log("hasVessel is false");
                 float flowModifier = GetFlowModifier(atmChangeFlow, atmCurve, CelestialBodies.SelectedBody.GetDensity(0), velCurve, machNumber, thrustCurve, thrustCurveRatio, ref engineSim.maxMach);
                 engineSim.isp = atmosphereCurve.Evaluate((float)atmosphere);
                 engineSim.thrust = GetThrust(Mathf.Lerp(minFuelFlow, maxFuelFlow, GetThrustPercent(thrustPercentage)) * flowModifier, engineSim.isp);
                 engineSim.actualThrust = 0d;
-                if (debug)
-                {
+                if (debug) {
                     Debug.Log("flowMod = " + flowModifier);
                     Debug.Log("isp     = " + engineSim.isp);
                     Debug.Log("thrust  = " + engineSim.thrust);
@@ -174,8 +155,7 @@ namespace kOSMainframe.VesselExtra
             if (debug) Debug.Log("flowRate = " + flowRate);
 
             float flowMass = 0f;
-            for (int i = 0; i < propellants.Count; ++i)
-            {
+            for (int i = 0; i < propellants.Count; ++i) {
                 Propellant propellant = propellants[i];
                 if (!propellant.ignoreForIsp)
                     flowMass += propellant.ratio * ResourceContainer.GetResourceDensity(propellant.id);
@@ -183,12 +163,10 @@ namespace kOSMainframe.VesselExtra
 
             if (debug) Debug.Log("flowMass = " + flowMass);
 
-            for (int i = 0; i < propellants.Count; ++i)
-            {
+            for (int i = 0; i < propellants.Count; ++i) {
                 Propellant propellant = propellants[i];
 
-                if (propellant.ignoreForIsp || propellant.name == "ElectricCharge" || propellant.name == "IntakeAir")
-                {
+                if (propellant.ignoreForIsp || propellant.name == "ElectricCharge" || propellant.name == "IntakeAir") {
                     continue;
                 }
 
@@ -203,8 +181,7 @@ namespace kOSMainframe.VesselExtra
                 engineSim.resourceFlowModes.Add(propellant.id, (double)propellant.GetFlowMode());
             }
 
-            for (int i = 0; i < thrustTransforms.Count; i++)
-            {
+            for (int i = 0; i < thrustTransforms.Count; i++) {
                 Transform thrustTransform = thrustTransforms[i];
                 Vector3d direction = thrustTransform.forward.normalized;
                 Vector3d position = thrustTransform.position;
@@ -216,16 +193,13 @@ namespace kOSMainframe.VesselExtra
             return engineSim;
         }
 
-        private static Vector3 CalculateThrustVector(List<Transform> thrustTransforms, List<float> thrustTransformMultipliers, bool debug)
-        {
-            if (thrustTransforms == null)
-            {
+        private static Vector3 CalculateThrustVector(List<Transform> thrustTransforms, List<float> thrustTransformMultipliers, bool debug) {
+            if (thrustTransforms == null) {
                 return Vector3.forward;
             }
 
             Vector3 thrustvec = Vector3.zero;
-            for (int i = 0; i < thrustTransforms.Count; ++i)
-            {
+            for (int i = 0; i < thrustTransforms.Count; ++i) {
                 Transform trans = thrustTransforms[i];
 
                 if (debug) Debug.Log("Transform = " + trans.forward.x + "," +  trans.forward.y + "," + trans.forward.z + "," + trans.forward.magnitude);
@@ -242,180 +216,149 @@ namespace kOSMainframe.VesselExtra
             return thrustvec;
         }
 
-        public static float GetFlowModifier(bool atmChangeFlow, FloatCurve atmCurve, double atmDensity, FloatCurve velCurve, float machNumber, FloatCurve thrustCurve, float thrustCurveRatio, ref float maxMach)
-        {
+        public static float GetFlowModifier(bool atmChangeFlow, FloatCurve atmCurve, double atmDensity, FloatCurve velCurve, float machNumber, FloatCurve thrustCurve, float thrustCurveRatio, ref float maxMach) {
             float flowModifier = 1.0f;
-            if (atmChangeFlow)
-            {
+            if (atmChangeFlow) {
                 flowModifier = (float)(atmDensity / 1.225);
-                if (atmCurve != null)
-                {
+                if (atmCurve != null) {
                     flowModifier = atmCurve.Evaluate(flowModifier);
                 }
             }
-            if (velCurve != null)
-            {
+            if (velCurve != null) {
                 flowModifier = flowModifier * velCurve.Evaluate(machNumber);
                 maxMach = velCurve.maxTime;
             }
-            if (thrustCurve != null)
-            {
+            if (thrustCurve != null) {
                 flowModifier = flowModifier * thrustCurve.Evaluate(thrustCurveRatio);
             }
-            if (flowModifier < float.Epsilon)
-            {
+            if (flowModifier < float.Epsilon) {
                 flowModifier = float.Epsilon;
             }
             return flowModifier;
         }
 
-        public ResourceContainer ResourceConsumptions
-        {
-            get
-            {
+        public ResourceContainer ResourceConsumptions {
+            get {
                 return resourceConsumptions;
             }
         }
 
-        public static double GetExhaustVelocity(double isp)
-        {
+        public static double GetExhaustVelocity(double isp) {
             return isp * Units.GRAVITY;
         }
 
-        public static double GetFlowRate(double thrust, double isp)
-        {
+        public static double GetFlowRate(double thrust, double isp) {
             return thrust / GetExhaustVelocity(isp);
         }
 
-        public static float GetThrottlePercent(float currentThrottle, float thrustPercentage)
-        {
+        public static float GetThrottlePercent(float currentThrottle, float thrustPercentage) {
             return currentThrottle * GetThrustPercent(thrustPercentage);
         }
 
-        public static double GetThrust(double flowRate, double isp)
-        {
+        public static double GetThrust(double flowRate, double isp) {
             return flowRate * GetExhaustVelocity(isp);
         }
 
-        public static float GetThrustPercent(float thrustPercentage)
-        {
+        public static float GetThrustPercent(float thrustPercentage) {
             return thrustPercentage * 0.01f;
         }
 
-        public bool SetResourceDrains(List<PartSim> allParts, List<PartSim> allFuelLines, HashSet<PartSim> drainingParts, bool debug)
-        {
+        public bool SetResourceDrains(List<PartSim> allParts, List<PartSim> allFuelLines, HashSet<PartSim> drainingParts, bool debug) {
             //DumpSourcePartSets(log, "before clear");
-            foreach (HashSet<PartSim> sourcePartSet in sourcePartSets.Values)
-            {
+            foreach (HashSet<PartSim> sourcePartSet in sourcePartSets.Values) {
                 sourcePartSet.Clear();
             }
             //DumpSourcePartSets(log, "after clear");
 
-            for (int index = 0; index < this.resourceConsumptions.Types.Count; index++)
-            {
+            for (int index = 0; index < this.resourceConsumptions.Types.Count; index++) {
                 int type = this.resourceConsumptions.Types[index];
 
                 HashSet<PartSim> sourcePartSet;
-                if (!sourcePartSets.TryGetValue(type, out sourcePartSet))
-                {
+                if (!sourcePartSets.TryGetValue(type, out sourcePartSet)) {
                     sourcePartSet = new HashSet<PartSim>();
                     sourcePartSets.Add(type, sourcePartSet);
                 }
 
-                switch ((ResourceFlowMode)this.resourceFlowModes[type])
-                {
-                    case ResourceFlowMode.NO_FLOW:
-                        if (partSim.resources[type] > SimManager.RESOURCE_MIN && partSim.resourceFlowStates[type] != 0)
-                        {
-                            sourcePartSet.Add(partSim);
-                        }
-                        break;
+                switch ((ResourceFlowMode)this.resourceFlowModes[type]) {
+                case ResourceFlowMode.NO_FLOW:
+                    if (partSim.resources[type] > SimManager.RESOURCE_MIN && partSim.resourceFlowStates[type] != 0) {
+                        sourcePartSet.Add(partSim);
+                    }
+                    break;
 
-                    case ResourceFlowMode.ALL_VESSEL:
-                    case ResourceFlowMode.ALL_VESSEL_BALANCE:
-                        for (int i = 0; i < allParts.Count; i++)
-                        {
-                            PartSim aPartSim = allParts[i];
-                            if (aPartSim.resources[type] > SimManager.RESOURCE_MIN && aPartSim.resourceFlowStates[type] != 0)
-                            {
+                case ResourceFlowMode.ALL_VESSEL:
+                case ResourceFlowMode.ALL_VESSEL_BALANCE:
+                    for (int i = 0; i < allParts.Count; i++) {
+                        PartSim aPartSim = allParts[i];
+                        if (aPartSim.resources[type] > SimManager.RESOURCE_MIN && aPartSim.resourceFlowStates[type] != 0) {
+                            sourcePartSet.Add(aPartSim);
+                        }
+                    }
+                    break;
+
+                case ResourceFlowMode.STAGE_PRIORITY_FLOW:
+                case ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE:
+
+                    if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
+                    foreach (HashSet<PartSim> stagePartSet in stagePartSets.Values) {
+                        stagePartSet.Clear();
+                    }
+                    var maxStage = -1;
+
+                    for (int i = 0; i < allParts.Count; i++) {
+                        var aPartSim = allParts[i];
+                        //if (log != null) log.Append(aPartSim.name, ":" + aPartSim.partId, " contains ", aPartSim.resources[type])
+                        //                  .AppendLine((aPartSim.resourceFlowStates[type] == 0) ? " (disabled)" : "");
+                        if (aPartSim.resources[type] <= SimManager.RESOURCE_MIN || aPartSim.resourceFlowStates[type] == 0) {
+                            continue;
+                        }
+
+                        int stage = aPartSim.inverseStage;
+                        if (stage > maxStage) {
+                            maxStage = stage;
+                        }
+
+                        HashSet<PartSim> tempPartSet;
+                        if (!stagePartSets.TryGetValue(stage, out tempPartSet)) {
+                            tempPartSet = new HashSet<PartSim>();
+                            stagePartSets.Add(stage, tempPartSet);
+                        }
+                        tempPartSet.Add(aPartSim);
+                    }
+
+                    for (int j = maxStage; j >= -1; j--) {
+                        //if (log != null) log.AppendLine("Testing stage ", j);
+                        HashSet<PartSim> stagePartSet;
+                        if (stagePartSets.TryGetValue(j, out stagePartSet) && stagePartSet.Count > 0) {
+                            //if (log != null) log.AppendLine("Not empty");
+                            // We have to copy the contents of the set here rather than copying the set reference or
+                            // bad things (tm) happen
+                            foreach (PartSim aPartSim in stagePartSet) {
                                 sourcePartSet.Add(aPartSim);
                             }
+                            break;
                         }
-                        break;
+                    }
+                    break;
 
-                    case ResourceFlowMode.STAGE_PRIORITY_FLOW:
-                    case ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE:
+                case ResourceFlowMode.STACK_PRIORITY_SEARCH:
+                case ResourceFlowMode.STAGE_STACK_FLOW:
+                case ResourceFlowMode.STAGE_STACK_FLOW_BALANCE:
+                    visited.Clear();
 
-                        if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
-                        foreach (HashSet<PartSim> stagePartSet in stagePartSets.Values)
-                        {
-                            stagePartSet.Clear();
-                        }
-                        var maxStage = -1;
+                    if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
 
-                        for (int i = 0; i < allParts.Count; i++)
-                        {
-                            var aPartSim = allParts[i];
-                            //if (log != null) log.Append(aPartSim.name, ":" + aPartSim.partId, " contains ", aPartSim.resources[type])
-                            //                  .AppendLine((aPartSim.resourceFlowStates[type] == 0) ? " (disabled)" : "");
-                            if (aPartSim.resources[type] <= SimManager.RESOURCE_MIN || aPartSim.resourceFlowStates[type] == 0)
-                            {
-                                continue;
-                            }
+                    partSim.GetSourceSet(type, allParts, visited, sourcePartSet, debug, "");
+                    break;
 
-                            int stage = aPartSim.inverseStage;
-                            if (stage > maxStage)
-                            {
-                                maxStage = stage;
-                            }
-
-                            HashSet<PartSim> tempPartSet;
-                            if (!stagePartSets.TryGetValue(stage, out tempPartSet))
-                            {
-                                tempPartSet = new HashSet<PartSim>();
-                                stagePartSets.Add(stage, tempPartSet);
-                            }
-                            tempPartSet.Add(aPartSim);
-                        }
-
-                        for (int j = maxStage; j >= -1; j--)
-                        {
-                            //if (log != null) log.AppendLine("Testing stage ", j);
-                            HashSet<PartSim> stagePartSet;
-                            if (stagePartSets.TryGetValue(j, out stagePartSet) && stagePartSet.Count > 0)
-                            {
-                                //if (log != null) log.AppendLine("Not empty");
-                                // We have to copy the contents of the set here rather than copying the set reference or 
-                                // bad things (tm) happen
-                                foreach (PartSim aPartSim in stagePartSet)
-                                {
-                                    sourcePartSet.Add(aPartSim);
-                                }
-                                break;
-                            }
-                        }
-                        break;
-
-                    case ResourceFlowMode.STACK_PRIORITY_SEARCH:
-                    case ResourceFlowMode.STAGE_STACK_FLOW:
-                    case ResourceFlowMode.STAGE_STACK_FLOW_BALANCE:
-                        visited.Clear();
-
-                        if (debug) Debug.Log("Find " + ResourceContainer.GetResourceName(type) + " sources for " + partSim.name + ":" + partSim.partId);
-
-                        partSim.GetSourceSet(type, allParts, visited, sourcePartSet, debug, "");
-                        break;
-
-                    default:
-                        if (debug) Debug.Log("SetResourceDrains(" + partSim.name + ":" + partSim.partId + ") Unexpected flow type for " + ResourceContainer.GetResourceName(type) + ")");
-                        break;
+                default:
+                    if (debug) Debug.Log("SetResourceDrains(" + partSim.name + ":" + partSim.partId + ") Unexpected flow type for " + ResourceContainer.GetResourceName(type) + ")");
+                    break;
                 }
 
-                if (debug && sourcePartSet.Count > 0)
-                {
+                if (debug && sourcePartSet.Count > 0) {
                     Debug.Log("Source parts for " + ResourceContainer.GetResourceName(type) + ":");
-                    foreach (PartSim partSim in sourcePartSet)
-                    {
+                    foreach (PartSim partSim in sourcePartSet) {
                         Debug.Log(partSim.name + ":" + partSim.partId);
                     }
                 }
@@ -424,12 +367,10 @@ namespace kOSMainframe.VesselExtra
             }
 
             // If we don't have sources for all the needed resources then return false without setting up any drains
-            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++)
-            {
+            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++) {
                 int type = this.resourceConsumptions.Types[i];
                 HashSet<PartSim> sourcePartSet;
-                if (!sourcePartSets.TryGetValue(type, out sourcePartSet) || sourcePartSet.Count == 0)
-                {
+                if (!sourcePartSets.TryGetValue(type, out sourcePartSet) || sourcePartSet.Count == 0) {
                     if (debug) Debug.Log("No source of " + ResourceContainer.GetResourceName(type));
                     isActive = false;
                     return false;
@@ -437,8 +378,7 @@ namespace kOSMainframe.VesselExtra
             }
 
             // Now we set the drains on the members of the sets and update the draining parts set
-            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++)
-            {
+            for (int i = 0; i < this.resourceConsumptions.Types.Count; i++) {
                 int type = this.resourceConsumptions.Types[i];
                 HashSet<PartSim> sourcePartSet = sourcePartSets[type];
                 ResourceFlowMode mode = (ResourceFlowMode)resourceFlowModes[type];
@@ -446,19 +386,16 @@ namespace kOSMainframe.VesselExtra
                 double amount = 0d;
                 double total = 0d;
                 if (mode == ResourceFlowMode.ALL_VESSEL_BALANCE ||
-                    mode == ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE ||
-                    mode == ResourceFlowMode.STAGE_STACK_FLOW_BALANCE ||
-                    mode == ResourceFlowMode.STACK_PRIORITY_SEARCH)
-                {
+                        mode == ResourceFlowMode.STAGE_PRIORITY_FLOW_BALANCE ||
+                        mode == ResourceFlowMode.STAGE_STACK_FLOW_BALANCE ||
+                        mode == ResourceFlowMode.STACK_PRIORITY_SEARCH) {
                     foreach (PartSim partSim in sourcePartSet)
                         total += partSim.resources[type];
-                }
-                else
+                } else
                     amount = consumption / sourcePartSet.Count;
 
-                // Loop through the members of the set 
-                foreach (PartSim partSim in sourcePartSet)
-                {
+                // Loop through the members of the set
+                foreach (PartSim partSim in sourcePartSet) {
                     if (total != 0d)
                         amount = consumption * partSim.resources[type] / total;
 
@@ -471,8 +408,7 @@ namespace kOSMainframe.VesselExtra
             return true;
         }
 
-        public void DumpEngineToLog()
-        {
+        public void DumpEngineToLog() {
             Debug.Log("[thrust = " + thrust + ", actual = " + actualThrust + ", isp = " + isp);
         }
     }

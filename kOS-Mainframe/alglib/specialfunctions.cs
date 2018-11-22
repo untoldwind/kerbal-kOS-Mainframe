@@ -5,7 +5,7 @@ Copyright (c) Sergey Bochkanov (ALGLIB project).
 >>> SOURCE LICENSE >>>
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation (www.fsf.org); either version 2 of the 
+the Free Software Foundation (www.fsf.org); either version 2 of the
 License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -22,10 +22,9 @@ http://www.fsf.org/licensing/licenses
 #pragma warning disable 219
 using System;
 
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Gamma function
 
@@ -46,13 +45,12 @@ public partial class alglib
     Original copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
     Translated to AlgoPascal by Bochkanov Sergey (2005, 2006, 2007).
     *************************************************************************/
-    public static double gammafunction(double x)
-    {
-    
+    public static double gammafunction(double x) {
+
         double result = gammafunc.gammafunction(x);
         return result;
     }
-    
+
     /*************************************************************************
     Natural logarithm of gamma function
 
@@ -85,18 +83,16 @@ public partial class alglib
     Copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
     Translated to AlgoPascal by Bochkanov Sergey (2005, 2006, 2007).
     *************************************************************************/
-    public static double lngamma(double x, out double sgngam)
-    {
+    public static double lngamma(double x, out double sgngam) {
         sgngam = 0;
         double result = gammafunc.lngamma(x, ref sgngam);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Error function
 
@@ -123,13 +119,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double errorfunction(double x)
-    {
-    
+    public static double errorfunction(double x) {
+
         double result = normaldistr.errorfunction(x);
         return result;
     }
-    
+
     /*************************************************************************
     Complementary error function
 
@@ -157,13 +152,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double errorfunctionc(double x)
-    {
-    
+    public static double errorfunctionc(double x) {
+
         double result = normaldistr.errorfunctionc(x);
         return result;
     }
-    
+
     /*************************************************************************
     Normal distribution function
 
@@ -194,26 +188,24 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double normaldistribution(double x)
-    {
-    
+    public static double normaldistribution(double x) {
+
         double result = normaldistr.normaldistribution(x);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of the error function
 
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double inverf(double e)
-    {
-    
+    public static double inverf(double e) {
+
         double result = normaldistr.inverf(e);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of Normal distribution function
 
@@ -239,18 +231,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invnormaldistribution(double y0)
-    {
-    
+    public static double invnormaldistribution(double y0) {
+
         double result = normaldistr.invnormaldistribution(y0);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Incomplete gamma integral
 
@@ -280,13 +270,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1985, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double incompletegamma(double a, double x)
-    {
-    
+    public static double incompletegamma(double a, double x) {
+
         double result = igammaf.incompletegamma(a, x);
         return result;
     }
-    
+
     /*************************************************************************
     Complemented incomplete gamma integral
 
@@ -320,13 +309,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1985, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double incompletegammac(double a, double x)
-    {
-    
+    public static double incompletegammac(double a, double x) {
+
         double result = igammaf.incompletegammac(a, x);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of complemented imcomplete gamma integral
 
@@ -363,18 +351,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invincompletegammac(double a, double y0)
-    {
-    
+    public static double invincompletegammac(double a, double y0) {
+
         double result = igammaf.invincompletegammac(a, y0);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Complete elliptic integral of the first kind
 
@@ -405,13 +391,12 @@ public partial class alglib
     Cephes Math Library, Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double ellipticintegralk(double m)
-    {
-    
+    public static double ellipticintegralk(double m) {
+
         double result = elliptic.ellipticintegralk(m);
         return result;
     }
-    
+
     /*************************************************************************
     Complete elliptic integral of the first kind
 
@@ -448,13 +433,12 @@ public partial class alglib
     Cephes Math Library, Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double ellipticintegralkhighprecision(double m1)
-    {
-    
+    public static double ellipticintegralkhighprecision(double m1) {
+
         double result = elliptic.ellipticintegralkhighprecision(m1);
         return result;
     }
-    
+
     /*************************************************************************
     Incomplete elliptic integral of the first kind F(phi|m)
 
@@ -489,13 +473,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double incompleteellipticintegralk(double phi, double m)
-    {
-    
+    public static double incompleteellipticintegralk(double phi, double m) {
+
         double result = elliptic.incompleteellipticintegralk(phi, m);
         return result;
     }
-    
+
     /*************************************************************************
     Complete elliptic integral of the second kind
 
@@ -523,13 +506,12 @@ public partial class alglib
     Cephes Math Library, Release 2.8: June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double ellipticintegrale(double m)
-    {
-    
+    public static double ellipticintegrale(double m) {
+
         double result = elliptic.ellipticintegrale(m);
         return result;
     }
-    
+
     /*************************************************************************
     Incomplete elliptic integral of the second kind
 
@@ -560,18 +542,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1993, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double incompleteellipticintegrale(double phi, double m)
-    {
-    
+    public static double incompleteellipticintegrale(double phi, double m) {
+
         double result = elliptic.incompleteellipticintegrale(phi, m);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Calculation of the value of the Hermite polynomial.
 
@@ -582,13 +562,12 @@ public partial class alglib
     Result:
         the value of the Hermite polynomial Hn at x
     *************************************************************************/
-    public static double hermitecalculate(int n, double x)
-    {
-    
+    public static double hermitecalculate(int n, double x) {
+
         double result = hermite.hermitecalculate(n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Summation of Hermite polynomials using Clenshaw's recurrence formula.
 
@@ -602,13 +581,12 @@ public partial class alglib
     Result:
         the value of the Hermite polynomial at x
     *************************************************************************/
-    public static double hermitesum(double[] c, int n, double x)
-    {
-    
+    public static double hermitesum(double[] c, int n, double x) {
+
         double result = hermite.hermitesum(c, n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Representation of Hn as C[0] + C[1]*X + ... + C[N]*X^N
 
@@ -618,18 +596,16 @@ public partial class alglib
     Output parameters:
         C   -   coefficients
     *************************************************************************/
-    public static void hermitecoefficients(int n, out double[] c)
-    {
+    public static void hermitecoefficients(int n, out double[] c) {
         c = new double[0];
         hermite.hermitecoefficients(n, ref c);
         return;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Dawson's Integral
 
@@ -655,18 +631,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double dawsonintegral(double x)
-    {
-    
+    public static double dawsonintegral(double x) {
+
         double result = dawson.dawsonintegral(x);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Sine and cosine integrals
 
@@ -706,14 +680,13 @@ public partial class alglib
     Cephes Math Library Release 2.1:  January, 1989
     Copyright 1984, 1987, 1989 by Stephen L. Moshier
     *************************************************************************/
-    public static void sinecosineintegrals(double x, out double si, out double ci)
-    {
+    public static void sinecosineintegrals(double x, out double si, out double ci) {
         si = 0;
         ci = 0;
         trigintegrals.sinecosineintegrals(x, ref si, ref ci);
         return;
     }
-    
+
     /*************************************************************************
     Hyperbolic sine and cosine integrals
 
@@ -754,8 +727,7 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static void hyperbolicsinecosineintegrals(double x, out double shi, out double chi)
-    {
+    public static void hyperbolicsinecosineintegrals(double x, out double shi, out double chi) {
         shi = 0;
         chi = 0;
         trigintegrals.hyperbolicsinecosineintegrals(x, ref shi, ref chi);
@@ -763,10 +735,9 @@ public partial class alglib
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Poisson distribution
 
@@ -792,13 +763,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double poissondistribution(int k, double m)
-    {
-    
+    public static double poissondistribution(int k, double m) {
+
         double result = poissondistr.poissondistribution(k, m);
         return result;
     }
-    
+
     /*************************************************************************
     Complemented Poisson distribution
 
@@ -825,13 +795,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double poissoncdistribution(int k, double m)
-    {
-    
+    public static double poissoncdistribution(int k, double m) {
+
         double result = poissondistr.poissoncdistribution(k, m);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse Poisson distribution
 
@@ -851,18 +820,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invpoissondistribution(int k, double y)
-    {
-    
+    public static double invpoissondistribution(int k, double y) {
+
         double result = poissondistr.invpoissondistribution(k, y);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Bessel function of order zero
 
@@ -893,13 +860,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselj0(double x)
-    {
-    
+    public static double besselj0(double x) {
+
         double result = bessel.besselj0(x);
         return result;
     }
-    
+
     /*************************************************************************
     Bessel function of order one
 
@@ -920,13 +886,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselj1(double x)
-    {
-    
+    public static double besselj1(double x) {
+
         double result = bessel.besselj1(x);
         return result;
     }
-    
+
     /*************************************************************************
     Bessel function of integer order
 
@@ -954,13 +919,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besseljn(int n, double x)
-    {
-    
+    public static double besseljn(int n, double x) {
+
         double result = bessel.besseljn(n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Bessel function of the second kind, order zero
 
@@ -989,13 +953,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double bessely0(double x)
-    {
-    
+    public static double bessely0(double x) {
+
         double result = bessel.bessely0(x);
         return result;
     }
-    
+
     /*************************************************************************
     Bessel function of second kind of order one
 
@@ -1017,13 +980,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double bessely1(double x)
-    {
-    
+    public static double bessely1(double x) {
+
         double result = bessel.bessely1(x);
         return result;
     }
-    
+
     /*************************************************************************
     Bessel function of second kind of integer order
 
@@ -1046,13 +1008,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselyn(int n, double x)
-    {
-    
+    public static double besselyn(int n, double x) {
+
         double result = bessel.besselyn(n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Modified Bessel function of order zero
 
@@ -1074,13 +1035,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besseli0(double x)
-    {
-    
+    public static double besseli0(double x) {
+
         double result = bessel.besseli0(x);
         return result;
     }
-    
+
     /*************************************************************************
     Modified Bessel function of order one
 
@@ -1102,13 +1062,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1985, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besseli1(double x)
-    {
-    
+    public static double besseli1(double x) {
+
         double result = bessel.besseli1(x);
         return result;
     }
-    
+
     /*************************************************************************
     Modified Bessel function, second kind, order zero
 
@@ -1130,13 +1089,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselk0(double x)
-    {
-    
+    public static double besselk0(double x) {
+
         double result = bessel.besselk0(x);
         return result;
     }
-    
+
     /*************************************************************************
     Modified Bessel function, second kind, order one
 
@@ -1156,13 +1114,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselk1(double x)
-    {
-    
+    public static double besselk1(double x) {
+
         double result = bessel.besselk1(x);
         return result;
     }
-    
+
     /*************************************************************************
     Modified Bessel function, second kind, integer order
 
@@ -1185,18 +1142,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1988, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double besselkn(int nn, double x)
-    {
-    
+    public static double besselkn(int nn, double x) {
+
         double result = bessel.besselkn(nn, x);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Incomplete beta integral
 
@@ -1238,13 +1193,12 @@ public partial class alglib
     Cephes Math Library, Release 2.8:  June, 2000
     Copyright 1984, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double incompletebeta(double a, double b, double x)
-    {
-    
+    public static double incompletebeta(double a, double b, double x) {
+
         double result = ibetaf.incompletebeta(a, b, x);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of imcomplete beta integral
 
@@ -1273,18 +1227,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1996, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invincompletebeta(double a, double b, double y)
-    {
-    
+    public static double invincompletebeta(double a, double b, double y) {
+
         double result = ibetaf.invincompletebeta(a, b, y);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     F distribution
 
@@ -1317,13 +1269,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double fdistribution(int a, int b, double x)
-    {
-    
+    public static double fdistribution(int a, int b, double x) {
+
         double result = fdistr.fdistribution(a, b, x);
         return result;
     }
-    
+
     /*************************************************************************
     Complemented F distribution
 
@@ -1360,13 +1311,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double fcdistribution(int a, int b, double x)
-    {
-    
+    public static double fcdistribution(int a, int b, double x) {
+
         double result = fdistr.fcdistribution(a, b, x);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of complemented F distribution
 
@@ -1402,18 +1352,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invfdistribution(int a, int b, double y)
-    {
-    
+    public static double invfdistribution(int a, int b, double y) {
+
         double result = fdistr.invfdistribution(a, b, y);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Fresnel integral
 
@@ -1456,18 +1404,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static void fresnelintegral(double x, ref double c, ref double s)
-    {
-    
+    public static void fresnelintegral(double x, ref double c, ref double s) {
+
         fresnel.fresnelintegral(x, ref c, ref s);
         return;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Jacobian Elliptic Functions
 
@@ -1508,8 +1454,7 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static void jacobianellipticfunctions(double u, double m, out double sn, out double cn, out double dn, out double ph)
-    {
+    public static void jacobianellipticfunctions(double u, double m, out double sn, out double cn, out double dn, out double ph) {
         sn = 0;
         cn = 0;
         dn = 0;
@@ -1519,10 +1464,9 @@ public partial class alglib
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Psi (digamma) function
 
@@ -1562,18 +1506,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1992, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double psi(double x)
-    {
-    
+    public static double psi(double x) {
+
         double result = psif.psi(x);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Exponential integral Ei(x)
 
@@ -1599,13 +1541,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  May, 1999
     Copyright 1999 by Stephen L. Moshier
     *************************************************************************/
-    public static double exponentialintegralei(double x)
-    {
-    
+    public static double exponentialintegralei(double x) {
+
         double result = expintegrals.exponentialintegralei(x);
         return result;
     }
-    
+
     /*************************************************************************
     Exponential integral En(x)
 
@@ -1637,18 +1578,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1985, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double exponentialintegralen(double x, int n)
-    {
-    
+    public static double exponentialintegralen(double x, int n) {
+
         double result = expintegrals.exponentialintegralen(x, n);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Calculation of the value of the Laguerre polynomial.
 
@@ -1659,13 +1598,12 @@ public partial class alglib
     Result:
         the value of the Laguerre polynomial Ln at x
     *************************************************************************/
-    public static double laguerrecalculate(int n, double x)
-    {
-    
+    public static double laguerrecalculate(int n, double x) {
+
         double result = laguerre.laguerrecalculate(n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Summation of Laguerre polynomials using Clenshaw's recurrence formula.
 
@@ -1678,13 +1616,12 @@ public partial class alglib
     Result:
         the value of the Laguerre polynomial at x
     *************************************************************************/
-    public static double laguerresum(double[] c, int n, double x)
-    {
-    
+    public static double laguerresum(double[] c, int n, double x) {
+
         double result = laguerre.laguerresum(c, n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Representation of Ln as C[0] + C[1]*X + ... + C[N]*X^N
 
@@ -1694,18 +1631,16 @@ public partial class alglib
     Output parameters:
         C   -   coefficients
     *************************************************************************/
-    public static void laguerrecoefficients(int n, out double[] c)
-    {
+    public static void laguerrecoefficients(int n, out double[] c) {
         c = new double[0];
         laguerre.laguerrecoefficients(n, ref c);
         return;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Chi-square distribution
 
@@ -1739,13 +1674,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double chisquaredistribution(double v, double x)
-    {
-    
+    public static double chisquaredistribution(double v, double x) {
+
         double result = chisquaredistr.chisquaredistribution(v, x);
         return result;
     }
-    
+
     /*************************************************************************
     Complemented Chi-square distribution
 
@@ -1777,13 +1711,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double chisquarecdistribution(double v, double x)
-    {
-    
+    public static double chisquarecdistribution(double v, double x) {
+
         double result = chisquaredistr.chisquarecdistribution(v, x);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse of complemented Chi-square distribution
 
@@ -1804,18 +1737,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invchisquaredistribution(double v, double y)
-    {
-    
+    public static double invchisquaredistribution(double v, double y) {
+
         double result = chisquaredistr.invchisquaredistribution(v, y);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Calculation of the value of the Legendre polynomial Pn.
 
@@ -1826,13 +1757,12 @@ public partial class alglib
     Result:
         the value of the Legendre polynomial Pn at x
     *************************************************************************/
-    public static double legendrecalculate(int n, double x)
-    {
-    
+    public static double legendrecalculate(int n, double x) {
+
         double result = legendre.legendrecalculate(n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Summation of Legendre polynomials using Clenshaw's recurrence formula.
 
@@ -1846,13 +1776,12 @@ public partial class alglib
     Result:
         the value of the Legendre polynomial at x
     *************************************************************************/
-    public static double legendresum(double[] c, int n, double x)
-    {
-    
+    public static double legendresum(double[] c, int n, double x) {
+
         double result = legendre.legendresum(c, n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Representation of Pn as C[0] + C[1]*X + ... + C[N]*X^N
 
@@ -1862,18 +1791,16 @@ public partial class alglib
     Output parameters:
         C   -   coefficients
     *************************************************************************/
-    public static void legendrecoefficients(int n, out double[] c)
-    {
+    public static void legendrecoefficients(int n, out double[] c) {
         c = new double[0];
         legendre.legendrecoefficients(n, ref c);
         return;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Beta function
 
@@ -1896,18 +1823,16 @@ public partial class alglib
     Cephes Math Library Release 2.0:  April, 1987
     Copyright 1984, 1987 by Stephen L. Moshier
     *************************************************************************/
-    public static double beta(double a, double b)
-    {
-    
+    public static double beta(double a, double b) {
+
         double result = betaf.beta(a, b);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Calculation of the value of the Chebyshev polynomials of the
     first and second kinds.
@@ -1920,13 +1845,12 @@ public partial class alglib
     Result:
         the value of the Chebyshev polynomial at x
     *************************************************************************/
-    public static double chebyshevcalculate(int r, int n, double x)
-    {
-    
+    public static double chebyshevcalculate(int r, int n, double x) {
+
         double result = chebyshev.chebyshevcalculate(r, n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Summation of Chebyshev polynomials using Clenshaw's recurrence formula.
 
@@ -1944,13 +1868,12 @@ public partial class alglib
     Result:
         the value of the Chebyshev polynomial at x
     *************************************************************************/
-    public static double chebyshevsum(double[] c, int r, int n, double x)
-    {
-    
+    public static double chebyshevsum(double[] c, int r, int n, double x) {
+
         double result = chebyshev.chebyshevsum(c, r, n, x);
         return result;
     }
-    
+
     /*************************************************************************
     Representation of Tn as C[0] + C[1]*X + ... + C[N]*X^N
 
@@ -1960,13 +1883,12 @@ public partial class alglib
     Output parameters:
         C   -   coefficients
     *************************************************************************/
-    public static void chebyshevcoefficients(int n, out double[] c)
-    {
+    public static void chebyshevcoefficients(int n, out double[] c) {
         c = new double[0];
         chebyshev.chebyshevcoefficients(n, ref c);
         return;
     }
-    
+
     /*************************************************************************
     Conversion of a series of Chebyshev polynomials to a power series.
 
@@ -1980,18 +1902,16 @@ public partial class alglib
     Output parameters
         B   -   power series coefficients
     *************************************************************************/
-    public static void fromchebyshev(double[] a, int n, out double[] b)
-    {
+    public static void fromchebyshev(double[] a, int n, out double[] b) {
         b = new double[0];
         chebyshev.fromchebyshev(a, n, ref b);
         return;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Student's t distribution
 
@@ -2033,13 +1953,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double studenttdistribution(int k, double t)
-    {
-    
+    public static double studenttdistribution(int k, double t) {
+
         double result = studenttdistr.studenttdistribution(k, t);
         return result;
     }
-    
+
     /*************************************************************************
     Functional inverse of Student's t distribution
 
@@ -2057,18 +1976,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invstudenttdistribution(int k, double p)
-    {
-    
+    public static double invstudenttdistribution(int k, double p) {
+
         double result = studenttdistr.invstudenttdistribution(k, p);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Binomial distribution
 
@@ -2100,13 +2017,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double binomialdistribution(int k, int n, double p)
-    {
-    
+    public static double binomialdistribution(int k, int n, double p) {
+
         double result = binomialdistr.binomialdistribution(k, n, p);
         return result;
     }
-    
+
     /*************************************************************************
     Complemented binomial distribution
 
@@ -2140,13 +2056,12 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double binomialcdistribution(int k, int n, double p)
-    {
-    
+    public static double binomialcdistribution(int k, int n, double p) {
+
         double result = binomialdistr.binomialcdistribution(k, n, p);
         return result;
     }
-    
+
     /*************************************************************************
     Inverse binomial distribution
 
@@ -2175,18 +2090,16 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static double invbinomialdistribution(int k, int n, double y)
-    {
-    
+    public static double invbinomialdistribution(int k, int n, double y) {
+
         double result = binomialdistr.invbinomialdistribution(k, n, y);
         return result;
     }
 
 }
-public partial class alglib
-{
+public partial class alglib {
 
-    
+
     /*************************************************************************
     Airy function
 
@@ -2219,8 +2132,7 @@ public partial class alglib
     Cephes Math Library Release 2.8:  June, 2000
     Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
     *************************************************************************/
-    public static void airy(double x, out double ai, out double aip, out double bi, out double bip)
-    {
+    public static void airy(double x, out double ai, out double aip, out double bi, out double bip) {
         ai = 0;
         aip = 0;
         bi = 0;
@@ -2230,10 +2142,8 @@ public partial class alglib
     }
 
 }
-public partial class alglib
-{
-    public class gammafunc
-    {
+public partial class alglib {
+    public class gammafunc {
         /*************************************************************************
         Gamma function
 
@@ -2254,8 +2164,7 @@ public partial class alglib
         Original copyright 1984, 1987, 1989, 1992, 2000 by Stephen L. Moshier
         Translated to AlgoPascal by Bochkanov Sergey (2005, 2006, 2007).
         *************************************************************************/
-        public static double gammafunction(double x)
-        {
+        public static double gammafunction(double x) {
             double result = 0;
             double p = 0;
             double pp = 0;
@@ -2267,61 +2176,49 @@ public partial class alglib
 
             sgngam = 1;
             q = Math.Abs(x);
-            if( (double)(q)>(double)(33.0) )
-            {
-                if( (double)(x)<(double)(0.0) )
-                {
+            if( (double)(q)>(double)(33.0) ) {
+                if( (double)(x)<(double)(0.0) ) {
                     p = (int)Math.Floor(q);
                     i = (int)Math.Round(p);
-                    if( i%2==0 )
-                    {
+                    if( i%2==0 ) {
                         sgngam = -1;
                     }
                     z = q-p;
-                    if( (double)(z)>(double)(0.5) )
-                    {
+                    if( (double)(z)>(double)(0.5) ) {
                         p = p+1;
                         z = q-p;
                     }
                     z = q*Math.Sin(Math.PI*z);
                     z = Math.Abs(z);
                     z = Math.PI/(z*gammastirf(q));
-                }
-                else
-                {
+                } else {
                     z = gammastirf(x);
                 }
                 result = sgngam*z;
                 return result;
             }
             z = 1;
-            while( (double)(x)>=(double)(3) )
-            {
+            while( (double)(x)>=(double)(3) ) {
                 x = x-1;
                 z = z*x;
             }
-            while( (double)(x)<(double)(0) )
-            {
-                if( (double)(x)>(double)(-0.000000001) )
-                {
+            while( (double)(x)<(double)(0) ) {
+                if( (double)(x)>(double)(-0.000000001) ) {
                     result = z/((1+0.5772156649015329*x)*x);
                     return result;
                 }
                 z = z/x;
                 x = x+1;
             }
-            while( (double)(x)<(double)(2) )
-            {
-                if( (double)(x)<(double)(0.000000001) )
-                {
+            while( (double)(x)<(double)(2) ) {
+                if( (double)(x)<(double)(0.000000001) ) {
                     result = z/((1+0.5772156649015329*x)*x);
                     return result;
                 }
                 z = z/x;
                 x = x+1.0;
             }
-            if( (double)(x)==(double)(2) )
-            {
+            if( (double)(x)==(double)(2) ) {
                 result = z;
                 return result;
             }
@@ -2379,8 +2276,7 @@ public partial class alglib
         Translated to AlgoPascal by Bochkanov Sergey (2005, 2006, 2007).
         *************************************************************************/
         public static double lngamma(double x,
-            ref double sgngam)
-        {
+                                     ref double sgngam) {
             double result = 0;
             double a = 0;
             double b = 0;
@@ -2400,23 +2296,18 @@ public partial class alglib
             sgngam = 1;
             logpi = 1.14472988584940017414;
             ls2pi = 0.91893853320467274178;
-            if( (double)(x)<(double)(-34.0) )
-            {
+            if( (double)(x)<(double)(-34.0) ) {
                 q = -x;
                 w = lngamma(q, ref tmp);
                 p = (int)Math.Floor(q);
                 i = (int)Math.Round(p);
-                if( i%2==0 )
-                {
+                if( i%2==0 ) {
                     sgngam = -1;
-                }
-                else
-                {
+                } else {
                     sgngam = 1;
                 }
                 z = q-p;
-                if( (double)(z)>(double)(0.5) )
-                {
+                if( (double)(z)>(double)(0.5) ) {
                     p = p+1;
                     z = p-q;
                 }
@@ -2424,34 +2315,27 @@ public partial class alglib
                 result = logpi-Math.Log(z)-w;
                 return result;
             }
-            if( (double)(x)<(double)(13) )
-            {
+            if( (double)(x)<(double)(13) ) {
                 z = 1;
                 p = 0;
                 u = x;
-                while( (double)(u)>=(double)(3) )
-                {
+                while( (double)(u)>=(double)(3) ) {
                     p = p-1;
                     u = x+p;
                     z = z*u;
                 }
-                while( (double)(u)<(double)(2) )
-                {
+                while( (double)(u)<(double)(2) ) {
                     z = z/u;
                     p = p+1;
                     u = x+p;
                 }
-                if( (double)(z)<(double)(0) )
-                {
+                if( (double)(z)<(double)(0) ) {
                     sgngam = -1;
                     z = -z;
-                }
-                else
-                {
+                } else {
                     sgngam = 1;
                 }
-                if( (double)(u)==(double)(2) )
-                {
+                if( (double)(u)==(double)(2) ) {
                     result = Math.Log(z);
                     return result;
                 }
@@ -2475,18 +2359,14 @@ public partial class alglib
                 return result;
             }
             q = (x-0.5)*Math.Log(x)-x+ls2pi;
-            if( (double)(x)>(double)(100000000) )
-            {
+            if( (double)(x)>(double)(100000000) ) {
                 result = q;
                 return result;
             }
             p = 1/(x*x);
-            if( (double)(x)>=(double)(1000.0) )
-            {
+            if( (double)(x)>=(double)(1000.0) ) {
                 q = q+((7.9365079365079365079365*0.0001*p-2.7777777777777777777778*0.001)*p+0.0833333333333333333333)/x;
-            }
-            else
-            {
+            } else {
                 a = 8.11614167470508450300*0.0001;
                 a = -(5.95061904284301438324*0.0001)+p*a;
                 a = 7.93650340457716943945*0.0001+p*a;
@@ -2499,8 +2379,7 @@ public partial class alglib
         }
 
 
-        private static double gammastirf(double x)
-        {
+        private static double gammastirf(double x) {
             double result = 0;
             double y = 0;
             double w = 0;
@@ -2515,13 +2394,10 @@ public partial class alglib
             stir = 8.33333333333482257126E-2+w*stir;
             w = 1+w*stir;
             y = Math.Exp(x);
-            if( (double)(x)>(double)(143.01608) )
-            {
+            if( (double)(x)>(double)(143.01608) ) {
                 v = Math.Pow(x, 0.5*x-0.25);
                 y = v*(v/y);
-            }
-            else
-            {
+            } else {
                 y = Math.Pow(x, x-0.5)/y;
             }
             result = 2.50662827463100050242*y*w;
@@ -2530,8 +2406,7 @@ public partial class alglib
 
 
     }
-    public class normaldistr
-    {
+    public class normaldistr {
         /*************************************************************************
         Error function
 
@@ -2558,8 +2433,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double errorfunction(double x)
-        {
+        public static double errorfunction(double x) {
             double result = 0;
             double xsq = 0;
             double s = 0;
@@ -2568,8 +2442,7 @@ public partial class alglib
 
             s = Math.Sign(x);
             x = Math.Abs(x);
-            if( (double)(x)<(double)(0.5) )
-            {
+            if( (double)(x)<(double)(0.5) ) {
                 xsq = x*x;
                 p = 0.007547728033418631287834;
                 p = -0.288805137207594084924010+xsq*p;
@@ -2588,8 +2461,7 @@ public partial class alglib
                 result = s*1.1283791670955125738961589031*x*p/q;
                 return result;
             }
-            if( (double)(x)>=(double)(10) )
-            {
+            if( (double)(x)>=(double)(10) ) {
                 result = s;
                 return result;
             }
@@ -2625,24 +2497,20 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double errorfunctionc(double x)
-        {
+        public static double errorfunctionc(double x) {
             double result = 0;
             double p = 0;
             double q = 0;
 
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 result = 2-errorfunctionc(-x);
                 return result;
             }
-            if( (double)(x)<(double)(0.5) )
-            {
+            if( (double)(x)<(double)(0.5) ) {
                 result = 1.0-errorfunction(x);
                 return result;
             }
-            if( (double)(x)>=(double)(10) )
-            {
+            if( (double)(x)>=(double)(10) ) {
                 result = 0;
                 return result;
             }
@@ -2699,8 +2567,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double normaldistribution(double x)
-        {
+        public static double normaldistribution(double x) {
             double result = 0;
 
             result = 0.5*(errorfunction(x/1.41421356237309504880)+1);
@@ -2714,8 +2581,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double inverf(double e)
-        {
+        public static double inverf(double e) {
             double result = 0;
 
             result = invnormaldistribution(0.5*(e+1))/Math.Sqrt(2);
@@ -2748,8 +2614,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1988, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double invnormaldistribution(double y0)
-        {
+        public static double invnormaldistribution(double y0) {
             double result = 0;
             double expm2 = 0;
             double s2pi = 0;
@@ -2769,25 +2634,21 @@ public partial class alglib
 
             expm2 = 0.13533528323661269189;
             s2pi = 2.50662827463100050242;
-            if( (double)(y0)<=(double)(0) )
-            {
+            if( (double)(y0)<=(double)(0) ) {
                 result = -math.maxrealnumber;
                 return result;
             }
-            if( (double)(y0)>=(double)(1) )
-            {
+            if( (double)(y0)>=(double)(1) ) {
                 result = math.maxrealnumber;
                 return result;
             }
             code = 1;
             y = y0;
-            if( (double)(y)>(double)(1.0-expm2) )
-            {
+            if( (double)(y)>(double)(1.0-expm2) ) {
                 y = 1.0-y;
                 code = 0;
             }
-            if( (double)(y)>(double)(expm2) )
-            {
+            if( (double)(y)>(double)(expm2) ) {
                 y = y-0.5;
                 y2 = y*y;
                 p0 = -59.9633501014107895267;
@@ -2812,8 +2673,7 @@ public partial class alglib
             x = Math.Sqrt(-(2.0*Math.Log(y)));
             x0 = x-Math.Log(x)/x;
             z = 1.0/x;
-            if( (double)(x)<(double)(8.0) )
-            {
+            if( (double)(x)<(double)(8.0) ) {
                 p1 = 4.05544892305962419923;
                 p1 = 31.5251094599893866154+z*p1;
                 p1 = 57.1628192246421288162+z*p1;
@@ -2833,9 +2693,7 @@ public partial class alglib
                 q1 = -(3.80806407691578277194*0.01)+z*q1;
                 q1 = -(9.33259480895457427372*0.0001)+z*q1;
                 x1 = z*p1/q1;
-            }
-            else
-            {
+            } else {
                 p2 = 3.23774891776946035970;
                 p2 = 6.91522889068984211695+z*p2;
                 p2 = 3.93881025292474443415+z*p2;
@@ -2857,8 +2715,7 @@ public partial class alglib
                 x1 = z*p2/q2;
             }
             x = x0-x1;
-            if( code!=0 )
-            {
+            if( code!=0 ) {
                 x = -x;
             }
             result = x;
@@ -2867,8 +2724,7 @@ public partial class alglib
 
 
     }
-    public class igammaf
-    {
+    public class igammaf {
         /*************************************************************************
         Incomplete gamma integral
 
@@ -2899,8 +2755,7 @@ public partial class alglib
         Copyright 1985, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double incompletegamma(double a,
-            double x)
-        {
+                                             double x) {
             double result = 0;
             double igammaepsilon = 0;
             double ans = 0;
@@ -2910,19 +2765,16 @@ public partial class alglib
             double tmp = 0;
 
             igammaepsilon = 0.000000000000001;
-            if( (double)(x)<=(double)(0) || (double)(a)<=(double)(0) )
-            {
+            if( (double)(x)<=(double)(0) || (double)(a)<=(double)(0) ) {
                 result = 0;
                 return result;
             }
-            if( (double)(x)>(double)(1) && (double)(x)>(double)(a) )
-            {
+            if( (double)(x)>(double)(1) && (double)(x)>(double)(a) ) {
                 result = 1-incompletegammac(a, x);
                 return result;
             }
             ax = a*Math.Log(x)-x-gammafunc.lngamma(a, ref tmp);
-            if( (double)(ax)<(double)(-709.78271289338399) )
-            {
+            if( (double)(ax)<(double)(-709.78271289338399) ) {
                 result = 0;
                 return result;
             }
@@ -2930,13 +2782,11 @@ public partial class alglib
             r = a;
             c = 1;
             ans = 1;
-            do
-            {
+            do {
                 r = r+1;
                 c = c*x/r;
                 ans = ans+c;
-            }
-            while( (double)(c/ans)>(double)(igammaepsilon) );
+            } while( (double)(c/ans)>(double)(igammaepsilon) );
             result = ans*ax/a;
             return result;
         }
@@ -2976,8 +2826,7 @@ public partial class alglib
         Copyright 1985, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double incompletegammac(double a,
-            double x)
-        {
+                                              double x) {
             double result = 0;
             double igammaepsilon = 0;
             double igammabignumber = 0;
@@ -3001,19 +2850,16 @@ public partial class alglib
             igammaepsilon = 0.000000000000001;
             igammabignumber = 4503599627370496.0;
             igammabignumberinv = 2.22044604925031308085*0.0000000000000001;
-            if( (double)(x)<=(double)(0) || (double)(a)<=(double)(0) )
-            {
+            if( (double)(x)<=(double)(0) || (double)(a)<=(double)(0) ) {
                 result = 1;
                 return result;
             }
-            if( (double)(x)<(double)(1) || (double)(x)<(double)(a) )
-            {
+            if( (double)(x)<(double)(1) || (double)(x)<(double)(a) ) {
                 result = 1-incompletegamma(a, x);
                 return result;
             }
             ax = a*Math.Log(x)-x-gammafunc.lngamma(a, ref tmp);
-            if( (double)(ax)<(double)(-709.78271289338399) )
-            {
+            if( (double)(ax)<(double)(-709.78271289338399) ) {
                 result = 0;
                 return result;
             }
@@ -3026,37 +2872,31 @@ public partial class alglib
             pkm1 = x+1;
             qkm1 = z*x;
             ans = pkm1/qkm1;
-            do
-            {
+            do {
                 c = c+1;
                 y = y+1;
                 z = z+2;
                 yc = y*c;
                 pk = pkm1*z-pkm2*yc;
                 qk = qkm1*z-qkm2*yc;
-                if( (double)(qk)!=(double)(0) )
-                {
+                if( (double)(qk)!=(double)(0) ) {
                     r = pk/qk;
                     t = Math.Abs((ans-r)/r);
                     ans = r;
-                }
-                else
-                {
+                } else {
                     t = 1;
                 }
                 pkm2 = pkm1;
                 pkm1 = pk;
                 qkm2 = qkm1;
                 qkm1 = qk;
-                if( (double)(Math.Abs(pk))>(double)(igammabignumber) )
-                {
+                if( (double)(Math.Abs(pk))>(double)(igammabignumber) ) {
                     pkm2 = pkm2*igammabignumberinv;
                     pkm1 = pkm1*igammabignumberinv;
                     qkm2 = qkm2*igammabignumberinv;
                     qkm1 = qkm1*igammabignumberinv;
                 }
-            }
-            while( (double)(t)>(double)(igammaepsilon) );
+            } while( (double)(t)>(double)(igammaepsilon) );
             result = ans*ax;
             return result;
         }
@@ -3099,8 +2939,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invincompletegammac(double a,
-            double y0)
-        {
+                double y0) {
             double result = 0;
             double igammaepsilon = 0;
             double iinvgammabignumber = 0;
@@ -3129,57 +2968,45 @@ public partial class alglib
             x = a*y*y*y;
             lgm = gammafunc.lngamma(a, ref tmp);
             i = 0;
-            while( i<10 )
-            {
-                if( (double)(x)>(double)(x0) || (double)(x)<(double)(x1) )
-                {
+            while( i<10 ) {
+                if( (double)(x)>(double)(x0) || (double)(x)<(double)(x1) ) {
                     d = 0.0625;
                     break;
                 }
                 y = incompletegammac(a, x);
-                if( (double)(y)<(double)(yl) || (double)(y)>(double)(yh) )
-                {
+                if( (double)(y)<(double)(yl) || (double)(y)>(double)(yh) ) {
                     d = 0.0625;
                     break;
                 }
-                if( (double)(y)<(double)(y0) )
-                {
+                if( (double)(y)<(double)(y0) ) {
                     x0 = x;
                     yl = y;
-                }
-                else
-                {
+                } else {
                     x1 = x;
                     yh = y;
                 }
                 d = (a-1)*Math.Log(x)-x-lgm;
-                if( (double)(d)<(double)(-709.78271289338399) )
-                {
+                if( (double)(d)<(double)(-709.78271289338399) ) {
                     d = 0.0625;
                     break;
                 }
                 d = -Math.Exp(d);
                 d = (y-y0)/d;
-                if( (double)(Math.Abs(d/x))<(double)(igammaepsilon) )
-                {
+                if( (double)(Math.Abs(d/x))<(double)(igammaepsilon) ) {
                     result = x;
                     return result;
                 }
                 x = x-d;
                 i = i+1;
             }
-            if( (double)(x0)==(double)(iinvgammabignumber) )
-            {
-                if( (double)(x)<=(double)(0) )
-                {
+            if( (double)(x0)==(double)(iinvgammabignumber) ) {
+                if( (double)(x)<=(double)(0) ) {
                     x = 1;
                 }
-                while( (double)(x0)==(double)(iinvgammabignumber) )
-                {
+                while( (double)(x0)==(double)(iinvgammabignumber) ) {
                     x = (1+d)*x;
                     y = incompletegammac(a, x);
-                    if( (double)(y)<(double)(y0) )
-                    {
+                    if( (double)(y)<(double)(y0) ) {
                         x0 = x;
                         yl = y;
                         break;
@@ -3190,63 +3017,44 @@ public partial class alglib
             d = 0.5;
             dir = 0;
             i = 0;
-            while( i<400 )
-            {
+            while( i<400 ) {
                 x = x1+d*(x0-x1);
                 y = incompletegammac(a, x);
                 lgm = (x0-x1)/(x1+x0);
-                if( (double)(Math.Abs(lgm))<(double)(dithresh) )
-                {
+                if( (double)(Math.Abs(lgm))<(double)(dithresh) ) {
                     break;
                 }
                 lgm = (y-y0)/y0;
-                if( (double)(Math.Abs(lgm))<(double)(dithresh) )
-                {
+                if( (double)(Math.Abs(lgm))<(double)(dithresh) ) {
                     break;
                 }
-                if( (double)(x)<=(double)(0.0) )
-                {
+                if( (double)(x)<=(double)(0.0) ) {
                     break;
                 }
-                if( (double)(y)>=(double)(y0) )
-                {
+                if( (double)(y)>=(double)(y0) ) {
                     x1 = x;
                     yh = y;
-                    if( dir<0 )
-                    {
+                    if( dir<0 ) {
                         dir = 0;
                         d = 0.5;
-                    }
-                    else
-                    {
-                        if( dir>1 )
-                        {
+                    } else {
+                        if( dir>1 ) {
                             d = 0.5*d+0.5;
-                        }
-                        else
-                        {
+                        } else {
                             d = (y0-yl)/(yh-yl);
                         }
                     }
                     dir = dir+1;
-                }
-                else
-                {
+                } else {
                     x0 = x;
                     yl = y;
-                    if( dir>0 )
-                    {
+                    if( dir>0 ) {
                         dir = 0;
                         d = 0.5;
-                    }
-                    else
-                    {
-                        if( dir<-1 )
-                        {
+                    } else {
+                        if( dir<-1 ) {
                             d = 0.5*d;
-                        }
-                        else
-                        {
+                        } else {
                             d = (y0-yl)/(yh-yl);
                         }
                     }
@@ -3260,8 +3068,7 @@ public partial class alglib
 
 
     }
-    public class elliptic
-    {
+    public class elliptic {
         /*************************************************************************
         Complete elliptic integral of the first kind
 
@@ -3292,8 +3099,7 @@ public partial class alglib
         Cephes Math Library, Release 2.8:  June, 2000
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double ellipticintegralk(double m)
-        {
+        public static double ellipticintegralk(double m) {
             double result = 0;
 
             result = ellipticintegralkhighprecision(1.0-m);
@@ -3337,18 +3143,14 @@ public partial class alglib
         Cephes Math Library, Release 2.8:  June, 2000
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double ellipticintegralkhighprecision(double m1)
-        {
+        public static double ellipticintegralkhighprecision(double m1) {
             double result = 0;
             double p = 0;
             double q = 0;
 
-            if( (double)(m1)<=(double)(math.machineepsilon) )
-            {
+            if( (double)(m1)<=(double)(math.machineepsilon) ) {
                 result = 1.3862943611198906188E0-0.5*Math.Log(m1);
-            }
-            else
-            {
+            } else {
                 p = 1.37982864606273237150E-4;
                 p = p*m1+2.28025724005875567385E-3;
                 p = p*m1+7.97404013220415179367E-3;
@@ -3412,8 +3214,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double incompleteellipticintegralk(double phi,
-            double m)
-        {
+                double m) {
             double result = 0;
             double a = 0;
             double b = 0;
@@ -3429,55 +3230,42 @@ public partial class alglib
             int npio2 = 0;
 
             pio2 = 1.57079632679489661923;
-            if( (double)(m)==(double)(0) )
-            {
+            if( (double)(m)==(double)(0) ) {
                 result = phi;
                 return result;
             }
             a = 1-m;
-            if( (double)(a)==(double)(0) )
-            {
+            if( (double)(a)==(double)(0) ) {
                 result = Math.Log(Math.Tan(0.5*(pio2+phi)));
                 return result;
             }
             npio2 = (int)Math.Floor(phi/pio2);
-            if( npio2%2!=0 )
-            {
+            if( npio2%2!=0 ) {
                 npio2 = npio2+1;
             }
-            if( npio2!=0 )
-            {
+            if( npio2!=0 ) {
                 k = ellipticintegralk(1-a);
                 phi = phi-npio2*pio2;
-            }
-            else
-            {
+            } else {
                 k = 0;
             }
-            if( (double)(phi)<(double)(0) )
-            {
+            if( (double)(phi)<(double)(0) ) {
                 phi = -phi;
                 s = -1;
-            }
-            else
-            {
+            } else {
                 s = 0;
             }
             b = Math.Sqrt(a);
             t = Math.Tan(phi);
-            if( (double)(Math.Abs(t))>(double)(10) )
-            {
+            if( (double)(Math.Abs(t))>(double)(10) ) {
                 e = 1.0/(b*t);
-                if( (double)(Math.Abs(e))<(double)(10) )
-                {
+                if( (double)(Math.Abs(e))<(double)(10) ) {
                     e = Math.Atan(e);
-                    if( npio2==0 )
-                    {
+                    if( npio2==0 ) {
                         k = ellipticintegralk(1-a);
                     }
                     temp = k-incompleteellipticintegralk(e, m);
-                    if( s<0 )
-                    {
+                    if( s<0 ) {
                         temp = -temp;
                     }
                     result = temp+npio2*k;
@@ -3488,8 +3276,7 @@ public partial class alglib
             c = Math.Sqrt(m);
             d = 1;
             md = 0;
-            while( (double)(Math.Abs(c/a))>(double)(math.machineepsilon) )
-            {
+            while( (double)(Math.Abs(c/a))>(double)(math.machineepsilon) ) {
                 temp = b/a;
                 phi = phi+Math.Atan(t*temp)+md*Math.PI;
                 md = (int)((phi+pio2)/Math.PI);
@@ -3501,8 +3288,7 @@ public partial class alglib
                 d = d+d;
             }
             temp = (Math.Atan(t)+md*Math.PI)/(d*a);
-            if( s<0 )
-            {
+            if( s<0 ) {
                 temp = -temp;
             }
             result = temp+npio2*k;
@@ -3537,16 +3323,14 @@ public partial class alglib
         Cephes Math Library, Release 2.8: June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double ellipticintegrale(double m)
-        {
+        public static double ellipticintegrale(double m) {
             double result = 0;
             double p = 0;
             double q = 0;
 
             alglib.ap.assert((double)(m)>=(double)(0) && (double)(m)<=(double)(1), "Domain error in EllipticIntegralE: m<0 or m>1");
             m = 1-m;
-            if( (double)(m)==(double)(0) )
-            {
+            if( (double)(m)==(double)(0) ) {
                 result = 1;
                 return result;
             }
@@ -3607,8 +3391,7 @@ public partial class alglib
         Copyright 1984, 1987, 1993, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double incompleteellipticintegrale(double phi,
-            double m)
-        {
+                double m) {
             double result = 0;
             double pio2 = 0;
             double a = 0;
@@ -3625,34 +3408,27 @@ public partial class alglib
             int s = 0;
 
             pio2 = 1.57079632679489661923;
-            if( (double)(m)==(double)(0) )
-            {
+            if( (double)(m)==(double)(0) ) {
                 result = phi;
                 return result;
             }
             lphi = phi;
             npio2 = (int)Math.Floor(lphi/pio2);
-            if( npio2%2!=0 )
-            {
+            if( npio2%2!=0 ) {
                 npio2 = npio2+1;
             }
             lphi = lphi-npio2*pio2;
-            if( (double)(lphi)<(double)(0) )
-            {
+            if( (double)(lphi)<(double)(0) ) {
                 lphi = -lphi;
                 s = -1;
-            }
-            else
-            {
+            } else {
                 s = 1;
             }
             a = 1.0-m;
             ebig = ellipticintegrale(m);
-            if( (double)(a)==(double)(0) )
-            {
+            if( (double)(a)==(double)(0) ) {
                 temp = Math.Sin(lphi);
-                if( s<0 )
-                {
+                if( s<0 ) {
                     temp = -temp;
                 }
                 result = temp+npio2*ebig;
@@ -3660,28 +3436,25 @@ public partial class alglib
             }
             t = Math.Tan(lphi);
             b = Math.Sqrt(a);
-            
+
             //
             // Thanks to Brian Fitzgerald <fitzgb@mml0.meche.rpi.edu>
             // for pointing out an instability near odd multiples of pi/2
             //
-            if( (double)(Math.Abs(t))>(double)(10) )
-            {
-                
+            if( (double)(Math.Abs(t))>(double)(10) ) {
+
                 //
                 // Transform the amplitude
                 //
                 e = 1.0/(b*t);
-                
+
                 //
                 // ... but avoid multiple recursions.
                 //
-                if( (double)(Math.Abs(e))<(double)(10) )
-                {
+                if( (double)(Math.Abs(e))<(double)(10) ) {
                     e = Math.Atan(e);
                     temp = ebig+m*Math.Sin(lphi)*Math.Sin(e)-incompleteellipticintegrale(e, m);
-                    if( s<0 )
-                    {
+                    if( s<0 ) {
                         temp = -temp;
                     }
                     result = temp+npio2*ebig;
@@ -3693,8 +3466,7 @@ public partial class alglib
             d = 1;
             e = 0.0;
             md = 0;
-            while( (double)(Math.Abs(c/a))>(double)(math.machineepsilon) )
-            {
+            while( (double)(Math.Abs(c/a))>(double)(math.machineepsilon) ) {
                 temp = b/a;
                 lphi = lphi+Math.Atan(t*temp)+md*Math.PI;
                 md = (int)((lphi+pio2)/Math.PI);
@@ -3709,8 +3481,7 @@ public partial class alglib
             temp = ebig/ellipticintegralk(m);
             temp = temp*((Math.Atan(t)+md*Math.PI)/(d*a));
             temp = temp+e;
-            if( s<0 )
-            {
+            if( s<0 ) {
                 temp = -temp;
             }
             result = temp+npio2*ebig;
@@ -3719,8 +3490,7 @@ public partial class alglib
 
 
     }
-    public class hermite
-    {
+    public class hermite {
         /*************************************************************************
         Calculation of the value of the Hermite polynomial.
 
@@ -3732,40 +3502,36 @@ public partial class alglib
             the value of the Hermite polynomial Hn at x
         *************************************************************************/
         public static double hermitecalculate(int n,
-            double x)
-        {
+                                              double x) {
             double result = 0;
             int i = 0;
             double a = 0;
             double b = 0;
 
             result = 0;
-            
+
             //
             // Prepare A and B
             //
             a = 1;
             b = 2*x;
-            
+
             //
             // Special cases: N=0 or N=1
             //
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = a;
                 return result;
             }
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = b;
                 return result;
             }
-            
+
             //
             // General case: N>=2
             //
-            for(i=2; i<=n; i++)
-            {
+            for(i=2; i<=n; i++) {
                 result = 2*x*b-2*(i-1)*a;
                 a = b;
                 b = result;
@@ -3788,9 +3554,8 @@ public partial class alglib
             the value of the Hermite polynomial at x
         *************************************************************************/
         public static double hermitesum(double[] c,
-            int n,
-            double x)
-        {
+                                        int n,
+                                        double x) {
             double result = 0;
             double b1 = 0;
             double b2 = 0;
@@ -3799,8 +3564,7 @@ public partial class alglib
             b1 = 0;
             b2 = 0;
             result = 0;
-            for(i=n; i>=0; i--)
-            {
+            for(i=n; i>=0; i--) {
                 result = 2*(x*b1-(i+1)*b2)+c[i];
                 b2 = b1;
                 b1 = result;
@@ -3819,28 +3583,24 @@ public partial class alglib
             C   -   coefficients
         *************************************************************************/
         public static void hermitecoefficients(int n,
-            ref double[] c)
-        {
+                                               ref double[] c) {
             int i = 0;
 
             c = new double[0];
 
             c = new double[n+1];
-            for(i=0; i<=n; i++)
-            {
+            for(i=0; i<=n; i++) {
                 c[i] = 0;
             }
             c[n] = Math.Exp(n*Math.Log(2));
-            for(i=0; i<=n/2-1; i++)
-            {
+            for(i=0; i<=n/2-1; i++) {
                 c[n-2*(i+1)] = -(c[n-2*i]*(n-2*i)*(n-2*i-1)/4/(i+1));
             }
         }
 
 
     }
-    public class dawson
-    {
+    public class dawson {
         /*************************************************************************
         Dawson's Integral
 
@@ -3866,8 +3626,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double dawsonintegral(double x)
-        {
+        public static double dawsonintegral(double x) {
             double result = 0;
             double x2 = 0;
             double y = 0;
@@ -3880,13 +3639,11 @@ public partial class alglib
             double cd = 0;
 
             sg = 1;
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 sg = -1;
                 x = -x;
             }
-            if( (double)(x)<(double)(3.25) )
-            {
+            if( (double)(x)<(double)(3.25) ) {
                 x2 = x*x;
                 an = 1.13681498971755972054E-11;
                 an = an*x2+8.49262267667473811108E-10;
@@ -3914,8 +3671,7 @@ public partial class alglib
                 return result;
             }
             x2 = 1.0/(x*x);
-            if( (double)(x)<(double)(6.25) )
-            {
+            if( (double)(x)<(double)(6.25) ) {
                 bn = 5.08955156417900903354E-1;
                 bn = bn*x2-2.44754418142697847934E-1;
                 bn = bn*x2+9.41512335303534411857E-2;
@@ -3942,8 +3698,7 @@ public partial class alglib
                 result = sg*0.5*y;
                 return result;
             }
-            if( (double)(x)>(double)(1.0E9) )
-            {
+            if( (double)(x)>(double)(1.0E9) ) {
                 result = sg*0.5/x;
                 return result;
             }
@@ -3965,8 +3720,7 @@ public partial class alglib
 
 
     }
-    public class trigintegrals
-    {
+    public class trigintegrals {
         /*************************************************************************
         Sine and cosine integrals
 
@@ -4007,9 +3761,8 @@ public partial class alglib
         Copyright 1984, 1987, 1989 by Stephen L. Moshier
         *************************************************************************/
         public static void sinecosineintegrals(double x,
-            ref double si,
-            ref double ci)
-        {
+                                               ref double si,
+                                               ref double ci) {
             double z = 0;
             double c = 0;
             double s = 0;
@@ -4028,29 +3781,23 @@ public partial class alglib
             si = 0;
             ci = 0;
 
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 sg = -1;
                 x = -x;
-            }
-            else
-            {
+            } else {
                 sg = 0;
             }
-            if( (double)(x)==(double)(0) )
-            {
+            if( (double)(x)==(double)(0) ) {
                 si = 0;
                 ci = -math.maxrealnumber;
                 return;
             }
-            if( (double)(x)>(double)(1.0E9) )
-            {
+            if( (double)(x)>(double)(1.0E9) ) {
                 si = 1.570796326794896619-Math.Cos(x)/x;
                 ci = Math.Sin(x)/x;
                 return;
             }
-            if( (double)(x)<=(double)(4) )
-            {
+            if( (double)(x)<=(double)(4) ) {
                 z = x*x;
                 sn = -8.39167827910303881427E-11;
                 sn = sn*z+4.62591714427012837309E-8;
@@ -4078,8 +3825,7 @@ public partial class alglib
                 cd = cd*z+5.10028056236446052392E-2;
                 cd = cd*z+4.00000000000000000080E0;
                 c = z*cn/cd;
-                if( sg!=0 )
-                {
+                if( sg!=0 ) {
                     s = -s;
                 }
                 si = s;
@@ -4089,8 +3835,7 @@ public partial class alglib
             s = Math.Sin(x);
             c = Math.Cos(x);
             z = 1.0/(x*x);
-            if( (double)(x)<(double)(8) )
-            {
+            if( (double)(x)<(double)(8) ) {
                 fn = 4.23612862892216586994E0;
                 fn = fn*z+5.45937717161812843388E0;
                 fn = fn*z+1.62083287701538329132E0;
@@ -4124,9 +3869,7 @@ public partial class alglib
                 gd = gd*z+2.02659182086343991969E-6;
                 gd = gd*z+7.82579218933534490868E-9;
                 g = z*gn/gd;
-            }
-            else
-            {
+            } else {
                 fn = 4.55880873470465315206E-1;
                 fn = fn*z+7.13715274100146711374E-1;
                 fn = fn*z+1.60300158222319456320E-1;
@@ -4168,8 +3911,7 @@ public partial class alglib
                 g = z*gn/gd;
             }
             si = 1.570796326794896619-f*c-g*s;
-            if( sg!=0 )
-            {
+            if( sg!=0 ) {
                 si = -si;
             }
             ci = f*s-g*c;
@@ -4217,9 +3959,8 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static void hyperbolicsinecosineintegrals(double x,
-            ref double shi,
-            ref double chi)
-        {
+                ref double shi,
+                ref double chi) {
             double k = 0;
             double z = 0;
             double c = 0;
@@ -4233,44 +3974,34 @@ public partial class alglib
             shi = 0;
             chi = 0;
 
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 sg = -1;
                 x = -x;
-            }
-            else
-            {
+            } else {
                 sg = 0;
             }
-            if( (double)(x)==(double)(0) )
-            {
+            if( (double)(x)==(double)(0) ) {
                 shi = 0;
                 chi = -math.maxrealnumber;
                 return;
             }
-            if( (double)(x)<(double)(8.0) )
-            {
+            if( (double)(x)<(double)(8.0) ) {
                 z = x*x;
                 a = 1.0;
                 s = 1.0;
                 c = 0.0;
                 k = 2.0;
-                do
-                {
+                do {
                     a = a*z/k;
                     c = c+a/k;
                     k = k+1.0;
                     a = a/k;
                     s = s+a/k;
                     k = k+1.0;
-                }
-                while( (double)(Math.Abs(a/s))>=(double)(math.machineepsilon) );
+                } while( (double)(Math.Abs(a/s))>=(double)(math.machineepsilon) );
                 s = s*x;
-            }
-            else
-            {
-                if( (double)(x)<(double)(18.0) )
-                {
+            } else {
+                if( (double)(x)<(double)(18.0) ) {
                     a = (576.0/x-52.0)/10.0;
                     k = Math.Exp(x)/x;
                     b0 = 1.83889230173399459482E-17;
@@ -4322,11 +4053,8 @@ public partial class alglib
                     chebiterationshichi(a, 2.64347496031374526641E-2, ref b0, ref b1, ref b2);
                     chebiterationshichi(a, 1.11446150876699213025E0, ref b0, ref b1, ref b2);
                     c = k*0.5*(b0-b2);
-                }
-                else
-                {
-                    if( (double)(x)<=(double)(88.0) )
-                    {
+                } else {
+                    if( (double)(x)<=(double)(88.0) ) {
                         a = (6336.0/x-212.0)/70.0;
                         k = Math.Exp(x)/x;
                         b0 = -1.05311574154850938805E-17;
@@ -4380,15 +4108,10 @@ public partial class alglib
                         chebiterationshichi(a, 1.28475387530065247392E-2, ref b0, ref b1, ref b2);
                         chebiterationshichi(a, 1.03665693917934275131E0, ref b0, ref b1, ref b2);
                         c = k*0.5*(b0-b2);
-                    }
-                    else
-                    {
-                        if( sg!=0 )
-                        {
+                    } else {
+                        if( sg!=0 ) {
                             shi = -math.maxrealnumber;
-                        }
-                        else
-                        {
+                        } else {
                             shi = math.maxrealnumber;
                         }
                         chi = math.maxrealnumber;
@@ -4396,8 +4119,7 @@ public partial class alglib
                     }
                 }
             }
-            if( sg!=0 )
-            {
+            if( sg!=0 ) {
                 s = -s;
             }
             shi = s;
@@ -4406,11 +4128,10 @@ public partial class alglib
 
 
         private static void chebiterationshichi(double x,
-            double c,
-            ref double b0,
-            ref double b1,
-            ref double b2)
-        {
+                                                double c,
+                                                ref double b0,
+                                                ref double b1,
+                                                ref double b2) {
             b2 = b1;
             b1 = b0;
             b0 = x*b1-b2+c;
@@ -4418,8 +4139,7 @@ public partial class alglib
 
 
     }
-    public class poissondistr
-    {
+    public class poissondistr {
         /*************************************************************************
         Poisson distribution
 
@@ -4446,8 +4166,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double poissondistribution(int k,
-            double m)
-        {
+                double m) {
             double result = 0;
 
             alglib.ap.assert(k>=0 && (double)(m)>(double)(0), "Domain error in PoissonDistribution");
@@ -4483,8 +4202,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double poissoncdistribution(int k,
-            double m)
-        {
+                double m) {
             double result = 0;
 
             alglib.ap.assert(k>=0 && (double)(m)>(double)(0), "Domain error in PoissonDistributionC");
@@ -4513,8 +4231,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invpoissondistribution(int k,
-            double y)
-        {
+                double y) {
             double result = 0;
 
             alglib.ap.assert((k>=0 && (double)(y)>=(double)(0)) && (double)(y)<(double)(1), "Domain error in InvPoissonDistribution");
@@ -4524,8 +4241,7 @@ public partial class alglib
 
 
     }
-    public class bessel
-    {
+    public class bessel {
         /*************************************************************************
         Bessel function of order zero
 
@@ -4556,8 +4272,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besselj0(double x)
-        {
+        public static double besselj0(double x) {
             double result = 0;
             double xsq = 0;
             double nn = 0;
@@ -4566,12 +4281,10 @@ public partial class alglib
             double p1 = 0;
             double q1 = 0;
 
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 x = -x;
             }
-            if( (double)(x)>(double)(8.0) )
-            {
+            if( (double)(x)>(double)(8.0) ) {
                 besselasympt0(x, ref pzero, ref qzero);
                 nn = x-Math.PI/4;
                 result = Math.Sqrt(2/Math.PI/x)*(pzero*Math.Cos(nn)-qzero*Math.Sin(nn));
@@ -4621,8 +4334,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besselj1(double x)
-        {
+        public static double besselj1(double x) {
             double result = 0;
             double s = 0;
             double xsq = 0;
@@ -4633,17 +4345,14 @@ public partial class alglib
             double q1 = 0;
 
             s = Math.Sign(x);
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 x = -x;
             }
-            if( (double)(x)>(double)(8.0) )
-            {
+            if( (double)(x)>(double)(8.0) ) {
                 besselasympt1(x, ref pzero, ref qzero);
                 nn = x-3*Math.PI/4;
                 result = Math.Sqrt(2/Math.PI/x)*(pzero*Math.Cos(nn)-qzero*Math.Sin(nn));
-                if( (double)(s)<(double)(0) )
-                {
+                if( (double)(s)<(double)(0) ) {
                     result = -result;
                 }
                 return result;
@@ -4700,8 +4409,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double besseljn(int n,
-            double x)
-        {
+                                      double x) {
             double result = 0;
             double pkm2 = 0;
             double pkm1 = 0;
@@ -4712,54 +4420,39 @@ public partial class alglib
             int k = 0;
             int sg = 0;
 
-            if( n<0 )
-            {
+            if( n<0 ) {
                 n = -n;
-                if( n%2==0 )
-                {
+                if( n%2==0 ) {
                     sg = 1;
-                }
-                else
-                {
+                } else {
                     sg = -1;
                 }
-            }
-            else
-            {
+            } else {
                 sg = 1;
             }
-            if( (double)(x)<(double)(0) )
-            {
-                if( n%2!=0 )
-                {
+            if( (double)(x)<(double)(0) ) {
+                if( n%2!=0 ) {
                     sg = -sg;
                 }
                 x = -x;
             }
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = sg*besselj0(x);
                 return result;
             }
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = sg*besselj1(x);
                 return result;
             }
-            if( n==2 )
-            {
-                if( (double)(x)==(double)(0) )
-                {
+            if( n==2 ) {
+                if( (double)(x)==(double)(0) ) {
                     result = 0;
-                }
-                else
-                {
+                } else {
                     result = sg*(2.0*besselj1(x)/x-besselj0(x));
                 }
                 return result;
             }
-            if( (double)(x)<(double)(math.machineepsilon) )
-            {
+            if( (double)(x)<(double)(math.machineepsilon) ) {
                 result = 0;
                 return result;
             }
@@ -4767,33 +4460,26 @@ public partial class alglib
             pk = 2*(n+k);
             ans = pk;
             xk = x*x;
-            do
-            {
+            do {
                 pk = pk-2.0;
                 ans = pk-xk/ans;
                 k = k-1;
-            }
-            while( k!=0 );
+            } while( k!=0 );
             ans = x/ans;
             pk = 1.0;
             pkm1 = 1.0/ans;
             k = n-1;
             r = 2*k;
-            do
-            {
+            do {
                 pkm2 = (pkm1*r-pk*x)/x;
                 pk = pkm1;
                 pkm1 = pkm2;
                 r = r-2.0;
                 k = k-1;
-            }
-            while( k!=0 );
-            if( (double)(Math.Abs(pk))>(double)(Math.Abs(pkm1)) )
-            {
+            } while( k!=0 );
+            if( (double)(Math.Abs(pk))>(double)(Math.Abs(pkm1)) ) {
                 ans = besselj1(x)/pk;
-            }
-            else
-            {
+            } else {
                 ans = besselj0(x)/pkm1;
             }
             result = sg*ans;
@@ -4829,8 +4515,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double bessely0(double x)
-        {
+        public static double bessely0(double x) {
             double result = 0;
             double nn = 0;
             double xsq = 0;
@@ -4839,8 +4524,7 @@ public partial class alglib
             double p4 = 0;
             double q4 = 0;
 
-            if( (double)(x)>(double)(8.0) )
-            {
+            if( (double)(x)>(double)(8.0) ) {
                 besselasympt0(x, ref pzero, ref qzero);
                 nn = x-Math.PI/4;
                 result = Math.Sqrt(2/Math.PI/x)*(pzero*Math.Sin(nn)+qzero*Math.Cos(nn));
@@ -4891,8 +4575,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double bessely1(double x)
-        {
+        public static double bessely1(double x) {
             double result = 0;
             double nn = 0;
             double xsq = 0;
@@ -4901,8 +4584,7 @@ public partial class alglib
             double p4 = 0;
             double q4 = 0;
 
-            if( (double)(x)>(double)(8.0) )
-            {
+            if( (double)(x)>(double)(8.0) ) {
                 besselasympt1(x, ref pzero, ref qzero);
                 nn = x-3*Math.PI/4;
                 result = Math.Sqrt(2/Math.PI/x)*(pzero*Math.Sin(nn)+qzero*Math.Cos(nn));
@@ -4956,8 +4638,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double besselyn(int n,
-            double x)
-        {
+                                      double x) {
             double result = 0;
             int i = 0;
             double a = 0;
@@ -4966,28 +4647,23 @@ public partial class alglib
             double s = 0;
 
             s = 1;
-            if( n<0 )
-            {
+            if( n<0 ) {
                 n = -n;
-                if( n%2!=0 )
-                {
+                if( n%2!=0 ) {
                     s = -1;
                 }
             }
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = bessely0(x);
                 return result;
             }
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = s*bessely1(x);
                 return result;
             }
             a = bessely0(x);
             b = bessely1(x);
-            for(i=1; i<=n-1; i++)
-            {
+            for(i=1; i<=n-1; i++) {
                 tmp = b;
                 b = 2*i/x*b-a;
                 a = tmp;
@@ -5018,8 +4694,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besseli0(double x)
-        {
+        public static double besseli0(double x) {
             double result = 0;
             double y = 0;
             double v = 0;
@@ -5028,12 +4703,10 @@ public partial class alglib
             double b1 = 0;
             double b2 = 0;
 
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 x = -x;
             }
-            if( (double)(x)<=(double)(8.0) )
-            {
+            if( (double)(x)<=(double)(8.0) ) {
                 y = x/2.0-2.0;
                 besselmfirstcheb(-4.41534164647933937950E-18, ref b0, ref b1, ref b2);
                 besselmnextcheb(y, 3.33079451882223809783E-17, ref b0, ref b1, ref b2);
@@ -5122,8 +4795,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1985, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besseli1(double x)
-        {
+        public static double besseli1(double x) {
             double result = 0;
             double y = 0;
             double z = 0;
@@ -5133,8 +4805,7 @@ public partial class alglib
             double b2 = 0;
 
             z = Math.Abs(x);
-            if( (double)(z)<=(double)(8.0) )
-            {
+            if( (double)(z)<=(double)(8.0) ) {
                 y = z/2.0-2.0;
                 besselm1firstcheb(2.77791411276104639959E-18, ref b0, ref b1, ref b2);
                 besselm1nextcheb(y, -2.11142121435816608115E-17, ref b0, ref b1, ref b2);
@@ -5167,9 +4838,7 @@ public partial class alglib
                 besselm1nextcheb(y, 2.52587186443633654823E-1, ref b0, ref b1, ref b2);
                 v = 0.5*(b0-b2);
                 z = v*z*Math.Exp(z);
-            }
-            else
-            {
+            } else {
                 y = 32.0/z-2.0;
                 besselm1firstcheb(7.51729631084210481353E-18, ref b0, ref b1, ref b2);
                 besselm1nextcheb(y, 4.41434832307170791151E-18, ref b0, ref b1, ref b2);
@@ -5199,8 +4868,7 @@ public partial class alglib
                 v = 0.5*(b0-b2);
                 z = v*Math.Exp(z)/Math.Sqrt(z);
             }
-            if( (double)(x)<(double)(0) )
-            {
+            if( (double)(x)<(double)(0) ) {
                 z = -z;
             }
             result = z;
@@ -5229,8 +4897,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besselk0(double x)
-        {
+        public static double besselk0(double x) {
             double result = 0;
             double y = 0;
             double z = 0;
@@ -5240,8 +4907,7 @@ public partial class alglib
             double b2 = 0;
 
             alglib.ap.assert((double)(x)>(double)(0), "Domain error in BesselK0: x<=0");
-            if( (double)(x)<=(double)(2) )
-            {
+            if( (double)(x)<=(double)(2) ) {
                 y = x*x-2.0;
                 besselmfirstcheb(1.37446543561352307156E-16, ref b0, ref b1, ref b2);
                 besselmnextcheb(y, 4.25981614279661018399E-14, ref b0, ref b1, ref b2);
@@ -5255,9 +4921,7 @@ public partial class alglib
                 besselmnextcheb(y, -5.35327393233902768720E-1, ref b0, ref b1, ref b2);
                 v = 0.5*(b0-b2);
                 v = v-Math.Log(0.5*x)*besseli0(x);
-            }
-            else
-            {
+            } else {
                 z = 8.0/x-2.0;
                 besselmfirstcheb(5.30043377268626276149E-18, ref b0, ref b1, ref b2);
                 besselmnextcheb(z, -1.64758043015242134646E-17, ref b0, ref b1, ref b2);
@@ -5311,8 +4975,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double besselk1(double x)
-        {
+        public static double besselk1(double x) {
             double result = 0;
             double y = 0;
             double z = 0;
@@ -5323,8 +4986,7 @@ public partial class alglib
 
             z = 0.5*x;
             alglib.ap.assert((double)(z)>(double)(0), "Domain error in K1");
-            if( (double)(x)<=(double)(2) )
-            {
+            if( (double)(x)<=(double)(2) ) {
                 y = x*x-2.0;
                 besselm1firstcheb(-7.02386347938628759343E-18, ref b0, ref b1, ref b2);
                 besselm1nextcheb(y, -2.42744985051936593393E-15, ref b0, ref b1, ref b2);
@@ -5339,9 +5001,7 @@ public partial class alglib
                 besselm1nextcheb(y, 1.52530022733894777053E0, ref b0, ref b1, ref b2);
                 v = 0.5*(b0-b2);
                 result = Math.Log(z)*besseli1(x)+v/x;
-            }
-            else
-            {
+            } else {
                 y = 8.0/x-2.0;
                 besselm1firstcheb(-5.75674448366501715755E-18, ref b0, ref b1, ref b2);
                 besselm1nextcheb(y, 1.79405087314755922667E-17, ref b0, ref b1, ref b2);
@@ -5398,8 +5058,7 @@ public partial class alglib
         Copyright 1984, 1987, 1988, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double besselkn(int nn,
-            double x)
-        {
+                                      double x) {
             double result = 0;
             double k = 0;
             double kf = 0;
@@ -5422,48 +5081,38 @@ public partial class alglib
             double eul = 0;
 
             eul = 5.772156649015328606065e-1;
-            if( nn<0 )
-            {
+            if( nn<0 ) {
                 n = -nn;
-            }
-            else
-            {
+            } else {
                 n = nn;
             }
             alglib.ap.assert(n<=31, "Overflow in BesselKN");
             alglib.ap.assert((double)(x)>(double)(0), "Domain error in BesselKN");
-            if( (double)(x)<=(double)(9.55) )
-            {
+            if( (double)(x)<=(double)(9.55) ) {
                 ans = 0.0;
                 z0 = 0.25*x*x;
                 fn = 1.0;
                 pn = 0.0;
                 zmn = 1.0;
                 tox = 2.0/x;
-                if( n>0 )
-                {
+                if( n>0 ) {
                     pn = -eul;
                     k = 1.0;
-                    for(i=1; i<=n-1; i++)
-                    {
+                    for(i=1; i<=n-1; i++) {
                         pn = pn+1.0/k;
                         k = k+1.0;
                         fn = fn*k;
                     }
                     zmn = tox;
-                    if( n==1 )
-                    {
+                    if( n==1 ) {
                         ans = 1.0/x;
-                    }
-                    else
-                    {
+                    } else {
                         nk1f = fn/n;
                         kf = 1.0;
                         s = nk1f;
                         z = -z0;
                         zn = 1.0;
-                        for(i=1; i<=n-1; i++)
-                        {
+                        for(i=1; i<=n-1; i++) {
                             nk1f = nk1f/(n-i);
                             kf = kf*i;
                             zn = zn*z;
@@ -5482,38 +5131,31 @@ public partial class alglib
                 }
                 tlg = 2.0*Math.Log(0.5*x);
                 pk = -eul;
-                if( n==0 )
-                {
+                if( n==0 ) {
                     pn = pk;
                     t = 1.0;
-                }
-                else
-                {
+                } else {
                     pn = pn+1.0/n;
                     t = 1.0/fn;
                 }
                 s = (pk+pn-tlg)*t;
                 k = 1.0;
-                do
-                {
+                do {
                     t = t*(z0/(k*(k+n)));
                     pk = pk+1.0/k;
                     pn = pn+1.0/(k+n);
                     s = s+(pk+pn-tlg)*t;
                     k = k+1.0;
-                }
-                while( (double)(Math.Abs(t/s))>(double)(math.machineepsilon) );
+                } while( (double)(Math.Abs(t/s))>(double)(math.machineepsilon) );
                 s = 0.5*s/zmn;
-                if( n%2!=0 )
-                {
+                if( n%2!=0 ) {
                     s = -s;
                 }
                 ans = ans+s;
                 result = ans;
                 return result;
             }
-            if( (double)(x)>(double)(Math.Log(math.maxrealnumber)) )
-            {
+            if( (double)(x)>(double)(Math.Log(math.maxrealnumber)) ) {
                 result = 0;
                 return result;
             }
@@ -5526,13 +5168,11 @@ public partial class alglib
             s = t;
             nkf = math.maxrealnumber;
             i = 0;
-            do
-            {
+            do {
                 z = pn-pk*pk;
                 t = t*z/(fn*z0);
                 nk1f = Math.Abs(t);
-                if( i>=n && (double)(nk1f)>(double)(nkf) )
-                {
+                if( i>=n && (double)(nk1f)>(double)(nkf) ) {
                     break;
                 }
                 nkf = nk1f;
@@ -5540,8 +5180,7 @@ public partial class alglib
                 fn = fn+1.0;
                 pk = pk+2.0;
                 i = i+1;
-            }
-            while( (double)(Math.Abs(t/s))>(double)(math.machineepsilon) );
+            } while( (double)(Math.Abs(t/s))>(double)(math.machineepsilon) );
             result = Math.Exp(-x)*Math.Sqrt(Math.PI/(2.0*x))*s;
             return result;
         }
@@ -5554,10 +5193,9 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static void besselmfirstcheb(double c,
-            ref double b0,
-            ref double b1,
-            ref double b2)
-        {
+                                             ref double b0,
+                                             ref double b1,
+                                             ref double b2) {
             b0 = c;
             b1 = 0.0;
             b2 = 0.0;
@@ -5571,11 +5209,10 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static void besselmnextcheb(double x,
-            double c,
-            ref double b0,
-            ref double b1,
-            ref double b2)
-        {
+                                            double c,
+                                            ref double b0,
+                                            ref double b1,
+                                            ref double b2) {
             b2 = b1;
             b1 = b0;
             b0 = x*b1-b2+c;
@@ -5589,10 +5226,9 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static void besselm1firstcheb(double c,
-            ref double b0,
-            ref double b1,
-            ref double b2)
-        {
+                                              ref double b0,
+                                              ref double b1,
+                                              ref double b2) {
             b0 = c;
             b1 = 0.0;
             b2 = 0.0;
@@ -5606,11 +5242,10 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static void besselm1nextcheb(double x,
-            double c,
-            ref double b0,
-            ref double b1,
-            ref double b2)
-        {
+                                             double c,
+                                             ref double b0,
+                                             ref double b1,
+                                             ref double b2) {
             b2 = b1;
             b1 = b0;
             b0 = x*b1-b2+c;
@@ -5618,9 +5253,8 @@ public partial class alglib
 
 
         private static void besselasympt0(double x,
-            ref double pzero,
-            ref double qzero)
-        {
+                                          ref double pzero,
+                                          ref double qzero) {
             double xsq = 0;
             double p2 = 0;
             double q2 = 0;
@@ -5665,9 +5299,8 @@ public partial class alglib
 
 
         private static void besselasympt1(double x,
-            ref double pzero,
-            ref double qzero)
-        {
+                                          ref double pzero,
+                                          ref double qzero) {
             double xsq = 0;
             double p2 = 0;
             double q2 = 0;
@@ -5710,8 +5343,7 @@ public partial class alglib
 
 
     }
-    public class ibetaf
-    {
+    public class ibetaf {
         /*************************************************************************
         Incomplete beta integral
 
@@ -5754,9 +5386,8 @@ public partial class alglib
         Copyright 1984, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double incompletebeta(double a,
-            double b,
-            double x)
-        {
+                                            double b,
+                                            double x) {
             double result = 0;
             double t = 0;
             double xc = 0;
@@ -5777,102 +5408,75 @@ public partial class alglib
             maxlog = Math.Log(math.maxrealnumber);
             alglib.ap.assert((double)(a)>(double)(0) && (double)(b)>(double)(0), "Domain error in IncompleteBeta");
             alglib.ap.assert((double)(x)>=(double)(0) && (double)(x)<=(double)(1), "Domain error in IncompleteBeta");
-            if( (double)(x)==(double)(0) )
-            {
+            if( (double)(x)==(double)(0) ) {
                 result = 0;
                 return result;
             }
-            if( (double)(x)==(double)(1) )
-            {
+            if( (double)(x)==(double)(1) ) {
                 result = 1;
                 return result;
             }
             flag = 0;
-            if( (double)(b*x)<=(double)(1.0) && (double)(x)<=(double)(0.95) )
-            {
+            if( (double)(b*x)<=(double)(1.0) && (double)(x)<=(double)(0.95) ) {
                 result = incompletebetaps(a, b, x, maxgam);
                 return result;
             }
             w = 1.0-x;
-            if( (double)(x)>(double)(a/(a+b)) )
-            {
+            if( (double)(x)>(double)(a/(a+b)) ) {
                 flag = 1;
                 t = a;
                 a = b;
                 b = t;
                 xc = x;
                 x = w;
-            }
-            else
-            {
+            } else {
                 xc = w;
             }
-            if( (flag==1 && (double)(b*x)<=(double)(1.0)) && (double)(x)<=(double)(0.95) )
-            {
+            if( (flag==1 && (double)(b*x)<=(double)(1.0)) && (double)(x)<=(double)(0.95) ) {
                 t = incompletebetaps(a, b, x, maxgam);
-                if( (double)(t)<=(double)(math.machineepsilon) )
-                {
+                if( (double)(t)<=(double)(math.machineepsilon) ) {
                     result = 1.0-math.machineepsilon;
-                }
-                else
-                {
+                } else {
                     result = 1.0-t;
                 }
                 return result;
             }
             y = x*(a+b-2.0)-(a-1.0);
-            if( (double)(y)<(double)(0.0) )
-            {
+            if( (double)(y)<(double)(0.0) ) {
                 w = incompletebetafe(a, b, x, big, biginv);
-            }
-            else
-            {
+            } else {
                 w = incompletebetafe2(a, b, x, big, biginv)/xc;
             }
             y = a*Math.Log(x);
             t = b*Math.Log(xc);
-            if( ((double)(a+b)<(double)(maxgam) && (double)(Math.Abs(y))<(double)(maxlog)) && (double)(Math.Abs(t))<(double)(maxlog) )
-            {
+            if( ((double)(a+b)<(double)(maxgam) && (double)(Math.Abs(y))<(double)(maxlog)) && (double)(Math.Abs(t))<(double)(maxlog) ) {
                 t = Math.Pow(xc, b);
                 t = t*Math.Pow(x, a);
                 t = t/a;
                 t = t*w;
                 t = t*(gammafunc.gammafunction(a+b)/(gammafunc.gammafunction(a)*gammafunc.gammafunction(b)));
-                if( flag==1 )
-                {
-                    if( (double)(t)<=(double)(math.machineepsilon) )
-                    {
+                if( flag==1 ) {
+                    if( (double)(t)<=(double)(math.machineepsilon) ) {
                         result = 1.0-math.machineepsilon;
-                    }
-                    else
-                    {
+                    } else {
                         result = 1.0-t;
                     }
-                }
-                else
-                {
+                } else {
                     result = t;
                 }
                 return result;
             }
             y = y+t+gammafunc.lngamma(a+b, ref sg)-gammafunc.lngamma(a, ref sg)-gammafunc.lngamma(b, ref sg);
             y = y+Math.Log(w/a);
-            if( (double)(y)<(double)(minlog) )
-            {
+            if( (double)(y)<(double)(minlog) ) {
                 t = 0.0;
-            }
-            else
-            {
+            } else {
                 t = Math.Exp(y);
             }
-            if( flag==1 )
-            {
-                if( (double)(t)<=(double)(math.machineepsilon) )
-                {
+            if( flag==1 ) {
+                if( (double)(t)<=(double)(math.machineepsilon) ) {
                     t = 1.0-math.machineepsilon;
-                }
-                else
-                {
+                } else {
                     t = 1.0-t;
                 }
             }
@@ -5910,9 +5514,8 @@ public partial class alglib
         Copyright 1984, 1996, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invincompletebeta(double a,
-            double b,
-            double y)
-        {
+                                               double b,
+                                               double y) {
             double result = 0;
             double aaa = 0;
             double bbb = 0;
@@ -5944,21 +5547,19 @@ public partial class alglib
 
             i = 0;
             alglib.ap.assert((double)(y)>=(double)(0) && (double)(y)<=(double)(1), "Domain error in InvIncompleteBeta");
-            
+
             //
             // special cases
             //
-            if( (double)(y)==(double)(0) )
-            {
+            if( (double)(y)==(double)(0) ) {
                 result = 0;
                 return result;
             }
-            if( (double)(y)==(double)(1.0) )
-            {
+            if( (double)(y)==(double)(1.0) ) {
                 result = 1;
                 return result;
             }
-            
+
             //
             // these initializations are not really necessary,
             // but without them compiler complains about 'possibly uninitialized variables'.
@@ -5973,7 +5574,7 @@ public partial class alglib
             lgm = 0;
             dir = 0;
             di = 0;
-            
+
             //
             // normal initializations
             //
@@ -5989,20 +5590,17 @@ public partial class alglib
             newtcycle = 4;
             breaknewtcycle = 5;
             breakihalvecycle = 6;
-            
+
             //
             // main loop
             //
-            while( true )
-            {
-                
+            while( true ) {
+
                 //
                 // start
                 //
-                if( mainlooppos==0 )
-                {
-                    if( (double)(a)<=(double)(1.0) || (double)(b)<=(double)(1.0) )
-                    {
+                if( mainlooppos==0 ) {
+                    if( (double)(a)<=(double)(1.0) || (double)(b)<=(double)(1.0) ) {
                         dithresh = 1.0e-6;
                         rflg = 0;
                         aaa = a;
@@ -6012,22 +5610,17 @@ public partial class alglib
                         yyy = incompletebeta(aaa, bbb, x);
                         mainlooppos = ihalve;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         dithresh = 1.0e-4;
                     }
                     yp = -normaldistr.invnormaldistribution(y);
-                    if( (double)(y)>(double)(0.5) )
-                    {
+                    if( (double)(y)>(double)(0.5) ) {
                         rflg = 1;
                         aaa = b;
                         bbb = a;
                         y0 = 1.0-y;
                         yp = -yp;
-                    }
-                    else
-                    {
+                    } else {
                         rflg = 0;
                         aaa = a;
                         bbb = b;
@@ -6037,111 +5630,86 @@ public partial class alglib
                     x = 2.0/(1.0/(2.0*aaa-1.0)+1.0/(2.0*bbb-1.0));
                     d = yp*Math.Sqrt(x+lgm)/x-(1.0/(2.0*bbb-1.0)-1.0/(2.0*aaa-1.0))*(lgm+5.0/6.0-2.0/(3.0*x));
                     d = 2.0*d;
-                    if( (double)(d)<(double)(Math.Log(math.minrealnumber)) )
-                    {
+                    if( (double)(d)<(double)(Math.Log(math.minrealnumber)) ) {
                         x = 0;
                         break;
                     }
                     x = aaa/(aaa+bbb*Math.Exp(d));
                     yyy = incompletebeta(aaa, bbb, x);
                     yp = (yyy-y0)/y0;
-                    if( (double)(Math.Abs(yp))<(double)(0.2) )
-                    {
+                    if( (double)(Math.Abs(yp))<(double)(0.2) ) {
                         mainlooppos = newt;
                         continue;
                     }
                     mainlooppos = ihalve;
                     continue;
                 }
-                
+
                 //
                 // ihalve
                 //
-                if( mainlooppos==ihalve )
-                {
+                if( mainlooppos==ihalve ) {
                     dir = 0;
                     di = 0.5;
                     i = 0;
                     mainlooppos = ihalvecycle;
                     continue;
                 }
-                
+
                 //
                 // ihalvecycle
                 //
-                if( mainlooppos==ihalvecycle )
-                {
-                    if( i<=99 )
-                    {
-                        if( i!=0 )
-                        {
+                if( mainlooppos==ihalvecycle ) {
+                    if( i<=99 ) {
+                        if( i!=0 ) {
                             x = x0+di*(x1-x0);
-                            if( (double)(x)==(double)(1.0) )
-                            {
+                            if( (double)(x)==(double)(1.0) ) {
                                 x = 1.0-math.machineepsilon;
                             }
-                            if( (double)(x)==(double)(0.0) )
-                            {
+                            if( (double)(x)==(double)(0.0) ) {
                                 di = 0.5;
                                 x = x0+di*(x1-x0);
-                                if( (double)(x)==(double)(0.0) )
-                                {
+                                if( (double)(x)==(double)(0.0) ) {
                                     break;
                                 }
                             }
                             yyy = incompletebeta(aaa, bbb, x);
                             yp = (x1-x0)/(x1+x0);
-                            if( (double)(Math.Abs(yp))<(double)(dithresh) )
-                            {
+                            if( (double)(Math.Abs(yp))<(double)(dithresh) ) {
                                 mainlooppos = newt;
                                 continue;
                             }
                             yp = (yyy-y0)/y0;
-                            if( (double)(Math.Abs(yp))<(double)(dithresh) )
-                            {
+                            if( (double)(Math.Abs(yp))<(double)(dithresh) ) {
                                 mainlooppos = newt;
                                 continue;
                             }
                         }
-                        if( (double)(yyy)<(double)(y0) )
-                        {
+                        if( (double)(yyy)<(double)(y0) ) {
                             x0 = x;
                             yl = yyy;
-                            if( dir<0 )
-                            {
+                            if( dir<0 ) {
                                 dir = 0;
                                 di = 0.5;
-                            }
-                            else
-                            {
-                                if( dir>3 )
-                                {
+                            } else {
+                                if( dir>3 ) {
                                     di = 1.0-(1.0-di)*(1.0-di);
-                                }
-                                else
-                                {
-                                    if( dir>1 )
-                                    {
+                                } else {
+                                    if( dir>1 ) {
                                         di = 0.5*di+0.5;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         di = (y0-yyy)/(yh-yl);
                                     }
                                 }
                             }
                             dir = dir+1;
-                            if( (double)(x0)>(double)(0.75) )
-                            {
-                                if( rflg==1 )
-                                {
+                            if( (double)(x0)>(double)(0.75) ) {
+                                if( rflg==1 ) {
                                     rflg = 0;
                                     aaa = a;
                                     bbb = b;
                                     y0 = y;
-                                }
-                                else
-                                {
+                                } else {
                                     rflg = 1;
                                     aaa = b;
                                     bbb = a;
@@ -6156,35 +5724,23 @@ public partial class alglib
                                 mainlooppos = ihalve;
                                 continue;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             x1 = x;
-                            if( rflg==1 && (double)(x1)<(double)(math.machineepsilon) )
-                            {
+                            if( rflg==1 && (double)(x1)<(double)(math.machineepsilon) ) {
                                 x = 0.0;
                                 break;
                             }
                             yh = yyy;
-                            if( dir>0 )
-                            {
+                            if( dir>0 ) {
                                 dir = 0;
                                 di = 0.5;
-                            }
-                            else
-                            {
-                                if( dir<-3 )
-                                {
+                            } else {
+                                if( dir<-3 ) {
                                     di = di*di;
-                                }
-                                else
-                                {
-                                    if( dir<-1 )
-                                    {
+                                } else {
+                                    if( dir<-1 ) {
                                         di = 0.5*di;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         di = (yyy-y0)/(yh-yl);
                                     }
                                 }
@@ -6194,40 +5750,33 @@ public partial class alglib
                         i = i+1;
                         mainlooppos = ihalvecycle;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         mainlooppos = breakihalvecycle;
                         continue;
                     }
                 }
-                
+
                 //
                 // breakihalvecycle
                 //
-                if( mainlooppos==breakihalvecycle )
-                {
-                    if( (double)(x0)>=(double)(1.0) )
-                    {
+                if( mainlooppos==breakihalvecycle ) {
+                    if( (double)(x0)>=(double)(1.0) ) {
                         x = 1.0-math.machineepsilon;
                         break;
                     }
-                    if( (double)(x)<=(double)(0.0) )
-                    {
+                    if( (double)(x)<=(double)(0.0) ) {
                         x = 0.0;
                         break;
                     }
                     mainlooppos = newt;
                     continue;
                 }
-                
+
                 //
                 // newt
                 //
-                if( mainlooppos==newt )
-                {
-                    if( nflg!=0 )
-                    {
+                if( mainlooppos==newt ) {
+                    if( nflg!=0 ) {
                         break;
                     }
                     nflg = 1;
@@ -6236,120 +5785,93 @@ public partial class alglib
                     mainlooppos = newtcycle;
                     continue;
                 }
-                
+
                 //
                 // newtcycle
                 //
-                if( mainlooppos==newtcycle )
-                {
-                    if( i<=7 )
-                    {
-                        if( i!=0 )
-                        {
+                if( mainlooppos==newtcycle ) {
+                    if( i<=7 ) {
+                        if( i!=0 ) {
                             yyy = incompletebeta(aaa, bbb, x);
                         }
-                        if( (double)(yyy)<(double)(yl) )
-                        {
+                        if( (double)(yyy)<(double)(yl) ) {
                             x = x0;
                             yyy = yl;
-                        }
-                        else
-                        {
-                            if( (double)(yyy)>(double)(yh) )
-                            {
+                        } else {
+                            if( (double)(yyy)>(double)(yh) ) {
                                 x = x1;
                                 yyy = yh;
-                            }
-                            else
-                            {
-                                if( (double)(yyy)<(double)(y0) )
-                                {
+                            } else {
+                                if( (double)(yyy)<(double)(y0) ) {
                                     x0 = x;
                                     yl = yyy;
-                                }
-                                else
-                                {
+                                } else {
                                     x1 = x;
                                     yh = yyy;
                                 }
                             }
                         }
-                        if( (double)(x)==(double)(1.0) || (double)(x)==(double)(0.0) )
-                        {
+                        if( (double)(x)==(double)(1.0) || (double)(x)==(double)(0.0) ) {
                             mainlooppos = breaknewtcycle;
                             continue;
                         }
                         d = (aaa-1.0)*Math.Log(x)+(bbb-1.0)*Math.Log(1.0-x)+lgm;
-                        if( (double)(d)<(double)(Math.Log(math.minrealnumber)) )
-                        {
+                        if( (double)(d)<(double)(Math.Log(math.minrealnumber)) ) {
                             break;
                         }
-                        if( (double)(d)>(double)(Math.Log(math.maxrealnumber)) )
-                        {
+                        if( (double)(d)>(double)(Math.Log(math.maxrealnumber)) ) {
                             mainlooppos = breaknewtcycle;
                             continue;
                         }
                         d = Math.Exp(d);
                         d = (yyy-y0)/d;
                         xt = x-d;
-                        if( (double)(xt)<=(double)(x0) )
-                        {
+                        if( (double)(xt)<=(double)(x0) ) {
                             yyy = (x-x0)/(x1-x0);
                             xt = x0+0.5*yyy*(x-x0);
-                            if( (double)(xt)<=(double)(0.0) )
-                            {
+                            if( (double)(xt)<=(double)(0.0) ) {
                                 mainlooppos = breaknewtcycle;
                                 continue;
                             }
                         }
-                        if( (double)(xt)>=(double)(x1) )
-                        {
+                        if( (double)(xt)>=(double)(x1) ) {
                             yyy = (x1-x)/(x1-x0);
                             xt = x1-0.5*yyy*(x1-x);
-                            if( (double)(xt)>=(double)(1.0) )
-                            {
+                            if( (double)(xt)>=(double)(1.0) ) {
                                 mainlooppos = breaknewtcycle;
                                 continue;
                             }
                         }
                         x = xt;
-                        if( (double)(Math.Abs(d/x))<(double)(128.0*math.machineepsilon) )
-                        {
+                        if( (double)(Math.Abs(d/x))<(double)(128.0*math.machineepsilon) ) {
                             break;
                         }
                         i = i+1;
                         mainlooppos = newtcycle;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         mainlooppos = breaknewtcycle;
                         continue;
                     }
                 }
-                
+
                 //
                 // breaknewtcycle
                 //
-                if( mainlooppos==breaknewtcycle )
-                {
+                if( mainlooppos==breaknewtcycle ) {
                     dithresh = 256.0*math.machineepsilon;
                     mainlooppos = ihalve;
                     continue;
                 }
             }
-            
+
             //
             // done
             //
-            if( rflg!=0 )
-            {
-                if( (double)(x)<=(double)(math.machineepsilon) )
-                {
+            if( rflg!=0 ) {
+                if( (double)(x)<=(double)(math.machineepsilon) ) {
                     x = 1.0-math.machineepsilon;
-                }
-                else
-                {
+                } else {
                     x = 1.0-x;
                 }
             }
@@ -6365,11 +5887,10 @@ public partial class alglib
         Copyright 1984, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static double incompletebetafe(double a,
-            double b,
-            double x,
-            double big,
-            double biginv)
-        {
+                                               double b,
+                                               double x,
+                                               double big,
+                                               double biginv) {
             double result = 0;
             double xk = 0;
             double pk = 0;
@@ -6408,8 +5929,7 @@ public partial class alglib
             r = 1.0;
             n = 0;
             thresh = 3.0*math.machineepsilon;
-            do
-            {
+            do {
                 xk = -(x*k1*k2/(k3*k4));
                 pk = pkm1+pkm2*xk;
                 qk = qkm1+qkm2*xk;
@@ -6424,21 +5944,16 @@ public partial class alglib
                 pkm1 = pk;
                 qkm2 = qkm1;
                 qkm1 = qk;
-                if( (double)(qk)!=(double)(0) )
-                {
+                if( (double)(qk)!=(double)(0) ) {
                     r = pk/qk;
                 }
-                if( (double)(r)!=(double)(0) )
-                {
+                if( (double)(r)!=(double)(0) ) {
                     t = Math.Abs((ans-r)/r);
                     ans = r;
-                }
-                else
-                {
+                } else {
                     t = 1.0;
                 }
-                if( (double)(t)<(double)(thresh) )
-                {
+                if( (double)(t)<(double)(thresh) ) {
                     break;
                 }
                 k1 = k1+1.0;
@@ -6449,23 +5964,20 @@ public partial class alglib
                 k6 = k6-1.0;
                 k7 = k7+2.0;
                 k8 = k8+2.0;
-                if( (double)(Math.Abs(qk)+Math.Abs(pk))>(double)(big) )
-                {
+                if( (double)(Math.Abs(qk)+Math.Abs(pk))>(double)(big) ) {
                     pkm2 = pkm2*biginv;
                     pkm1 = pkm1*biginv;
                     qkm2 = qkm2*biginv;
                     qkm1 = qkm1*biginv;
                 }
-                if( (double)(Math.Abs(qk))<(double)(biginv) || (double)(Math.Abs(pk))<(double)(biginv) )
-                {
+                if( (double)(Math.Abs(qk))<(double)(biginv) || (double)(Math.Abs(pk))<(double)(biginv) ) {
                     pkm2 = pkm2*big;
                     pkm1 = pkm1*big;
                     qkm2 = qkm2*big;
                     qkm1 = qkm1*big;
                 }
                 n = n+1;
-            }
-            while( n!=300 );
+            } while( n!=300 );
             result = ans;
             return result;
         }
@@ -6479,11 +5991,10 @@ public partial class alglib
         Copyright 1984, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static double incompletebetafe2(double a,
-            double b,
-            double x,
-            double big,
-            double biginv)
-        {
+                                                double b,
+                                                double x,
+                                                double big,
+                                                double biginv) {
             double result = 0;
             double xk = 0;
             double pk = 0;
@@ -6524,8 +6035,7 @@ public partial class alglib
             r = 1.0;
             n = 0;
             thresh = 3.0*math.machineepsilon;
-            do
-            {
+            do {
                 xk = -(z*k1*k2/(k3*k4));
                 pk = pkm1+pkm2*xk;
                 qk = qkm1+qkm2*xk;
@@ -6540,21 +6050,16 @@ public partial class alglib
                 pkm1 = pk;
                 qkm2 = qkm1;
                 qkm1 = qk;
-                if( (double)(qk)!=(double)(0) )
-                {
+                if( (double)(qk)!=(double)(0) ) {
                     r = pk/qk;
                 }
-                if( (double)(r)!=(double)(0) )
-                {
+                if( (double)(r)!=(double)(0) ) {
                     t = Math.Abs((ans-r)/r);
                     ans = r;
-                }
-                else
-                {
+                } else {
                     t = 1.0;
                 }
-                if( (double)(t)<(double)(thresh) )
-                {
+                if( (double)(t)<(double)(thresh) ) {
                     break;
                 }
                 k1 = k1+1.0;
@@ -6565,23 +6070,20 @@ public partial class alglib
                 k6 = k6+1.0;
                 k7 = k7+2.0;
                 k8 = k8+2.0;
-                if( (double)(Math.Abs(qk)+Math.Abs(pk))>(double)(big) )
-                {
+                if( (double)(Math.Abs(qk)+Math.Abs(pk))>(double)(big) ) {
                     pkm2 = pkm2*biginv;
                     pkm1 = pkm1*biginv;
                     qkm2 = qkm2*biginv;
                     qkm1 = qkm1*biginv;
                 }
-                if( (double)(Math.Abs(qk))<(double)(biginv) || (double)(Math.Abs(pk))<(double)(biginv) )
-                {
+                if( (double)(Math.Abs(qk))<(double)(biginv) || (double)(Math.Abs(pk))<(double)(biginv) ) {
                     pkm2 = pkm2*big;
                     pkm1 = pkm1*big;
                     qkm2 = qkm2*big;
                     qkm1 = qkm1*big;
                 }
                 n = n+1;
-            }
-            while( n!=300 );
+            } while( n!=300 );
             result = ans;
             return result;
         }
@@ -6595,10 +6097,9 @@ public partial class alglib
         Copyright 1984, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         private static double incompletebetaps(double a,
-            double b,
-            double x,
-            double maxgam)
-        {
+                                               double b,
+                                               double x,
+                                               double maxgam) {
             double result = 0;
             double s = 0;
             double t = 0;
@@ -6618,8 +6119,7 @@ public partial class alglib
             n = 2.0;
             s = 0.0;
             z = math.machineepsilon*ai;
-            while( (double)(Math.Abs(v))>(double)(z) )
-            {
+            while( (double)(Math.Abs(v))>(double)(z) ) {
                 u = (n-b)*x/n;
                 t = t*u;
                 v = t/(a+n);
@@ -6629,20 +6129,14 @@ public partial class alglib
             s = s+t1;
             s = s+ai;
             u = a*Math.Log(x);
-            if( (double)(a+b)<(double)(maxgam) && (double)(Math.Abs(u))<(double)(Math.Log(math.maxrealnumber)) )
-            {
+            if( (double)(a+b)<(double)(maxgam) && (double)(Math.Abs(u))<(double)(Math.Log(math.maxrealnumber)) ) {
                 t = gammafunc.gammafunction(a+b)/(gammafunc.gammafunction(a)*gammafunc.gammafunction(b));
                 s = s*t*Math.Pow(x, a);
-            }
-            else
-            {
+            } else {
                 t = gammafunc.lngamma(a+b, ref sg)-gammafunc.lngamma(a, ref sg)-gammafunc.lngamma(b, ref sg)+u+Math.Log(s);
-                if( (double)(t)<(double)(Math.Log(math.minrealnumber)) )
-                {
+                if( (double)(t)<(double)(Math.Log(math.minrealnumber)) ) {
                     s = 0.0;
-                }
-                else
-                {
+                } else {
                     s = Math.Exp(t);
                 }
             }
@@ -6652,8 +6146,7 @@ public partial class alglib
 
 
     }
-    public class fdistr
-    {
+    public class fdistr {
         /*************************************************************************
         F distribution
 
@@ -6687,9 +6180,8 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double fdistribution(int a,
-            int b,
-            double x)
-        {
+                                           int b,
+                                           double x) {
             double result = 0;
             double w = 0;
 
@@ -6738,9 +6230,8 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double fcdistribution(int a,
-            int b,
-            double x)
-        {
+                                            int b,
+                                            double x) {
             double result = 0;
             double w = 0;
 
@@ -6787,30 +6278,26 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invfdistribution(int a,
-            int b,
-            double y)
-        {
+                                              int b,
+                                              double y) {
             double result = 0;
             double w = 0;
 
             alglib.ap.assert(((a>=1 && b>=1) && (double)(y)>(double)(0)) && (double)(y)<=(double)(1), "Domain error in InvFDistribution");
-            
+
             //
             // Compute probability for x = 0.5
             //
             w = ibetaf.incompletebeta(0.5*b, 0.5*a, 0.5);
-            
+
             //
             // If that is greater than y, then the solution w < .5
             // Otherwise, solve at 1-y to remove cancellation in (b - b*w)
             //
-            if( (double)(w)>(double)(y) || (double)(y)<(double)(0.001) )
-            {
+            if( (double)(w)>(double)(y) || (double)(y)<(double)(0.001) ) {
                 w = ibetaf.invincompletebeta(0.5*b, 0.5*a, y);
                 result = (b-b*w)/(a*w);
-            }
-            else
-            {
+            } else {
                 w = ibetaf.invincompletebeta(0.5*a, 0.5*b, 1.0-y);
                 result = b*w/(a*(1.0-w));
             }
@@ -6819,8 +6306,7 @@ public partial class alglib
 
 
     }
-    public class fresnel
-    {
+    public class fresnel {
         /*************************************************************************
         Fresnel integral
 
@@ -6864,9 +6350,8 @@ public partial class alglib
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static void fresnelintegral(double x,
-            ref double c,
-            ref double s)
-        {
+                                           ref double c,
+                                           ref double s) {
             double xxa = 0;
             double f = 0;
             double g = 0;
@@ -6891,8 +6376,7 @@ public partial class alglib
             xxa = x;
             x = Math.Abs(xxa);
             x2 = x*x;
-            if( (double)(x2)<(double)(2.5625) )
-            {
+            if( (double)(x2)<(double)(2.5625) ) {
                 t = x2*x2;
                 sn = -2.99181919401019853726E3;
                 sn = sn*t+7.08840045257738576863E5;
@@ -6924,8 +6408,7 @@ public partial class alglib
                 c = Math.Sign(xxa)*x*cn/cd;
                 return;
             }
-            if( (double)(x)>(double)(36974.0) )
-            {
+            if( (double)(x)>(double)(36974.0) ) {
                 c = Math.Sign(xxa)*0.5;
                 s = Math.Sign(xxa)*0.5;
                 return;
@@ -6992,8 +6475,7 @@ public partial class alglib
 
 
     }
-    public class jacobianelliptic
-    {
+    public class jacobianelliptic {
         /*************************************************************************
         Jacobian Elliptic Functions
 
@@ -7035,12 +6517,11 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static void jacobianellipticfunctions(double u,
-            double m,
-            ref double sn,
-            ref double cn,
-            ref double dn,
-            ref double ph)
-        {
+                double m,
+                ref double sn,
+                ref double cn,
+                ref double dn,
+                ref double ph) {
             double ai = 0;
             double b = 0;
             double phi = 0;
@@ -7058,8 +6539,7 @@ public partial class alglib
             alglib.ap.assert((double)(m)>=(double)(0) && (double)(m)<=(double)(1), "Domain error in JacobianEllipticFunctions: m<0 or m>1");
             a = new double[8+1];
             c = new double[8+1];
-            if( (double)(m)<(double)(1.0e-9) )
-            {
+            if( (double)(m)<(double)(1.0e-9) ) {
                 t = Math.Sin(u);
                 b = Math.Cos(u);
                 ai = 0.25*m*(u-t*b);
@@ -7069,8 +6549,7 @@ public partial class alglib
                 dn = 1.0-0.5*m*t*t;
                 return;
             }
-            if( (double)(m)>=(double)(0.9999999999) )
-            {
+            if( (double)(m)>=(double)(0.9999999999) ) {
                 ai = 0.25*(1.0-m);
                 b = Math.Cosh(u);
                 t = Math.Tanh(u);
@@ -7088,10 +6567,8 @@ public partial class alglib
             c[0] = Math.Sqrt(m);
             twon = 1.0;
             i = 0;
-            while( (double)(Math.Abs(c[i]/a[i]))>(double)(math.machineepsilon) )
-            {
-                if( i>7 )
-                {
+            while( (double)(Math.Abs(c[i]/a[i]))>(double)(math.machineepsilon) ) {
+                if( i>7 ) {
                     alglib.ap.assert(false, "Overflow in JacobianEllipticFunctions");
                     break;
                 }
@@ -7104,14 +6581,12 @@ public partial class alglib
                 twon = twon*2.0;
             }
             phi = twon*a[i]*u;
-            do
-            {
+            do {
                 t = c[i]*Math.Sin(phi)/a[i];
                 b = phi;
                 phi = (Math.Asin(t)+phi)/2.0;
                 i = i-1;
-            }
-            while( i!=0 );
+            } while( i!=0 );
             sn = Math.Sin(phi);
             t = Math.Cos(phi);
             cn = t;
@@ -7121,8 +6596,7 @@ public partial class alglib
 
 
     }
-    public class psif
-    {
+    public class psif {
         /*************************************************************************
         Psi (digamma) function
 
@@ -7162,8 +6636,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  June, 2000
         Copyright 1984, 1987, 1992, 2000 by Stephen L. Moshier
         *************************************************************************/
-        public static double psi(double x)
-        {
+        public static double psi(double x) {
             double result = 0;
             double p = 0;
             double q = 0;
@@ -7179,55 +6652,43 @@ public partial class alglib
 
             negative = 0;
             nz = 0.0;
-            if( (double)(x)<=(double)(0) )
-            {
+            if( (double)(x)<=(double)(0) ) {
                 negative = 1;
                 q = x;
                 p = (int)Math.Floor(q);
-                if( (double)(p)==(double)(q) )
-                {
+                if( (double)(p)==(double)(q) ) {
                     alglib.ap.assert(false, "Singularity in Psi(x)");
                     result = math.maxrealnumber;
                     return result;
                 }
                 nz = q-p;
-                if( (double)(nz)!=(double)(0.5) )
-                {
-                    if( (double)(nz)>(double)(0.5) )
-                    {
+                if( (double)(nz)!=(double)(0.5) ) {
+                    if( (double)(nz)>(double)(0.5) ) {
                         p = p+1.0;
                         nz = q-p;
                     }
                     nz = Math.PI/Math.Tan(Math.PI*nz);
-                }
-                else
-                {
+                } else {
                     nz = 0.0;
                 }
                 x = 1.0-x;
             }
-            if( (double)(x)<=(double)(10.0) && (double)(x)==(double)((int)Math.Floor(x)) )
-            {
+            if( (double)(x)<=(double)(10.0) && (double)(x)==(double)((int)Math.Floor(x)) ) {
                 y = 0.0;
                 n = (int)Math.Floor(x);
-                for(i=1; i<=n-1; i++)
-                {
+                for(i=1; i<=n-1; i++) {
                     w = i;
                     y = y+1.0/w;
                 }
                 y = y-0.57721566490153286061;
-            }
-            else
-            {
+            } else {
                 s = x;
                 w = 0.0;
-                while( (double)(s)<(double)(10.0) )
-                {
+                while( (double)(s)<(double)(10.0) ) {
                     w = w+1.0/s;
                     s = s+1.0;
                 }
-                if( (double)(s)<(double)(1.0E17) )
-                {
+                if( (double)(s)<(double)(1.0E17) ) {
                     z = 1.0/(s*s);
                     polv = 8.33333333333333333333E-2;
                     polv = polv*z-2.10927960927960927961E-2;
@@ -7237,15 +6698,12 @@ public partial class alglib
                     polv = polv*z-8.33333333333333333333E-3;
                     polv = polv*z+8.33333333333333333333E-2;
                     y = z*polv;
-                }
-                else
-                {
+                } else {
                     y = 0.0;
                 }
                 y = Math.Log(s)-0.5/s-y-w;
             }
-            if( negative!=0 )
-            {
+            if( negative!=0 ) {
                 y = y-nz;
             }
             result = y;
@@ -7254,8 +6712,7 @@ public partial class alglib
 
 
     }
-    public class expintegrals
-    {
+    public class expintegrals {
         /*************************************************************************
         Exponential integral Ei(x)
 
@@ -7281,8 +6738,7 @@ public partial class alglib
         Cephes Math Library Release 2.8:  May, 1999
         Copyright 1999 by Stephen L. Moshier
         *************************************************************************/
-        public static double exponentialintegralei(double x)
-        {
+        public static double exponentialintegralei(double x) {
             double result = 0;
             double eul = 0;
             double f = 0;
@@ -7291,13 +6747,11 @@ public partial class alglib
             double w = 0;
 
             eul = 0.5772156649015328606065;
-            if( (double)(x)<=(double)(0) )
-            {
+            if( (double)(x)<=(double)(0) ) {
                 result = 0;
                 return result;
             }
-            if( (double)(x)<(double)(2) )
-            {
+            if( (double)(x)<(double)(2) ) {
                 f1 = -5.350447357812542947283;
                 f1 = f1*x+218.5049168816613393830;
                 f1 = f1*x-4176.572384826693777058;
@@ -7315,8 +6769,7 @@ public partial class alglib
                 result = eul+Math.Log(x)+x*f;
                 return result;
             }
-            if( (double)(x)<(double)(4) )
-            {
+            if( (double)(x)<(double)(4) ) {
                 w = 1/x;
                 f1 = 1.981808503259689673238E-2;
                 f1 = f1*w-1.271645625984917501326;
@@ -7338,8 +6791,7 @@ public partial class alglib
                 result = Math.Exp(x)*w*(1+w*f);
                 return result;
             }
-            if( (double)(x)<(double)(8) )
-            {
+            if( (double)(x)<(double)(8) ) {
                 w = 1/x;
                 f1 = -1.373215375871208729803;
                 f1 = f1*w-7.084559133740838761406E-1;
@@ -7362,8 +6814,7 @@ public partial class alglib
                 result = Math.Exp(x)*w*(1+w*f);
                 return result;
             }
-            if( (double)(x)<(double)(16) )
-            {
+            if( (double)(x)<(double)(16) ) {
                 w = 1/x;
                 f1 = -2.106934601691916512584;
                 f1 = f1*w+1.732733869664688041885;
@@ -7389,8 +6840,7 @@ public partial class alglib
                 result = Math.Exp(x)*w*(1+w*f);
                 return result;
             }
-            if( (double)(x)<(double)(32) )
-            {
+            if( (double)(x)<(double)(32) ) {
                 w = 1/x;
                 f1 = -2.458119367674020323359E-1;
                 f1 = f1*w-1.483382253322077687183E-1;
@@ -7413,8 +6863,7 @@ public partial class alglib
                 result = Math.Exp(x)*w*(1+w*f);
                 return result;
             }
-            if( (double)(x)<(double)(64) )
-            {
+            if( (double)(x)<(double)(64) ) {
                 w = 1/x;
                 f1 = 1.212561118105456670844E-1;
                 f1 = f1*w-5.823133179043894485122E-1;
@@ -7490,8 +6939,7 @@ public partial class alglib
         Copyright 1985, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double exponentialintegralen(double x,
-            int n)
-        {
+                int n) {
             double result = 0;
             double r = 0;
             double t = 0;
@@ -7512,23 +6960,19 @@ public partial class alglib
 
             eul = 0.57721566490153286060;
             big = 1.44115188075855872*Math.Pow(10, 17);
-            if( ((n<0 || (double)(x)<(double)(0)) || (double)(x)>(double)(170)) || ((double)(x)==(double)(0) && n<2) )
-            {
+            if( ((n<0 || (double)(x)<(double)(0)) || (double)(x)>(double)(170)) || ((double)(x)==(double)(0) && n<2) ) {
                 result = -1;
                 return result;
             }
-            if( (double)(x)==(double)(0) )
-            {
+            if( (double)(x)==(double)(0) ) {
                 result = (double)1/(double)(n-1);
                 return result;
             }
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = Math.Exp(-x)/x;
                 return result;
             }
-            if( n>5000 )
-            {
+            if( n>5000 ) {
                 xk = x+n;
                 yk = 1/(xk*xk);
                 t = n;
@@ -7538,98 +6982,75 @@ public partial class alglib
                 result = (result+1)*Math.Exp(-x)/xk;
                 return result;
             }
-            if( (double)(x)<=(double)(1) )
-            {
+            if( (double)(x)<=(double)(1) ) {
                 psi = -eul-Math.Log(x);
-                for(i=1; i<=n-1; i++)
-                {
+                for(i=1; i<=n-1; i++) {
                     psi = psi+(double)1/(double)i;
                 }
                 z = -x;
                 xk = 0;
                 yk = 1;
                 pk = 1-n;
-                if( n==1 )
-                {
+                if( n==1 ) {
                     result = 0.0;
-                }
-                else
-                {
+                } else {
                     result = 1.0/pk;
                 }
-                do
-                {
+                do {
                     xk = xk+1;
                     yk = yk*z/xk;
                     pk = pk+1;
-                    if( (double)(pk)!=(double)(0) )
-                    {
+                    if( (double)(pk)!=(double)(0) ) {
                         result = result+yk/pk;
                     }
-                    if( (double)(result)!=(double)(0) )
-                    {
+                    if( (double)(result)!=(double)(0) ) {
                         t = Math.Abs(yk/result);
-                    }
-                    else
-                    {
+                    } else {
                         t = 1;
                     }
-                }
-                while( (double)(t)>=(double)(math.machineepsilon) );
+                } while( (double)(t)>=(double)(math.machineepsilon) );
                 t = 1;
-                for(i=1; i<=n-1; i++)
-                {
+                for(i=1; i<=n-1; i++) {
                     t = t*z/i;
                 }
                 result = psi*t-result;
                 return result;
-            }
-            else
-            {
+            } else {
                 k = 1;
                 pkm2 = 1;
                 qkm2 = x;
                 pkm1 = 1.0;
                 qkm1 = x+n;
                 result = pkm1/qkm1;
-                do
-                {
+                do {
                     k = k+1;
-                    if( k%2==1 )
-                    {
+                    if( k%2==1 ) {
                         yk = 1;
                         xk = n+(double)(k-1)/(double)2;
-                    }
-                    else
-                    {
+                    } else {
                         yk = x;
                         xk = (double)k/(double)2;
                     }
                     pk = pkm1*yk+pkm2*xk;
                     qk = qkm1*yk+qkm2*xk;
-                    if( (double)(qk)!=(double)(0) )
-                    {
+                    if( (double)(qk)!=(double)(0) ) {
                         r = pk/qk;
                         t = Math.Abs((result-r)/r);
                         result = r;
-                    }
-                    else
-                    {
+                    } else {
                         t = 1;
                     }
                     pkm2 = pkm1;
                     pkm1 = pk;
                     qkm2 = qkm1;
                     qkm1 = qk;
-                    if( (double)(Math.Abs(pk))>(double)(big) )
-                    {
+                    if( (double)(Math.Abs(pk))>(double)(big) ) {
                         pkm2 = pkm2/big;
                         pkm1 = pkm1/big;
                         qkm2 = qkm2/big;
                         qkm1 = qkm1/big;
                     }
-                }
-                while( (double)(t)>=(double)(math.machineepsilon) );
+                } while( (double)(t)>=(double)(math.machineepsilon) );
                 result = result*Math.Exp(-x);
             }
             return result;
@@ -7637,8 +7058,7 @@ public partial class alglib
 
 
     }
-    public class laguerre
-    {
+    public class laguerre {
         /*************************************************************************
         Calculation of the value of the Laguerre polynomial.
 
@@ -7650,8 +7070,7 @@ public partial class alglib
             the value of the Laguerre polynomial Ln at x
         *************************************************************************/
         public static double laguerrecalculate(int n,
-            double x)
-        {
+                                               double x) {
             double result = 0;
             double a = 0;
             double b = 0;
@@ -7660,13 +7079,11 @@ public partial class alglib
             result = 1;
             a = 1;
             b = 1-x;
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = b;
             }
             i = 2;
-            while( (double)(i)<=(double)(n) )
-            {
+            while( (double)(i)<=(double)(n) ) {
                 result = ((2*i-1-x)*b-(i-1)*a)/i;
                 a = b;
                 b = result;
@@ -7689,9 +7106,8 @@ public partial class alglib
             the value of the Laguerre polynomial at x
         *************************************************************************/
         public static double laguerresum(double[] c,
-            int n,
-            double x)
-        {
+                                         int n,
+                                         double x) {
             double result = 0;
             double b1 = 0;
             double b2 = 0;
@@ -7700,8 +7116,7 @@ public partial class alglib
             b1 = 0;
             b2 = 0;
             result = 0;
-            for(i=n; i>=0; i--)
-            {
+            for(i=n; i>=0; i--) {
                 result = (2*i+1-x)*b1/(i+1)-(i+1)*b2/(i+2)+c[i];
                 b2 = b1;
                 b1 = result;
@@ -7720,24 +7135,21 @@ public partial class alglib
             C   -   coefficients
         *************************************************************************/
         public static void laguerrecoefficients(int n,
-            ref double[] c)
-        {
+                                                ref double[] c) {
             int i = 0;
 
             c = new double[0];
 
             c = new double[n+1];
             c[0] = 1;
-            for(i=0; i<=n-1; i++)
-            {
+            for(i=0; i<=n-1; i++) {
                 c[i+1] = -(c[i]*(n-i)/(i+1)/(i+1));
             }
         }
 
 
     }
-    public class chisquaredistr
-    {
+    public class chisquaredistr {
         /*************************************************************************
         Chi-square distribution
 
@@ -7772,8 +7184,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double chisquaredistribution(double v,
-            double x)
-        {
+                double x) {
             double result = 0;
 
             alglib.ap.assert((double)(x)>=(double)(0) && (double)(v)>=(double)(1), "Domain error in ChiSquareDistribution");
@@ -7814,8 +7225,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double chisquarecdistribution(double v,
-            double x)
-        {
+                double x) {
             double result = 0;
 
             alglib.ap.assert((double)(x)>=(double)(0) && (double)(v)>=(double)(1), "Domain error in ChiSquareDistributionC");
@@ -7845,8 +7255,7 @@ public partial class alglib
         Copyright 1984, 1987, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invchisquaredistribution(double v,
-            double y)
-        {
+                double y) {
             double result = 0;
 
             alglib.ap.assert(((double)(y)>=(double)(0) && (double)(y)<=(double)(1)) && (double)(v)>=(double)(1), "Domain error in InvChiSquareDistribution");
@@ -7856,8 +7265,7 @@ public partial class alglib
 
 
     }
-    public class legendre
-    {
+    public class legendre {
         /*************************************************************************
         Calculation of the value of the Legendre polynomial Pn.
 
@@ -7869,8 +7277,7 @@ public partial class alglib
             the value of the Legendre polynomial Pn at x
         *************************************************************************/
         public static double legendrecalculate(int n,
-            double x)
-        {
+                                               double x) {
             double result = 0;
             double a = 0;
             double b = 0;
@@ -7879,18 +7286,15 @@ public partial class alglib
             result = 1;
             a = 1;
             b = x;
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = a;
                 return result;
             }
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = b;
                 return result;
             }
-            for(i=2; i<=n; i++)
-            {
+            for(i=2; i<=n; i++) {
                 result = ((2*i-1)*x*b-(i-1)*a)/i;
                 a = b;
                 b = result;
@@ -7913,9 +7317,8 @@ public partial class alglib
             the value of the Legendre polynomial at x
         *************************************************************************/
         public static double legendresum(double[] c,
-            int n,
-            double x)
-        {
+                                         int n,
+                                         double x) {
             double result = 0;
             double b1 = 0;
             double b2 = 0;
@@ -7924,8 +7327,7 @@ public partial class alglib
             b1 = 0;
             b2 = 0;
             result = 0;
-            for(i=n; i>=0; i--)
-            {
+            for(i=n; i>=0; i--) {
                 result = (2*i+1)*x*b1/(i+1)-(i+1)*b2/(i+2)+c[i];
                 b2 = b1;
                 b1 = result;
@@ -7944,32 +7346,27 @@ public partial class alglib
             C   -   coefficients
         *************************************************************************/
         public static void legendrecoefficients(int n,
-            ref double[] c)
-        {
+                                                ref double[] c) {
             int i = 0;
 
             c = new double[0];
 
             c = new double[n+1];
-            for(i=0; i<=n; i++)
-            {
+            for(i=0; i<=n; i++) {
                 c[i] = 0;
             }
             c[n] = 1;
-            for(i=1; i<=n; i++)
-            {
+            for(i=1; i<=n; i++) {
                 c[n] = c[n]*(n+i)/2/i;
             }
-            for(i=0; i<=n/2-1; i++)
-            {
+            for(i=0; i<=n/2-1; i++) {
                 c[n-2*(i+1)] = -(c[n-2*i]*(n-2*i)*(n-2*i-1)/2/(i+1)/(2*(n-i)-1));
             }
         }
 
 
     }
-    public class betaf
-    {
+    public class betaf {
         /*************************************************************************
         Beta function
 
@@ -7993,8 +7390,7 @@ public partial class alglib
         Copyright 1984, 1987 by Stephen L. Moshier
         *************************************************************************/
         public static double beta(double a,
-            double b)
-        {
+                                  double b) {
             double result = 0;
             double y = 0;
             double sg = 0;
@@ -8004,8 +7400,7 @@ public partial class alglib
             alglib.ap.assert((double)(a)>(double)(0) || (double)(a)!=(double)((int)Math.Floor(a)), "Overflow in Beta");
             alglib.ap.assert((double)(b)>(double)(0) || (double)(b)!=(double)((int)Math.Floor(b)), "Overflow in Beta");
             y = a+b;
-            if( (double)(Math.Abs(y))>(double)(171.624376956302725) )
-            {
+            if( (double)(Math.Abs(y))>(double)(171.624376956302725) ) {
                 y = gammafunc.lngamma(y, ref s);
                 sg = sg*s;
                 y = gammafunc.lngamma(b, ref s)-y;
@@ -8018,13 +7413,10 @@ public partial class alglib
             }
             y = gammafunc.gammafunction(y);
             alglib.ap.assert((double)(y)!=(double)(0), "Overflow in Beta");
-            if( (double)(a)>(double)(b) )
-            {
+            if( (double)(a)>(double)(b) ) {
                 y = gammafunc.gammafunction(a)/y;
                 y = y*gammafunc.gammafunction(b);
-            }
-            else
-            {
+            } else {
                 y = gammafunc.gammafunction(b)/y;
                 y = y*gammafunc.gammafunction(a);
             }
@@ -8034,8 +7426,7 @@ public partial class alglib
 
 
     }
-    public class chebyshev
-    {
+    public class chebyshev {
         /*************************************************************************
         Calculation of the value of the Chebyshev polynomials of the
         first and second kinds.
@@ -8049,49 +7440,42 @@ public partial class alglib
             the value of the Chebyshev polynomial at x
         *************************************************************************/
         public static double chebyshevcalculate(int r,
-            int n,
-            double x)
-        {
+                                                int n,
+                                                double x) {
             double result = 0;
             int i = 0;
             double a = 0;
             double b = 0;
 
             result = 0;
-            
+
             //
             // Prepare A and B
             //
-            if( r==1 )
-            {
+            if( r==1 ) {
                 a = 1;
                 b = x;
-            }
-            else
-            {
+            } else {
                 a = 1;
                 b = 2*x;
             }
-            
+
             //
             // Special cases: N=0 or N=1
             //
-            if( n==0 )
-            {
+            if( n==0 ) {
                 result = a;
                 return result;
             }
-            if( n==1 )
-            {
+            if( n==1 ) {
                 result = b;
                 return result;
             }
-            
+
             //
             // General case: N>=2
             //
-            for(i=2; i<=n; i++)
-            {
+            for(i=2; i<=n; i++) {
                 result = 2*x*b-a;
                 a = b;
                 b = result;
@@ -8118,10 +7502,9 @@ public partial class alglib
             the value of the Chebyshev polynomial at x
         *************************************************************************/
         public static double chebyshevsum(double[] c,
-            int r,
-            int n,
-            double x)
-        {
+                                          int r,
+                                          int n,
+                                          double x) {
             double result = 0;
             double b1 = 0;
             double b2 = 0;
@@ -8129,18 +7512,14 @@ public partial class alglib
 
             b1 = 0;
             b2 = 0;
-            for(i=n; i>=1; i--)
-            {
+            for(i=n; i>=1; i--) {
                 result = 2*x*b1-b2+c[i];
                 b2 = b1;
                 b1 = result;
             }
-            if( r==1 )
-            {
+            if( r==1 ) {
                 result = -b2+x*b1+c[0];
-            }
-            else
-            {
+            } else {
                 result = -b2+2*x*b1+c[0];
             }
             return result;
@@ -8157,26 +7536,20 @@ public partial class alglib
             C   -   coefficients
         *************************************************************************/
         public static void chebyshevcoefficients(int n,
-            ref double[] c)
-        {
+                ref double[] c) {
             int i = 0;
 
             c = new double[0];
 
             c = new double[n+1];
-            for(i=0; i<=n; i++)
-            {
+            for(i=0; i<=n; i++) {
                 c[i] = 0;
             }
-            if( n==0 || n==1 )
-            {
+            if( n==0 || n==1 ) {
                 c[n] = 1;
-            }
-            else
-            {
+            } else {
                 c[n] = Math.Exp((n-1)*Math.Log(2));
-                for(i=0; i<=n/2-1; i++)
-                {
+                for(i=0; i<=n/2-1; i++) {
                     c[n-2*(i+1)] = -(c[n-2*i]*(n-2*i)*(n-2*i-1)/4/(i+1)/(n-i-1));
                 }
             }
@@ -8192,14 +7565,13 @@ public partial class alglib
         Input parameters:
             A   -   Chebyshev series coefficients
             N   -   degree, N>=0
-            
+
         Output parameters
             B   -   power series coefficients
         *************************************************************************/
         public static void fromchebyshev(double[] a,
-            int n,
-            ref double[] b)
-        {
+                                         int n,
+                                         ref double[] b) {
             int i = 0;
             int k = 0;
             double e = 0;
@@ -8208,56 +7580,44 @@ public partial class alglib
             b = new double[0];
 
             b = new double[n+1];
-            for(i=0; i<=n; i++)
-            {
+            for(i=0; i<=n; i++) {
                 b[i] = 0;
             }
             d = 0;
             i = 0;
-            do
-            {
+            do {
                 k = i;
-                do
-                {
+                do {
                     e = b[k];
                     b[k] = 0;
-                    if( i<=1 && k==i )
-                    {
+                    if( i<=1 && k==i ) {
                         b[k] = 1;
-                    }
-                    else
-                    {
-                        if( i!=0 )
-                        {
+                    } else {
+                        if( i!=0 ) {
                             b[k] = 2*d;
                         }
-                        if( k>i+1 )
-                        {
+                        if( k>i+1 ) {
                             b[k] = b[k]-b[k-2];
                         }
                     }
                     d = e;
                     k = k+1;
-                }
-                while( k<=n );
+                } while( k<=n );
                 d = b[i];
                 e = 0;
                 k = i;
-                while( k<=n )
-                {
+                while( k<=n ) {
                     e = e+b[k]*a[k];
                     k = k+2;
                 }
                 b[i] = e;
                 i = i+1;
-            }
-            while( i<=n );
+            } while( i<=n );
         }
 
 
     }
-    public class studenttdistr
-    {
+    public class studenttdistr {
         /*************************************************************************
         Student's t distribution
 
@@ -8300,8 +7660,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double studenttdistribution(int k,
-            double t)
-        {
+                double t) {
             double result = 0;
             double x = 0;
             double rk = 0;
@@ -8313,39 +7672,31 @@ public partial class alglib
             int j = 0;
 
             alglib.ap.assert(k>0, "Domain error in StudentTDistribution");
-            if( (double)(t)==(double)(0) )
-            {
+            if( (double)(t)==(double)(0) ) {
                 result = 0.5;
                 return result;
             }
-            if( (double)(t)<(double)(-2.0) )
-            {
+            if( (double)(t)<(double)(-2.0) ) {
                 rk = k;
                 z = rk/(rk+t*t);
                 result = 0.5*ibetaf.incompletebeta(0.5*rk, 0.5, z);
                 return result;
             }
-            if( (double)(t)<(double)(0) )
-            {
+            if( (double)(t)<(double)(0) ) {
                 x = -t;
-            }
-            else
-            {
+            } else {
                 x = t;
             }
             rk = k;
             z = 1.0+x*x/rk;
-            if( k%2!=0 )
-            {
+            if( k%2!=0 ) {
                 xsqk = x/Math.Sqrt(rk);
                 p = Math.Atan(xsqk);
-                if( k>1 )
-                {
+                if( k>1 ) {
                     f = 1.0;
                     tz = 1.0;
                     j = 3;
-                    while( j<=k-2 && (double)(tz/f)>(double)(math.machineepsilon) )
-                    {
+                    while( j<=k-2 && (double)(tz/f)>(double)(math.machineepsilon) ) {
                         tz = tz*((j-1)/(z*j));
                         f = f+tz;
                         j = j+2;
@@ -8353,22 +7704,18 @@ public partial class alglib
                     p = p+f*xsqk/z;
                 }
                 p = p*2.0/Math.PI;
-            }
-            else
-            {
+            } else {
                 f = 1.0;
                 tz = 1.0;
                 j = 2;
-                while( j<=k-2 && (double)(tz/f)>(double)(math.machineepsilon) )
-                {
+                while( j<=k-2 && (double)(tz/f)>(double)(math.machineepsilon) ) {
                     tz = tz*((j-1)/(z*j));
                     f = f+tz;
                     j = j+2;
                 }
                 p = f*x/Math.Sqrt(z*rk);
             }
-            if( (double)(t)<(double)(0) )
-            {
+            if( (double)(t)<(double)(0) ) {
                 p = -p;
             }
             result = 0.5+0.5*p;
@@ -8394,8 +7741,7 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invstudenttdistribution(int k,
-            double p)
-        {
+                double p) {
             double result = 0;
             double t = 0;
             double rk = 0;
@@ -8404,32 +7750,27 @@ public partial class alglib
 
             alglib.ap.assert((k>0 && (double)(p)>(double)(0)) && (double)(p)<(double)(1), "Domain error in InvStudentTDistribution");
             rk = k;
-            if( (double)(p)>(double)(0.25) && (double)(p)<(double)(0.75) )
-            {
-                if( (double)(p)==(double)(0.5) )
-                {
+            if( (double)(p)>(double)(0.25) && (double)(p)<(double)(0.75) ) {
+                if( (double)(p)==(double)(0.5) ) {
                     result = 0;
                     return result;
                 }
                 z = 1.0-2.0*p;
                 z = ibetaf.invincompletebeta(0.5, 0.5*rk, Math.Abs(z));
                 t = Math.Sqrt(rk*z/(1.0-z));
-                if( (double)(p)<(double)(0.5) )
-                {
+                if( (double)(p)<(double)(0.5) ) {
                     t = -t;
                 }
                 result = t;
                 return result;
             }
             rflg = -1;
-            if( (double)(p)>=(double)(0.5) )
-            {
+            if( (double)(p)>=(double)(0.5) ) {
                 p = 1.0-p;
                 rflg = 1;
             }
             z = ibetaf.invincompletebeta(0.5*rk, 0.5, 2.0*p);
-            if( (double)(math.maxrealnumber*z)<(double)(rk) )
-            {
+            if( (double)(math.maxrealnumber*z)<(double)(rk) ) {
                 result = rflg*math.maxrealnumber;
                 return result;
             }
@@ -8440,8 +7781,7 @@ public partial class alglib
 
 
     }
-    public class binomialdistr
-    {
+    public class binomialdistr {
         /*************************************************************************
         Binomial distribution
 
@@ -8474,32 +7814,26 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double binomialdistribution(int k,
-            int n,
-            double p)
-        {
+                int n,
+                double p) {
             double result = 0;
             double dk = 0;
             double dn = 0;
 
             alglib.ap.assert((double)(p)>=(double)(0) && (double)(p)<=(double)(1), "Domain error in BinomialDistribution");
             alglib.ap.assert(k>=-1 && k<=n, "Domain error in BinomialDistribution");
-            if( k==-1 )
-            {
+            if( k==-1 ) {
                 result = 0;
                 return result;
             }
-            if( k==n )
-            {
+            if( k==n ) {
                 result = 1;
                 return result;
             }
             dn = n-k;
-            if( k==0 )
-            {
+            if( k==0 ) {
                 dk = Math.Pow(1.0-p, dn);
-            }
-            else
-            {
+            } else {
                 dk = k+1;
                 dk = ibetaf.incompletebeta(dn, dk, 1.0-p);
             }
@@ -8542,39 +7876,30 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double binomialcdistribution(int k,
-            int n,
-            double p)
-        {
+                int n,
+                double p) {
             double result = 0;
             double dk = 0;
             double dn = 0;
 
             alglib.ap.assert((double)(p)>=(double)(0) && (double)(p)<=(double)(1), "Domain error in BinomialDistributionC");
             alglib.ap.assert(k>=-1 && k<=n, "Domain error in BinomialDistributionC");
-            if( k==-1 )
-            {
+            if( k==-1 ) {
                 result = 1;
                 return result;
             }
-            if( k==n )
-            {
+            if( k==n ) {
                 result = 0;
                 return result;
             }
             dn = n-k;
-            if( k==0 )
-            {
-                if( (double)(p)<(double)(0.01) )
-                {
+            if( k==0 ) {
+                if( (double)(p)<(double)(0.01) ) {
                     dk = -nearunityunit.nuexpm1(dn*nearunityunit.nulog1p(-p));
-                }
-                else
-                {
+                } else {
                     dk = 1.0-Math.Pow(1.0-p, dn);
                 }
-            }
-            else
-            {
+            } else {
                 dk = k+1;
                 dk = ibetaf.incompletebeta(dk, dn, p);
             }
@@ -8612,9 +7937,8 @@ public partial class alglib
         Copyright 1984, 1987, 1995, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static double invbinomialdistribution(int k,
-            int n,
-            double y)
-        {
+                int n,
+                double y) {
             double result = 0;
             double dk = 0;
             double dn = 0;
@@ -8622,27 +7946,18 @@ public partial class alglib
 
             alglib.ap.assert(k>=0 && k<n, "Domain error in InvBinomialDistribution");
             dn = n-k;
-            if( k==0 )
-            {
-                if( (double)(y)>(double)(0.8) )
-                {
+            if( k==0 ) {
+                if( (double)(y)>(double)(0.8) ) {
                     p = -nearunityunit.nuexpm1(nearunityunit.nulog1p(y-1.0)/dn);
-                }
-                else
-                {
+                } else {
                     p = 1.0-Math.Pow(y, 1.0/dn);
                 }
-            }
-            else
-            {
+            } else {
                 dk = k+1;
                 p = ibetaf.incompletebeta(dn, dk, 0.5);
-                if( (double)(p)>(double)(0.5) )
-                {
+                if( (double)(p)>(double)(0.5) ) {
                     p = ibetaf.invincompletebeta(dk, dn, 1.0-y);
-                }
-                else
-                {
+                } else {
                     p = 1.0-ibetaf.invincompletebeta(dn, dk, y);
                 }
             }
@@ -8652,8 +7967,7 @@ public partial class alglib
 
 
     }
-    public class airyf
-    {
+    public class airyf {
         /*************************************************************************
         Airy function
 
@@ -8687,11 +8001,10 @@ public partial class alglib
         Copyright 1984, 1987, 1989, 2000 by Stephen L. Moshier
         *************************************************************************/
         public static void airy(double x,
-            ref double ai,
-            ref double aip,
-            ref double bi,
-            ref double bip)
-        {
+                                ref double ai,
+                                ref double aip,
+                                ref double bi,
+                                ref double bip) {
             double z = 0;
             double zz = 0;
             double t = 0;
@@ -8734,16 +8047,14 @@ public partial class alglib
             c2 = 0.258819403792806798405;
             sqrt3 = 1.732050807568877293527;
             domflg = 0;
-            if( (double)(x)>(double)(25.77) )
-            {
+            if( (double)(x)>(double)(25.77) ) {
                 ai = 0;
                 aip = 0;
                 bi = math.maxrealnumber;
                 bip = math.maxrealnumber;
                 return;
             }
-            if( (double)(x)<(double)(-2.09) )
-            {
+            if( (double)(x)<(double)(-2.09) ) {
                 domflg = 15;
                 t = Math.Sqrt(-x);
                 zeta = -(2.0*x*t/3.0);
@@ -8847,8 +8158,7 @@ public partial class alglib
                 bip = k*(f*uf-g*ug);
                 return;
             }
-            if( (double)(x)>=(double)(2.09) )
-            {
+            if( (double)(x)>=(double)(2.09) ) {
                 domflg = 5;
                 t = Math.Sqrt(x);
                 zeta = 2.0*x*t/3.0;
@@ -8893,8 +8203,7 @@ public partial class alglib
                 apd = apd*z+9.99999999999999994502E-1;
                 f = apn/apd;
                 aip = f*k;
-                if( (double)(x)>(double)(8.3203353) )
-                {
+                if( (double)(x)>(double)(8.3203353) ) {
                     bn16 = -2.53240795869364152689E-1;
                     bn16 = bn16*z+5.75285167332467384228E-1;
                     bn16 = bn16*z-3.29907036873225371650E-1;
@@ -8932,8 +8241,7 @@ public partial class alglib
             ug = x;
             k = 1.0;
             z = x*x*x;
-            while( (double)(t)>(double)(math.machineepsilon) )
-            {
+            while( (double)(t)>(double)(math.machineepsilon) ) {
                 uf = uf*z;
                 k = k+1.0;
                 uf = uf/k;
@@ -8949,12 +8257,10 @@ public partial class alglib
             }
             uf = c1*f;
             ug = c2*g;
-            if( domflg%2==0 )
-            {
+            if( domflg%2==0 ) {
                 ai = uf-ug;
             }
-            if( domflg/2%2==0 )
-            {
+            if( domflg/2%2==0 ) {
                 bi = sqrt3*(uf+ug);
             }
             k = 4.0;
@@ -8964,8 +8270,7 @@ public partial class alglib
             g = 1.0+ug;
             uf = uf/3.0;
             t = 1.0;
-            while( (double)(t)>(double)(math.machineepsilon) )
-            {
+            while( (double)(t)>(double)(math.machineepsilon) ) {
                 uf = uf*z;
                 ug = ug/k;
                 k = k+1.0;
@@ -8981,12 +8286,10 @@ public partial class alglib
             }
             uf = c1*f;
             ug = c2*g;
-            if( domflg/4%2==0 )
-            {
+            if( domflg/4%2==0 ) {
                 aip = uf-ug;
             }
-            if( domflg/8%2==0 )
-            {
+            if( domflg/8%2==0 ) {
                 bip = sqrt3*(uf+ug);
             }
         }

@@ -1,42 +1,35 @@
 ﻿using System;
 using kOSMainframe.ExtraMath;
 
-namespace kOSMainframe.Orbital
-{
-	///////////////////////////////////////////////////////////
+namespace kOSMainframe.Orbital {
+    ///////////////////////////////////////////////////////////
     // LambertSolver kindly provided by Arrowstar - Thanks!  //
     ///////////////////////////////////////////////////////////
 
     //Solves Lambert's problem, namely:
-    //  "What orbit around primary takes you from position R1 to position R2 in a time interval dt?" 
+    //  "What orbit around primary takes you from position R1 to position R2 in a time interval dt?"
     //Output is in the form of two velocity vectors V1 and V2, which respectively give the initial and final velocity
     //of the required orbit segment
-    //There are always two solutions to Lambert's problem, a "short way," which traverses < 180 degrees, 
+    //There are always two solutions to Lambert's problem, a "short way," which traverses < 180 degrees,
     //and a "long way," which traverses > 180 degrees. The shortway input says which of these solutions to find.
-    public static class LambertSolver
-    {
-		public static void Solve(Vector3d R1, Vector3d R2, double dt, CelestialBody primary, bool shortway, out Vector3d V1, out Vector3d V2)
-		{
-			double muCB = primary.gravParameter;
+    public static class LambertSolver {
+        public static void Solve(Vector3d R1, Vector3d R2, double dt, CelestialBody primary, bool shortway, out Vector3d V1, out Vector3d V2) {
+            double muCB = primary.gravParameter;
 
             double R1mag = R1.magnitude;
             double R2mag = R2.magnitude;
 
             double tm;
-            if (shortway)
-            {
+            if (shortway) {
                 tm = 1.0;
-            }
-            else
-            {
+            } else {
                 tm = -1.0;
             }
 
             double cosDeltaTA = (Vector3d.Dot(R1, R2)) / (R1mag * R2mag);
             double sinDeltaTA = tm * Math.Sqrt(1 - Math.Pow(cosDeltaTA, 2));
             double deltaTA = Math.Atan2(sinDeltaTA, cosDeltaTA);
-            if (deltaTA < 0)
-            {
+            if (deltaTA < 0) {
                 deltaTA = deltaTA + 2 * Math.PI;
             }
 
@@ -54,12 +47,9 @@ namespace kOSMainframe.Orbital
             double rop = Math.Sqrt(R1mag * R2mag) * (cosSqrDeltaTAOver4 + TanSqr2w);
 
             double l;
-            if (shortway)
-            {
+            if (shortway) {
                 l = (sinSqrDeltaTAOver4 + TanSqr2w) / (sinSqrDeltaTAOver4 + TanSqr2w + Math.Cos(deltaTA / 2));
-            }
-            else
-            {
+            } else {
                 l = (cosSqrDeltaTAOver4 + TanSqr2w - Math.Cos(deltaTA / 2)) / (cosSqrDeltaTAOver4 + TanSqr2w);
             }
 
@@ -70,8 +60,7 @@ namespace kOSMainframe.Orbital
 
             double y = 0;
             int loops = 0;
-            do
-            {
+            do {
                 double ksi = ComputeKsi(x, 8);
 
                 double h1 = (Math.Pow((l + x), 2) * (1 + 3 * x + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
@@ -85,7 +74,7 @@ namespace kOSMainframe.Orbital
                 //BracketingNthOrderBrentSolver solver = new BracketingNthOrderBrentSolver(relativeAccuracy, absoluteAccuracy, 10);
                 //y = solver.solve(10000, yEqnPoly, -10000, 10000, 0.0, AllowedSolution.ANY_SIDE);
 
-                //replaced Arrowstar's above four commented lines with this solver:  -The_Duck 
+                //replaced Arrowstar's above four commented lines with this solver:  -The_Duck
                 //Use an initial guess of 10; NewtonSolver will get stuck with an initial guess of zero.
                 y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
 
@@ -102,13 +91,11 @@ namespace kOSMainframe.Orbital
             double g = 0;
             double g_dot = 0;
             const double small = 1e-5;
-            if (a > small)
-            {
+            if (a > small) {
 
                 double sinBetaEOver2 = Math.Sqrt((s - c) / (2 * a));
                 double betaE = 2 * Math.Asin(sinBetaEOver2);
-                if (deltaTA > Math.PI)
-                {
+                if (deltaTA > Math.PI) {
                     betaE = -betaE;
                 }
 
@@ -116,8 +103,7 @@ namespace kOSMainframe.Orbital
                 double tmin = Math.Sqrt(Math.Pow(amin, 3) / muCB) * (Math.PI - betaE + Math.Sin(betaE));
 
                 double alphaE = 2 * Math.Asin(Math.Sqrt(s / (2 * a)));
-                if (dt > tmin)
-                {
+                if (dt > tmin) {
                     alphaE = 2 * Math.PI - alphaE;
                 }
 
@@ -127,24 +113,20 @@ namespace kOSMainframe.Orbital
                 g = dt - Math.Sqrt(Math.Pow(a, 3) / muCB) * (deltaE - Math.Sin(deltaE));
                 g_dot = 1 - (a / R2mag) * (1 - Math.Cos(deltaE));
 
-            }
-            else if (a < -small)
-            {
+            } else if (a < -small) {
                 //Asinh asinh=new Asinh();
                 //double alphaH = 2*asinh.value(Math.Sqrt(s/(-2*a)));
                 //double betaH = 2*asinh.value(Math.Sqrt((s-c)/(-2*a)));
                 //Porting Arrowstar's above three lines to: -The_Duck
-				double alphaH = 2 * Hyperbolic.Asinh(Math.Sqrt(s / (-2 * a)));
-				double betaH = 2 * Hyperbolic.Asinh(Math.Sqrt((s - c) / (-2 * a)));
+                double alphaH = 2 * Hyperbolic.Asinh(Math.Sqrt(s / (-2 * a)));
+                double betaH = 2 * Hyperbolic.Asinh(Math.Sqrt((s - c) / (-2 * a)));
 
                 double deltaH = alphaH - betaH;
 
                 f = 1 - (a / R1mag) * (1 - Math.Cosh(deltaH));
                 g = dt - Math.Sqrt(-Math.Pow(a, 3) / muCB) * (Math.Sinh(deltaH) - deltaH);
                 g_dot = 1 - (a / R2mag) * (1 - Math.Cosh(deltaH));
-            }
-            else
-            {
+            } else {
                 //List<Vector3d> VArr = null;
                 //commented out the above line from Arrowstar's original, since it seems to do nothing and throws a compiler error -The_Duck
             }
@@ -153,15 +135,13 @@ namespace kOSMainframe.Orbital
             V2 = (g_dot * R2 - R1) / g;
         }
 
-        private static double ComputeKsi(double x, int numLevels)
-        {
+        private static double ComputeKsi(double x, int numLevels) {
             double ksi = 0;
             double eta = x / Math.Pow((Math.Sqrt(1 + x) + 1), 2);
             double num = 8 * (Math.Sqrt(1 + x) + 1);
             double denom = 1;
 
-            if (numLevels > 0)
-            {
+            if (numLevels > 0) {
                 denom = 3 + 1 / (eta + ComputeKsi(eta, numLevels - 1));
             }
             ksi = num / denom;

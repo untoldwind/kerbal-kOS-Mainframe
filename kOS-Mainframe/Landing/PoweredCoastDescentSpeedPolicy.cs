@@ -1,22 +1,18 @@
 ﻿using System;
 
-namespace kOSMainframe.Landing
-{
-    class PoweredCoastDescentSpeedPolicy : IDescentSpeedPolicy
-    {
+namespace kOSMainframe.Landing {
+    class PoweredCoastDescentSpeedPolicy : IDescentSpeedPolicy {
         float terrainRadius;
         float g;
         float thrust;
 
-        public PoweredCoastDescentSpeedPolicy(double terrainRadius, double g, double thrust)
-        {
+        public PoweredCoastDescentSpeedPolicy(double terrainRadius, double g, double thrust) {
             this.terrainRadius = (float)terrainRadius;
             this.g = (float)g;
             this.thrust = (float)thrust;
         }
 
-        public double MaxAllowedSpeed(Vector3d pos, Vector3d vel)
-        {
+        public double MaxAllowedSpeed(Vector3d pos, Vector3d vel) {
 
             if (terrainRadius < pos.magnitude)
                 return Double.MaxValue;

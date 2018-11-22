@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class Pool<T>
-    {
+namespace kOSMainframe.VesselExtra {
+    public class Pool<T> {
         private readonly Stack<T> values = new Stack<T>();
 
         private readonly CreateDelegate<T> create;
@@ -16,8 +14,7 @@ namespace kOSMainframe.VesselExtra
         /// <summary>
         ///     Creates an empty pool with the specified object creation and reset delegates.
         /// </summary>
-        public Pool(CreateDelegate<T> create, ResetDelegate<T> reset)
-        {
+        public Pool(CreateDelegate<T> create, ResetDelegate<T> reset) {
             this.create = create;
             this.reset = reset;
         }
@@ -25,10 +22,8 @@ namespace kOSMainframe.VesselExtra
         /// <summary>
         ///     Borrows an object from the pool.
         /// </summary>
-        public T Borrow()
-        {
-            lock (values)
-            {
+        public T Borrow() {
+            lock (values) {
                 return values.Count > 0 ? values.Pop() : create();
             }
         }
@@ -36,11 +31,9 @@ namespace kOSMainframe.VesselExtra
         /// <summary>
         ///     Release an object, reset it and returns it to the pool.
         /// </summary>
-        public void Release(T value)
-        {
+        public void Release(T value) {
             reset(value);
-            lock (values)
-            {
+            lock (values) {
                 values.Push(value);
             }
         }
@@ -48,8 +41,7 @@ namespace kOSMainframe.VesselExtra
         /// <summary>
         ///     Current size of the pool.
         /// </summary>
-        public int Count()
-        {
+        public int Count() {
             return values.Count;
         }
     }

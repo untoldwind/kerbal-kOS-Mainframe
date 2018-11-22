@@ -3,28 +3,23 @@ using kOSMainframe.ExtraMath;
 using kOSMainframe.VesselExtra;
 using UnityEngine;
 
-namespace kOSMainframe.Orbital
-{
-    public static class OrbitalManeuverCalculator
-    {
+namespace kOSMainframe.Orbital {
+    public static class OrbitalManeuverCalculator {
         //Computes the speed of a circular orbit of a given radius for a given body.
-        public static double CircularOrbitSpeed(CelestialBody body, double radius)
-        {
+        public static double CircularOrbitSpeed(CelestialBody body, double radius) {
             //v = sqrt(GM/r)
             return Math.Sqrt(body.gravParameter / radius);
         }
 
         //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
-        public static Vector3d DeltaVToCircularize(Orbit o, double UT)
-        {
+        public static Vector3d DeltaVToCircularize(Orbit o, double UT) {
             Vector3d desiredVelocity = CircularOrbitSpeed(o.referenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
             return desiredVelocity - actualVelocity;
         }
 
         //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
-        public static Vector3d DeltaVToEllipticize(Orbit o, double UT, double newPeR, double newApR)
-        {
+        public static Vector3d DeltaVToEllipticize(Orbit o, double UT, double newPeR, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize inputs
@@ -50,8 +45,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V of the burn required to attain a given periapsis, starting from
         //a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
         //The computed burn is always horizontal, though this may not be strictly optimal.
-        public static Vector3d DeltaVToChangePeriapsis(Orbit o, double UT, double newPeR)
-        {
+        public static Vector3d DeltaVToChangePeriapsis(Orbit o, double UT, double newPeR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -63,35 +57,27 @@ namespace kOSMainframe.Orbital
 
             double minDeltaV = 0;
             double maxDeltaV;
-            if (raising)
-            {
+            if (raising) {
                 //put an upper bound on the required deltaV:
                 maxDeltaV = 0.25;
-                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).PeR < newPeR)
-                {
+                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).PeR < newPeR) {
                     minDeltaV = maxDeltaV; //narrow the range
                     maxDeltaV *= 2;
                     if (maxDeltaV > 100000) break; //a safety precaution
                 }
-            }
-            else
-            {
+            } else {
                 //when lowering periapsis, we burn horizontally, and max possible deltaV is the deltaV required to kill all horizontal velocity
                 maxDeltaV = Math.Abs(Vector3d.Dot(o.SwappedOrbitalVelocityAtUT(UT), burnDirection));
             }
 
             //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01)
-            {
+            while (maxDeltaV - minDeltaV > 0.01) {
                 double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
                 double testPeriapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).PeR;
 
-                if ((testPeriapsis > newPeR && raising) || (testPeriapsis < newPeR && !raising))
-                {
+                if ((testPeriapsis > newPeR && raising) || (testPeriapsis < newPeR && !raising)) {
                     maxDeltaV = testDeltaV;
-                }
-                else
-                {
+                } else {
                     minDeltaV = testDeltaV;
                 }
             }
@@ -99,8 +85,7 @@ namespace kOSMainframe.Orbital
             return ((maxDeltaV + minDeltaV) / 2) * burnDirection;
         }
 
-        public static bool ApoapsisIsHigher(double ApR, double than)
-        {
+        public static bool ApoapsisIsHigher(double ApR, double than) {
             if (than > 0 && ApR < 0) return true;
             if (than < 0 && ApR > 0) return false;
             return ApR > than;
@@ -109,8 +94,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
         //The computed burn is always prograde or retrograde, though this may not be strictly optimal.
         //Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
-        public static Vector3d DeltaVToChangeApoapsis(Orbit o, double UT, double newApR)
-        {
+        public static Vector3d DeltaVToChangeApoapsis(Orbit o, double UT, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -123,40 +107,32 @@ namespace kOSMainframe.Orbital
 
             double minDeltaV = 0;
             double maxDeltaV;
-            if (raising)
-            {
+            if (raising) {
                 //put an upper bound on the required deltaV:
                 maxDeltaV = 0.25;
 
                 double ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
-                while (ApoapsisIsHigher(newApR, ap))
-                {
+                while (ApoapsisIsHigher(newApR, ap)) {
                     minDeltaV = maxDeltaV; //narrow the range
                     maxDeltaV *= 2;
                     ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
                     if (maxDeltaV > 100000) break; //a safety precaution
                 }
-            }
-            else
-            {
+            } else {
                 //when lowering apoapsis, we burn retrograde, and max possible deltaV is total velocity
                 maxDeltaV = o.SwappedOrbitalVelocityAtUT(UT).magnitude;
             }
 
             //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01)
-            {
+            while (maxDeltaV - minDeltaV > 0.01) {
                 double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
                 double testApoapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).ApR;
 
                 bool above = ApoapsisIsHigher(testApoapsis, newApR);
 
-                if ((raising && above) || (!raising && !above))
-                {
+                if ((raising && above) || (!raising && !above)) {
                     maxDeltaV = testDeltaV;
-                }
-                else
-                {
+                } else {
                     minDeltaV = testDeltaV;
                 }
             }
@@ -173,17 +149,13 @@ namespace kOSMainframe.Orbital
         //Returned heading is in degrees and in the range 0 to 360.
         //If the given latitude is too large, so that an orbit with a given inclination never attains the
         //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForInclination(double inclinationDegrees, double latitudeDegrees)
-        {
+        public static double HeadingForInclination(double inclinationDegrees, double latitudeDegrees) {
             double cosDesiredSurfaceAngle = Math.Cos(inclinationDegrees * UtilMath.Deg2Rad) / Math.Cos(latitudeDegrees * UtilMath.Deg2Rad);
-            if (Math.Abs(cosDesiredSurfaceAngle) > 1.0)
-            {
+            if (Math.Abs(cosDesiredSurfaceAngle) > 1.0) {
                 //If inclination < latitude, we get this case: the desired inclination is impossible
                 if (Math.Abs(Functions.ClampDegrees180(inclinationDegrees)) < 90) return 90;
                 else return 270;
-            }
-            else
-            {
+            } else {
                 double angleFromEast = (UtilMath.Rad2Deg) * Math.Acos(cosDesiredSurfaceAngle); //an angle between 0 and 180
                 if (inclinationDegrees < 0) angleFromEast *= -1;
                 //now angleFromEast is between -180 and 180
@@ -202,8 +174,7 @@ namespace kOSMainframe.Orbital
         //Returned heading is in degrees and in the range 0 to 360.
         //If the given latitude is too large, so that an orbit with a given inclination never attains the
         //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees)
-        {
+        public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
             CelestialBody body = vessel.mainBody;
             double latitudeDegrees = vessel.latitude;
             double orbVel = OrbitalManeuverCalculator.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
@@ -225,8 +196,7 @@ namespace kOSMainframe.Orbital
             Vector3d desiredHorizontalVelocity;
             Vector3d deltaHorizontalVelocity;
 
-            if (vessel.GetSpeedSurfaceHorizontal() < 200)
-            {
+            if (vessel.GetSpeedSurfaceHorizontal() < 200) {
                 // at initial launch we have to head the direction the user specifies (90 north instead of -90 south).
                 // 200 m/s of surface velocity also defines a 'grace period' where someone can catch a rocket that they meant
                 // to launch at -90 and typed 90 into the inclination box fast after it started to initiate the turn.
@@ -234,18 +204,13 @@ namespace kOSMainframe.Orbital
                 // take a south travelling rocket and turn north or vice versa.
                 desiredHorizontalVelocity = desiredHorizontalVelocityOne;
                 deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-            }
-            else
-            {
+            } else {
                 // now in order to get great circle tracks correct we pick the side which gives the lowest delta-V, which will get
                 // ground tracks that cross the maximum (or minimum) latitude of a great circle correct.
-                if (deltaHorizontalVelocityOne.magnitude < deltaHorizontalVelocityTwo.magnitude)
-                {
+                if (deltaHorizontalVelocityOne.magnitude < deltaHorizontalVelocityTwo.magnitude) {
                     desiredHorizontalVelocity = desiredHorizontalVelocityOne;
                     deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-                }
-                else
-                {
+                } else {
                     desiredHorizontalVelocity = desiredHorizontalVelocityTwo;
                     deltaHorizontalVelocity = deltaHorizontalVelocityTwo;
                 }
@@ -253,8 +218,7 @@ namespace kOSMainframe.Orbital
 
             // if you circularize in one burn, towards the end deltaHorizontalVelocity will whip around, but we want to
             // fall back to tracking desiredHorizontalVelocity
-            if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90)
-            {
+            if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90) {
                 // it is important that we do NOT do the fracReserveDV math here, we want to ignore the deltaHV entirely at ths point
                 return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(desiredHorizontalVelocity, east), Vector3d.Dot(desiredHorizontalVelocity, north)));
             }
@@ -270,8 +234,7 @@ namespace kOSMainframe.Orbital
         //   - first, clamp newInclination to the range -180, 180
         //   - if newInclination > 0, do the cheaper burn to set that inclination
         //   - if newInclination < 0, do the more expensive burn to set that inclination
-        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination)
-        {
+        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination) {
             double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
             double desiredHeading = HeadingForInclination(newInclination, latitude);
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));
@@ -286,8 +249,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V and time of a burn to match planes with the target orbit. The output burnUT
         //will be equal to the time of the first ascending node with respect to the target after the given UT.
         //Throws an ArgumentException if o is hyperbolic and doesn't have an ascending node relative to the target.
-        public static Vector3d DeltaVAndTimeToMatchPlanesAscending(Orbit o, Orbit target, double UT, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeToMatchPlanesAscending(Orbit o, Orbit target, double UT, out double burnUT) {
             burnUT = o.TimeOfAscendingNode(target, UT);
             Vector3d desiredHorizontal = Vector3d.Cross(target.SwappedOrbitNormal(), o.Up(burnUT));
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(burnUT), o.SwappedOrbitalVelocityAtUT(burnUT));
@@ -298,8 +260,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V and time of a burn to match planes with the target orbit. The output burnUT
         //will be equal to the time of the first descending node with respect to the target after the given UT.
         //Throws an ArgumentException if o is hyperbolic and doesn't have a descending node relative to the target.
-        public static Vector3d DeltaVAndTimeToMatchPlanesDescending(Orbit o, Orbit target, double UT, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeToMatchPlanesDescending(Orbit o, Orbit target, double UT, out double burnUT) {
             burnUT = o.TimeOfDescendingNode(target, UT);
             Vector3d desiredHorizontal = Vector3d.Cross(target.SwappedOrbitNormal(), o.Up(burnUT));
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(burnUT), o.SwappedOrbitalVelocityAtUT(burnUT));
@@ -314,14 +275,12 @@ namespace kOSMainframe.Orbital
         //of the transfer orbit.
         //Actually, it's not exactly the phase angle. It's a sort of mean anomaly phase angle. The
         //difference is not important for how this function is used by DeltaVAndTimeForHohmannTransfer.
-        private static Vector3d DeltaVAndApsisPhaseAngleOfHohmannTransfer(Orbit o, Orbit target, double UT, out double apsisPhaseAngle)
-        {
+        private static Vector3d DeltaVAndApsisPhaseAngleOfHohmannTransfer(Orbit o, Orbit target, double UT, out double apsisPhaseAngle) {
             Vector3d apsisDirection = -o.SwappedRelativePositionAtUT(UT);
             double desiredApsis = target.RadiusAtTrueAnomaly(UtilMath.Deg2Rad * target.TrueAnomalyFromVector(apsisDirection));
 
             Vector3d dV;
-            if (desiredApsis > o.ApR)
-            {
+            if (desiredApsis > o.ApR) {
                 dV = DeltaVToChangeApoapsis(o, UT, desiredApsis);
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferApTime = transferOrbit.NextApoapsisTime(UT);
@@ -329,9 +288,7 @@ namespace kOSMainframe.Orbital
                 double targetTrueAnomaly = target.TrueAnomalyFromVector(transferApDirection);
                 double meanAnomalyOffset = 360 * (target.TimeOfTrueAnomaly(targetTrueAnomaly, UT) - transferApTime) / target.period;
                 apsisPhaseAngle = meanAnomalyOffset;
-            }
-            else
-            {
+            } else {
                 dV = DeltaVToChangePeriapsis(o, UT, desiredApsis);
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferPeTime = transferOrbit.NextPeriapsisTime(UT);
@@ -351,8 +308,7 @@ namespace kOSMainframe.Orbital
         //The output burnUT will be the first transfer window found after the given UT.
         //Assumes o and target are in approximately the same plane, and orbiting in the same direction.
         //Also assumes that o is a perfectly circular orbit (though result should be OK for small eccentricity).
-        public static Vector3d DeltaVAndTimeForHohmannTransfer(Orbit o, Orbit target, double UT, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForHohmannTransfer(Orbit o, Orbit target, double UT, out double burnUT) {
             //We do a binary search for the burn time that zeros out the phase angle between the
             //transferring vessel and the target at the apsis of the transfer orbit.
             double synodicPeriod = o.SynodicPeriod(target);
@@ -366,22 +322,19 @@ namespace kOSMainframe.Orbital
             //first find roughly where the zero point is
             const int numDivisions = 30;
             double dt = (maxTime - minTime) / numDivisions;
-            for (int i = 1; i <= numDivisions; i++)
-            {
+            for (int i = 1; i <= numDivisions; i++) {
                 double t = minTime + dt * i;
 
                 double apsisPhaseAngle;
                 DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, t, out apsisPhaseAngle);
 
-                if ((Math.Abs(apsisPhaseAngle) < 90) && (Math.Sign(lastApsisPhaseAngle) != Math.Sign(apsisPhaseAngle)))
-                {
+                if ((Math.Abs(apsisPhaseAngle) < 90) && (Math.Sign(lastApsisPhaseAngle) != Math.Sign(apsisPhaseAngle))) {
                     minTime = t - dt;
                     maxTime = t;
                     break;
                 }
 
-                if ((i == 1) && (Math.Abs(lastApsisPhaseAngle) < 0.5) && (Math.Sign(lastApsisPhaseAngle) == Math.Sign(apsisPhaseAngle)))
-                {
+                if ((i == 1) && (Math.Abs(lastApsisPhaseAngle) < 0.5) && (Math.Sign(lastApsisPhaseAngle) == Math.Sign(apsisPhaseAngle))) {
                     //In this case we are JUST passed the center of the transfer window, but probably we
                     //can still do the transfer just fine. Don't do a search, just return an immediate burn
                     burnUT = UT;
@@ -390,8 +343,7 @@ namespace kOSMainframe.Orbital
 
                 lastApsisPhaseAngle = apsisPhaseAngle;
 
-                if (i == numDivisions)
-                {
+                if (i == numDivisions) {
                     throw new ArgumentException("OrbitalManeuverCalculator.DeltaVAndTimeForHohmannTransfer: couldn't find the transfer window!!");
                 }
             }
@@ -399,19 +351,15 @@ namespace kOSMainframe.Orbital
             int minTimeApsisPhaseAngleSign = Math.Sign(lastApsisPhaseAngle);
 
             //then do a binary search
-            while (maxTime - minTime > 0.01)
-            {
+            while (maxTime - minTime > 0.01) {
                 double testTime = (maxTime + minTime) / 2;
 
                 double testApsisPhaseAngle;
                 DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, testTime, out testApsisPhaseAngle);
 
-                if (Math.Sign(testApsisPhaseAngle) == minTimeApsisPhaseAngleSign)
-                {
+                if (Math.Sign(testApsisPhaseAngle) == minTimeApsisPhaseAngleSign) {
                     minTime = testTime;
-                }
-                else
-                {
+                } else {
                     maxTime = testTime;
                 }
             }
@@ -423,8 +371,7 @@ namespace kOSMainframe.Orbital
             return burnDV;
         }
 
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0, bool shortway = true)
-        {
+        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0, bool shortway = true) {
             Vector3d finalVelocity;
             return DeltaVToInterceptAtTime(o, UT, target, interceptUT, out finalVelocity, offsetDistance, shortway);
         }
@@ -435,8 +382,7 @@ namespace kOSMainframe.Orbital
         // offsetDistance: this is used by the Rendezvous Autopilot and is only going to be valid over very short distances
         // shortway: the shortway parameter to feed into the Lambert solver
         //
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0, bool shortway = true)
-        {
+        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0, bool shortway = true) {
             Vector3d initialRelPos = o.SwappedRelativePositionAtUT(initialUT);
             Vector3d finalRelPos = target.SwappedRelativePositionAtUT(finalUT);
 
@@ -448,8 +394,7 @@ namespace kOSMainframe.Orbital
             LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody, shortway, out transferVi, out transferVf);
             // GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
 
-            if (offsetDistance != 0)
-            {
+            if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
                 LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody, shortway, out transferVi, out transferVf);
                 //GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
@@ -466,28 +411,24 @@ namespace kOSMainframe.Orbital
         //that closest approach time to zero.
         //This will likely only return sensible results when the given orbit is already an
         //approximate intercept trajectory.
-        public static Vector3d DeltaVForCourseCorrection(Orbit o, double UT, Orbit target)
-        {
+        public static Vector3d DeltaVForCourseCorrection(Orbit o, double UT, Orbit target) {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 1); //+1 so that closestApproachTime is definitely > UT
             Vector3d dV = DeltaVToInterceptAtTime(o, UT, target, closestApproachTime);
             return dV;
         }
 
-        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, out double burnUT) {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 2); //+2 so that closestApproachTime is definitely > UT
 
             burnUT = UT;
             Vector3d dV = DeltaVToInterceptAtTime(o, burnUT, target, closestApproachTime);
 
             const int fineness = 20;
-            for (double step = 0.5; step < fineness; step += 1.0)
-            {
+            for (double step = 0.5; step < fineness; step += 1.0) {
                 double testUT = UT + (closestApproachTime - UT) * step / fineness;
                 Vector3d testDV = DeltaVToInterceptAtTime(o, testUT, target, closestApproachTime);
 
-                if (testDV.magnitude < dV.magnitude)
-                {
+                if (testDV.magnitude < dV.magnitude) {
                     dV = testDV;
                     burnUT = testUT;
                 }
@@ -496,8 +437,7 @@ namespace kOSMainframe.Orbital
             return dV;
         }
 
-        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, CelestialBody targetBody, double finalPeR, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, CelestialBody targetBody, double finalPeR, out double burnUT) {
             Vector3d collisionDV = DeltaVAndTimeForCheapestCourseCorrection(o, UT, target, out burnUT);
             Orbit collisionOrbit = o.PerturbedOrbit(burnUT, collisionDV);
             double collisionUT = collisionOrbit.NextClosestApproachTime(target, burnUT);
@@ -522,8 +462,7 @@ namespace kOSMainframe.Orbital
             return deltaV;
         }
 
-        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, double caDistance, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForCheapestCourseCorrection(Orbit o, double UT, Orbit target, double caDistance, out double burnUT) {
             Vector3d collisionDV = DeltaVAndTimeForCheapestCourseCorrection(o, UT, target, out burnUT);
             Orbit collisionOrbit = o.PerturbedOrbit(burnUT, collisionDV);
             double collisionUT = collisionOrbit.NextClosestApproachTime(target, burnUT);
@@ -547,8 +486,7 @@ namespace kOSMainframe.Orbital
         //the target planet has a fairly low relative inclination with respect to the first planet. If the
         //inclination change is nonzero you should also do a mid-course correction burn, as computed by
         //DeltaVForCourseCorrection.
-        public static Vector3d DeltaVAndTimeForInterplanetaryTransferEjection(Orbit o, double UT, Orbit target, bool syncPhaseAngle, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForInterplanetaryTransferEjection(Orbit o, double UT, Orbit target, bool syncPhaseAngle, out double burnUT) {
             Orbit planetOrbit = o.referenceBody.orbit;
 
             //Compute the time and dV for a Hohmann transfer where we pretend that we are the planet we are orbiting.
@@ -557,13 +495,10 @@ namespace kOSMainframe.Orbital
             double idealBurnUT;
             Vector3d idealDeltaV;
 
-            if (syncPhaseAngle)
-            {
+            if (syncPhaseAngle) {
                 //time the ejection burn to intercept the target
                 idealDeltaV = DeltaVAndTimeForHohmannTransfer(planetOrbit, target, UT, out idealBurnUT);
-            }
-            else
-            {
+            } else {
                 //don't time the ejection burn to intercept the target; we just care about the final peri/apoapsis
                 idealBurnUT = UT;
                 if (target.semiMajorAxis < planetOrbit.semiMajorAxis) idealDeltaV = DeltaVToChangePeriapsis(planetOrbit, idealBurnUT, target.semiMajorAxis);
@@ -609,8 +544,7 @@ namespace kOSMainframe.Orbital
             double ejectionTrueAnomaly = o.TrueAnomalyFromVector(ejectionPointDirection);
             burnUT = o.TimeOfTrueAnomaly(ejectionTrueAnomaly, idealBurnUT - o.period);
 
-            if ((idealBurnUT - burnUT > o.period / 2) || (burnUT < UT))
-            {
+            if ((idealBurnUT - burnUT > o.period / 2) || (burnUT < UT)) {
                 burnUT += o.period;
             }
 
@@ -624,8 +558,7 @@ namespace kOSMainframe.Orbital
             return ejectionVelocity - preEjectionVelocity;
         }
 
-        public struct LambertProblem
-        {
+        public struct LambertProblem {
             public Orbit o;
             public Orbit target;
             public bool shortway;
@@ -641,23 +574,18 @@ namespace kOSMainframe.Orbital
         // prob.shortway is which lambert solution to find
         // prob.intercept_only omits adding the second burn to the cost
         //
-        public static void LambertCost(double[] x, double[] f, object obj)
-        {
+        public static void LambertCost(double[] x, double[] f, object obj) {
             LambertProblem prob = (LambertProblem)obj;
             double UT1 = x[0] + prob.zeroUT;
             double UT2 = UT1 + x[1];
             Vector3d finalVelocity;
 
-            try
-            {
+            try {
                 f[0] = DeltaVToInterceptAtTime(prob.o, UT1, prob.target, UT2, out finalVelocity, 0, prob.shortway).magnitude;
-                if (!prob.intercept_only)
-                {
+                if (!prob.intercept_only) {
                     f[0] += finalVelocity.magnitude;
                 }
-            }
-            catch (Exception)
-            {
+            } catch (Exception) {
                 // need Sqrt of MaxValue so least-squares can square it without an infinity
                 f[0] = Math.Sqrt(Double.MaxValue);
             }
@@ -669,8 +597,7 @@ namespace kOSMainframe.Orbital
         // optimization search.
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
-        public static Vector3d DeltaVAndTimeForBiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, out double burnUT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000, bool shortway = false)
-        {
+        public static Vector3d DeltaVAndTimeForBiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, out double burnUT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000, bool shortway = false) {
             double[] x = { 0, TT };
             double[] scale = { o.period / 2, TT };
 
@@ -710,8 +637,7 @@ namespace kOSMainframe.Orbital
             return DeltaVToInterceptAtTime(o, burnUT, target, burnUT + x[1], 0, shortway);
         }
 
-        public static double acceptanceProbabilityForBiImpulsive(double currentCost, double newCost, double temp)
-        {
+        public static double acceptanceProbabilityForBiImpulsive(double currentCost, double newCost, double temp) {
             if (newCost < currentCost)
                 return 1.0;
             return Math.Exp((currentCost - newCost) / temp);
@@ -722,8 +648,7 @@ namespace kOSMainframe.Orbital
         // FIXME: there's some very confusing nomenclature between DeltaVAndTimeForBiImpulsiveTransfer and this
         //        the minUT/maxUT values here are zero-centered on this methods UT.  the minUT/maxUT parameters to
         //        the other method are proper UT times and not zero centered at all.
-        public static Vector3d DeltaVAndTimeForBiImpulsiveAnnealed(Orbit o, Orbit target, double UT, out double burnUT, double minUT = 0.0, double maxUT = Double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false)
-        {
+        public static Vector3d DeltaVAndTimeForBiImpulsiveAnnealed(Orbit o, Orbit target, double UT, out double burnUT, double minUT = 0.0, double maxUT = Double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
             double coolingRate = 0.003;
@@ -756,8 +681,7 @@ namespace kOSMainframe.Orbital
 
             Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
-            if (target.patchEndTransition != Orbit.PatchTransitionType.FINAL && target.patchEndTransition != Orbit.PatchTransitionType.INITIAL)
-            {
+            if (target.patchEndTransition != Orbit.PatchTransitionType.FINAL && target.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
                 Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
                 // reset the guess to search for start times out to the end of the target orbit
                 maxUT = target.EndUT - UT;
@@ -768,15 +692,13 @@ namespace kOSMainframe.Orbital
             }
 
             // if our orbit ends, search for start times all the way to the end, but don't violate maxUTplusT if its set
-            if (o.patchEndTransition != Orbit.PatchTransitionType.FINAL && o.patchEndTransition != Orbit.PatchTransitionType.INITIAL)
-            {
+            if (o.patchEndTransition != Orbit.PatchTransitionType.FINAL && o.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
                 Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
                 maxUT = Math.Min(o.EndUT - UT, maxUTplusT);
             }
 
             // user requested a burn at a specific time
-            if (fixed_ut)
-            {
+            if (fixed_ut) {
                 maxUT = 0;
                 minUT = 0;
             }
@@ -791,8 +713,7 @@ namespace kOSMainframe.Orbital
             int n = 0;
 
             stopwatch.Start();
-            while (temp > 1)
-            {
+            while (temp > 1) {
                 // shrink the neighborhood based on temp
                 double windowUT = temp / MAXTEMP * maxUT / 4;
                 double windowTT = temp / MAXTEMP * maxTT / 4;
@@ -807,8 +728,7 @@ namespace kOSMainframe.Orbital
 
                 LambertCost(x, f, prob);
 
-                if (f[0] < bestCost)
-                {
+                if (f[0] < bestCost) {
                     bestUT = x[0];
                     bestTT = x[1];
                     bestshortway = prob.shortway;
@@ -816,9 +736,7 @@ namespace kOSMainframe.Orbital
                     currentUT = bestUT;
                     currentTT = bestTT;
                     currentCost = bestCost;
-                }
-                else if (acceptanceProbabilityForBiImpulsive(currentCost, f[0], temp) > random.NextDouble())
-                {
+                } else if (acceptanceProbabilityForBiImpulsive(currentCost, f[0], temp) > random.NextDouble()) {
                     currentUT = x[0];
                     currentTT = x[1];
                     currentCost = f[0];
@@ -845,8 +763,7 @@ namespace kOSMainframe.Orbital
 
         //Like DeltaVAndTimeForHohmannTransfer, but adds an additional step that uses the Lambert
         //solver to adjust the initial burn to produce an exact intercept instead of an approximate
-        public static Vector3d DeltaVAndTimeForHohmannLambertTransfer(Orbit o, Orbit target, double UT, out double burnUT, double subtractProgradeDV = 0)
-        {
+        public static Vector3d DeltaVAndTimeForHohmannLambertTransfer(Orbit o, Orbit target, double UT, out double burnUT, double subtractProgradeDV = 0) {
             Vector3d hohmannDV = DeltaVAndTimeForHohmannTransfer(o, target, UT, out burnUT);
             Vector3d subtractedProgradeDV = subtractProgradeDV * hohmannDV.normalized;
 
@@ -863,8 +780,7 @@ namespace kOSMainframe.Orbital
             double minInterceptTime = apsisTime - hohmannOrbit.period / 4;
             double maxInterceptTime = apsisTime + hohmannOrbit.period / 4;
             const int subdivisions = 30;
-            for (int i = 0; i < subdivisions; i++)
-            {
+            for (int i = 0; i < subdivisions; i++) {
                 double interceptUT = minInterceptTime + i * (maxInterceptTime - minInterceptTime) / subdivisions;
 
                 Debug.Log("i + " + i + ", trying for intercept at UT = " + interceptUT);
@@ -873,8 +789,7 @@ namespace kOSMainframe.Orbital
                 Vector3d interceptBurn = DeltaVToInterceptAtTime(o, burnUT, target, interceptUT, 0, true);
                 double cost = (interceptBurn - subtractedProgradeDV).magnitude;
                 Debug.Log("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
-                if (cost < minCost)
-                {
+                if (cost < minCost) {
                     dV = interceptBurn;
                     minCost = cost;
                 }
@@ -882,8 +797,7 @@ namespace kOSMainframe.Orbital
                 interceptBurn = DeltaVToInterceptAtTime(o, burnUT, target, interceptUT, 0, false);
                 cost = (interceptBurn - subtractedProgradeDV).magnitude;
                 Debug.Log("long way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
-                if (cost < minCost)
-                {
+                if (cost < minCost) {
                     dV = interceptBurn;
                     minCost = cost;
                 }
@@ -898,8 +812,7 @@ namespace kOSMainframe.Orbital
         //the target planet has a fairly low relative inclination with respect to the first planet. If the
         //inclination change is nonzero you should also do a mid-course correction burn, as computed by
         //DeltaVForCourseCorrection.
-        public static Vector3d DeltaVAndTimeForInterplanetaryLambertTransferEjection(Orbit o, double UT, Orbit target, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForInterplanetaryLambertTransferEjection(Orbit o, double UT, Orbit target, out double burnUT) {
             Orbit planetOrbit = o.referenceBody.orbit;
 
             //Compute the time and dV for a Hohmann transfer where we pretend that we are the planet we are orbiting.
@@ -963,8 +876,8 @@ namespace kOSMainframe.Orbital
             //unit vector pointing to the spot on our orbit where we will burn.
             //fails if outOfPlaneAngle > coneAngle.
             Vector3d ejectionPointDirection = Math.Cos(coneAngle) * (-soiExitVelocity.normalized)
-                + Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle) * normal2
-                - Math.Sqrt(Math.Pow(Math.Sin(coneAngle), 2) - Math.Pow(Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle), 2)) * exitNormal;
+                                              + Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle) * normal2
+                                              - Math.Sqrt(Math.Pow(Math.Sin(coneAngle), 2) - Math.Pow(Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle), 2)) * exitNormal;
 
             Debug.Log("soiExitVelocity = " + (Vector3)soiExitVelocity);
             Debug.Log("vessel orbit normal = " + (Vector3)(1000 * o.SwappedOrbitNormal()));
@@ -976,8 +889,7 @@ namespace kOSMainframe.Orbital
             double ejectionTrueAnomaly = o.TrueAnomalyFromVector(ejectionPointDirection);
             burnUT = o.TimeOfTrueAnomaly(ejectionTrueAnomaly, idealBurnUT - o.period);
 
-            if ((idealBurnUT - burnUT > o.period / 2) || (burnUT < UT))
-            {
+            if ((idealBurnUT - burnUT > o.period / 2) || (burnUT < UT)) {
                 burnUT += o.period;
             }
 
@@ -992,8 +904,7 @@ namespace kOSMainframe.Orbital
             return ejectionVelocity - preEjectionVelocity;
         }
 
-        public static Vector3d DeltaVAndTimeForMoonReturnEjection(Orbit o, double UT, double targetPrimaryPeriapsis, out double burnUT)
-        {
+        public static Vector3d DeltaVAndTimeForMoonReturnEjection(Orbit o, double UT, double targetPrimaryPeriapsis, out double burnUT) {
             CelestialBody moon = o.referenceBody;
             CelestialBody primary = moon.referenceBody;
 
@@ -1005,14 +916,12 @@ namespace kOSMainframe.Orbital
 
         //Computes the delta-V of the burn at a given time required to zero out the difference in orbital velocities
         //between a given orbit and a target.
-        public static Vector3d DeltaVToMatchVelocities(Orbit o, double UT, Orbit target)
-        {
+        public static Vector3d DeltaVToMatchVelocities(Orbit o, double UT, Orbit target) {
             return target.SwappedOrbitalVelocityAtUT(UT) - o.SwappedOrbitalVelocityAtUT(UT);
         }
 
         // Compute the delta-V of the burn at the givent time required to enter an orbit with a period of (resonanceDivider-1)/resonanceDivider of the starting orbit period
-        public static Vector3d DeltaVToResonantOrbit(Orbit o, double UT, double f)
-        {
+        public static Vector3d DeltaVToResonantOrbit(Orbit o, double UT, double f) {
             double a = o.ApR;
             double p = o.PeR;
 
@@ -1030,8 +939,7 @@ namespace kOSMainframe.Orbital
         }
 
         // Compute the angular distance between two points on a unit sphere
-        public static double Distance(double lat_a, double long_a, double lat_b, double long_b)
-        {
+        public static double Distance(double lat_a, double long_a, double lat_b, double long_b) {
             // Using Great-Circle Distance 2nd computational formula from http://en.wikipedia.org/wiki/Great-circle_distance
             // Note the switch from degrees to radians and back
             double lat_a_rad = UtilMath.Deg2Rad * lat_a;
@@ -1039,13 +947,12 @@ namespace kOSMainframe.Orbital
             double long_diff_rad = UtilMath.Deg2Rad * (long_b - long_a);
 
             return UtilMath.Rad2Deg * Math.Atan2(Math.Sqrt(Math.Pow(Math.Cos(lat_b_rad) * Math.Sin(long_diff_rad), 2) +
-                Math.Pow(Math.Cos(lat_a_rad) * Math.Sin(lat_b_rad) - Math.Sin(lat_a_rad) * Math.Cos(lat_b_rad) * Math.Cos(long_diff_rad), 2)),
-                Math.Sin(lat_a_rad) * Math.Sin(lat_b_rad) + Math.Cos(lat_a_rad) * Math.Cos(lat_b_rad) * Math.Cos(long_diff_rad));
+                                                 Math.Pow(Math.Cos(lat_a_rad) * Math.Sin(lat_b_rad) - Math.Sin(lat_a_rad) * Math.Cos(lat_b_rad) * Math.Cos(long_diff_rad), 2)),
+                                                 Math.Sin(lat_a_rad) * Math.Sin(lat_b_rad) + Math.Cos(lat_a_rad) * Math.Cos(lat_b_rad) * Math.Cos(long_diff_rad));
         }
 
         // Compute an angular heading from point a to point b on a unit sphere
-        public static double Heading(double lat_a, double long_a, double lat_b, double long_b)
-        {
+        public static double Heading(double lat_a, double long_a, double lat_b, double long_b) {
             // Using Great-Circle Navigation formula for initial heading from http://en.wikipedia.org/wiki/Great-circle_navigation
             // Note the switch from degrees to radians and back
             // Original equation returns 0 for due south, increasing clockwise. We add 180 and clamp to 0-360 degrees to map to compass-type headings
@@ -1054,13 +961,12 @@ namespace kOSMainframe.Orbital
             double long_diff_rad = UtilMath.Deg2Rad * (long_b - long_a);
 
             return Functions.ClampDegrees360(180.0 / Math.PI * Math.Atan2(
-                Math.Sin(long_diff_rad),
-                Math.Cos(lat_a_rad) * Math.Tan(lat_b_rad) - Math.Sin(lat_a_rad) * Math.Cos(long_diff_rad)));
+                                                 Math.Sin(long_diff_rad),
+                                                 Math.Cos(lat_a_rad) * Math.Tan(lat_b_rad) - Math.Sin(lat_a_rad) * Math.Cos(long_diff_rad)));
         }
 
         //Computes the deltaV of the burn needed to set a given LAN at a given UT.
-        public static Vector3d DeltaVToShiftLAN(Orbit o, double UT, double newLAN)
-        {
+        public static Vector3d DeltaVToShiftLAN(Orbit o, double UT, double newLAN) {
             Vector3d pos = o.SwappedAbsolutePositionAtUT(UT);
             // Burn position in the same reference frame as LAN
             double burn_latitude = o.referenceBody.GetLatitude(pos);
@@ -1072,33 +978,23 @@ namespace kOSMainframe.Orbital
             // Select the location of either the descending or ascending node.
             // If the descending node is closer than the ascending node, or there is no ascending node, target the reverse of the newLAN
             // Otherwise target the newLAN
-            if (o.AscendingNodeEquatorialExists() && o.DescendingNodeEquatorialExists())
-            {
-                if (o.TimeOfDescendingNodeEquatorial(UT) < o.TimeOfAscendingNodeEquatorial(UT))
-                {
+            if (o.AscendingNodeEquatorialExists() && o.DescendingNodeEquatorialExists()) {
+                if (o.TimeOfDescendingNodeEquatorial(UT) < o.TimeOfAscendingNodeEquatorial(UT)) {
                     // DN is closer than AN
                     // Burning for the AN would entail flipping the orbit around, and would be very expensive
                     // therefore, burn for the corresponding Longitude of the Descending Node
                     target_longitude = Functions.ClampDegrees360(newLAN + 180.0);
-                }
-                else
-                {
+                } else {
                     // DN is closer than AN
                     target_longitude = Functions.ClampDegrees360(newLAN);
                 }
-            }
-            else if (o.AscendingNodeEquatorialExists() && !o.DescendingNodeEquatorialExists())
-            {
+            } else if (o.AscendingNodeEquatorialExists() && !o.DescendingNodeEquatorialExists()) {
                 // No DN
                 target_longitude = Functions.ClampDegrees360(newLAN);
-            }
-            else if (!o.AscendingNodeEquatorialExists() && o.DescendingNodeEquatorialExists())
-            {
+            } else if (!o.AscendingNodeEquatorialExists() && o.DescendingNodeEquatorialExists()) {
                 // No AN
                 target_longitude = Functions.ClampDegrees360(newLAN + 180.0);
-            }
-            else
-            {
+            } else {
                 throw new ArgumentException("OrbitalManeuverCalculator.DeltaVToShiftLAN: No Equatorial Nodes");
             }
             double desiredHeading = Functions.ClampDegrees360(Heading(burn_latitude, burn_longitude, target_latitude, target_longitude));
@@ -1110,43 +1006,34 @@ namespace kOSMainframe.Orbital
         }
 
 
-        public static Vector3d DeltaVForSemiMajorAxis(Orbit o, double UT, double newSMA)
-        {
+        public static Vector3d DeltaVForSemiMajorAxis(Orbit o, double UT, double newSMA) {
             bool raising = o.semiMajorAxis < newSMA;
             Vector3d burnDirection = (raising ? 1 : -1) * o.Prograde(UT);
             double minDeltaV = 0;
             double maxDeltaV;
-            if (raising)
-            {
+            if (raising) {
                 //put an upper bound on the required deltaV:
                 maxDeltaV = 0.25;
-                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).semiMajorAxis < newSMA)
-                {
+                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).semiMajorAxis < newSMA) {
                     maxDeltaV *= 2;
                     if (maxDeltaV > 100000)
                         break; //a safety precaution
                 }
-            }
-            else
-            {
+            } else {
                 //when lowering the SMA, we burn horizontally, and max possible deltaV is the deltaV required to kill all horizontal velocity
                 maxDeltaV = Math.Abs(Vector3d.Dot(o.SwappedOrbitalVelocityAtUT(UT), burnDirection));
             }
             // Debug.Log (String.Format ("We are {0} SMA to {1}", raising ? "raising" : "lowering", newSMA));
             // Debug.Log (String.Format ("Starting SMA iteration with maxDeltaV of {0}", maxDeltaV));
             //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01)
-            {
+            while (maxDeltaV - minDeltaV > 0.01) {
                 double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
                 double testSMA = o.PerturbedOrbit(UT, testDeltaV * burnDirection).semiMajorAxis;
                 // Debug.Log (String.Format ("Testing dV of {0} gave an SMA of {1}", testDeltaV, testSMA));
 
-                if ((testSMA < 0) || (testSMA > newSMA && raising) || (testSMA < newSMA && !raising))
-                {
+                if ((testSMA < 0) || (testSMA > newSMA && raising) || (testSMA < newSMA && !raising)) {
                     maxDeltaV = testDeltaV;
-                }
-                else
-                {
+                } else {
                     minDeltaV = testDeltaV;
                 }
             }
@@ -1154,8 +1041,7 @@ namespace kOSMainframe.Orbital
             return ((maxDeltaV + minDeltaV) / 2) * burnDirection;
         }
 
-        public static Vector3d DeltaVToShiftNodeLongitude(Orbit o, double UT, double newNodeLong)
-        {
+        public static Vector3d DeltaVToShiftNodeLongitude(Orbit o, double UT, double newNodeLong) {
             // Get the location underneath the burn location at the current moment.
             // Note that this does NOT account for the rotation of the body that will happen between now
             // and when the vessel reaches the apoapsis.
@@ -1181,8 +1067,7 @@ namespace kOSMainframe.Orbital
             int N = -1;
             double target_sma = 0;
 
-            while (oppositeRadius - o.referenceBody.Radius < o.referenceBody.timeWarpAltitudeLimits[4] && N < 20)
-            {
+            while (oppositeRadius - o.referenceBody.Radius < o.referenceBody.timeWarpAltitudeLimits[4] && N < 20) {
                 N++;
                 double target_period = o.referenceBody.rotationPeriod * (LongitudeOffset / 360 + N);
                 target_sma = Math.Pow((o.referenceBody.gravParameter * target_period * target_period) / (4 * Math.PI * Math.PI), 1.0 / 3.0); // cube roo

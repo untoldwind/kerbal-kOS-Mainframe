@@ -3,10 +3,8 @@ using Smooth.Pools;
 using UnityEngine;
 using kOSMainframe.ExtraMath;
 
-namespace kOSMainframe.Simulation
-{
-    public class SimulatedPart
-    {
+namespace kOSMainframe.Simulation {
+    public class SimulatedPart {
         protected DragCubeList cubes = new DragCubeList();
 
         public double totalMass = 0;
@@ -22,49 +20,42 @@ namespace kOSMainframe.Simulation
 
         private static readonly Pool<SimulatedPart> pool = new Pool<SimulatedPart>(Create, Reset);
 
-        public static int PoolSize
-        {
-            get { return pool.Size; }
+        public static int PoolSize {
+            get {
+                return pool.Size;
+            }
         }
 
-        private static SimulatedPart Create()
-        {
+        private static SimulatedPart Create() {
             SimulatedPart part = new SimulatedPart();
             part.cubes.BodyLiftCurve = new PhysicsGlobals.LiftingSurfaceCurve();
             part.cubes.SurfaceCurves = new PhysicsGlobals.SurfaceCurvesList();
             return part;
         }
 
-        public virtual void Release()
-        {
-            foreach (DragCube cube in cubes.Cubes)
-            {
+        public virtual void Release() {
+            foreach (DragCube cube in cubes.Cubes) {
                 DragCubePool.Instance.Release(cube);
             }
             pool.Release(this);
         }
 
-        public static void Release(List<SimulatedPart> objList)
-        {
-            for (int i = 0; i < objList.Count; ++i)
-            {
+        public static void Release(List<SimulatedPart> objList) {
+            for (int i = 0; i < objList.Count; ++i) {
                 objList[i].Release();
             }
         }
 
-        private static void Reset(SimulatedPart obj)
-        {
+        private static void Reset(SimulatedPart obj) {
         }
 
-        public static SimulatedPart Borrow(Part p, SimCurves simCurve)
-        {
+        public static SimulatedPart Borrow(Part p, SimCurves simCurve) {
             SimulatedPart part = pool.Borrow();
             part.Init(p, simCurve);
             return part;
         }
 
-        protected void Init(Part p, SimCurves _simCurves)
-        {
+        protected void Init(Part p, SimCurves _simCurves) {
             Rigidbody rigidbody = p.rb;
 
             totalMass = rigidbody == null ? 0 : rigidbody.mass; // TODO : check if we need to use this or the one without the childMass
@@ -95,8 +86,7 @@ namespace kOSMainframe.Simulation
 
         }
 
-        public virtual Vector3d Drag(Vector3d vesselVelocity, double dragFactor, float mach)
-        {
+        public virtual Vector3d Drag(Vector3d vesselVelocity, double dragFactor, float mach) {
             if (shieldedFromAirstream || noDrag)
                 return Vector3d.zero;
 
@@ -157,8 +147,7 @@ namespace kOSMainframe.Simulation
             return drag;
         }
 
-        public virtual Vector3d Lift(Vector3d vesselVelocity, double liftFactor)
-        {
+        public virtual Vector3d Lift(Vector3d vesselVelocity, double liftFactor) {
             if (shieldedFromAirstream || hasLiftModule)
                 return Vector3d.zero;
 
@@ -190,27 +179,27 @@ namespace kOSMainframe.Simulation
             return liftVector;
         }
 
-        public virtual bool SimulateAndRollback(double altATGL, double altASL, double endASL, double pressure, double shockTemp, double time, double semiDeployMultiplier)
-        {
+        public virtual bool SimulateAndRollback(double altATGL, double altASL, double endASL, double pressure, double shockTemp, double time, double semiDeployMultiplier) {
             return false;
         }
 
-        public virtual bool Simulate(double altATGL, double altASL, double endASL, double pressure, double shockTemp, double time, double semiDeployMultiplier)
-        {
+        public virtual bool Simulate(double altATGL, double altASL, double endASL, double pressure, double shockTemp, double time, double semiDeployMultiplier) {
             return false;
         }
 
-        public static class DragCubePool
-        {
+        public static class DragCubePool {
             private static readonly Pool<DragCube> _Instance = new Pool<DragCube>(
-                () => new DragCube(), cube => { });
+            () => new DragCube(), cube => { });
 
 
-            public static Pool<DragCube> Instance { get { return _Instance; } }
+            public static Pool<DragCube> Instance {
+                get {
+                    return _Instance;
+                }
+            }
         }
 
-        protected void CopyDragCubesList(DragCubeList source, DragCubeList dest)
-        {
+        protected void CopyDragCubesList(DragCubeList source, DragCubeList dest) {
             dest.ClearCubes();
 
             dest.SetPart(source.Part);
@@ -220,8 +209,7 @@ namespace kOSMainframe.Simulation
             // Procedural need access to part so things gets bad quick.
             dest.Procedural = false;
 
-            for (int i = 0; i < source.Cubes.Count; i++)
-            {
+            for (int i = 0; i < source.Cubes.Count; i++) {
                 DragCube c = DragCubePool.Instance.Borrow();
                 CopyDragCube(source.Cubes[i], c);
                 dest.Cubes.Add(c);
@@ -229,8 +217,7 @@ namespace kOSMainframe.Simulation
 
             dest.SetDragWeights();
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 dest.WeightedArea[i] = source.WeightedArea[i];
                 dest.WeightedDrag[i] = source.WeightedDrag[i];
                 dest.AreaOccluded[i] = source.AreaOccluded[i];
@@ -254,14 +241,12 @@ namespace kOSMainframe.Simulation
             dest.SurfaceCurves.dragCurveTip = simCurves.DragCurveTip;
         }
 
-        protected static void CopyDragCube(DragCube source, DragCube dest)
-        {
+        protected static void CopyDragCube(DragCube source, DragCube dest) {
             dest.Name = source.Name;
             dest.Weight = source.Weight;
             dest.Center = source.Center;
             dest.Size = source.Size;
-            for (int i = 0; i < source.Drag.Length; i++)
-            {
+            for (int i = 0; i < source.Drag.Length; i++) {
                 dest.Drag[i] = source.Drag[i];
                 dest.Area[i] = source.Area[i];
                 dest.Depth[i] = source.Depth[i];
@@ -269,19 +254,15 @@ namespace kOSMainframe.Simulation
             }
         }
 
-        protected void SetCubeWeight(string name, float newWeight)
-        {
+        protected void SetCubeWeight(string name, float newWeight) {
             int count = cubes.Cubes.Count;
-            if (count == 0)
-            {
+            if (count == 0) {
                 return;
             }
 
             bool noChange = true;
-            for (int i = count - 1; i >= 0; i--)
-            {
-                if (cubes.Cubes[i].Name == name && cubes.Cubes[i].Weight != newWeight)
-                {
+            for (int i = count - 1; i >= 0; i--) {
+                if (cubes.Cubes[i].Name == name && cubes.Cubes[i].Weight != newWeight) {
                     cubes.Cubes[i].Weight = newWeight;
                     noChange = false;
                 }

@@ -4,10 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Smooth.Pools;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class PartSim
-    {
+namespace kOSMainframe.VesselExtra {
+    public class PartSim {
         private static readonly Pool<PartSim> pool = new Pool<PartSim>(Create, Reset);
 
         private readonly List<AttachNodeSim> attachNodes = new List<AttachNodeSim>();
@@ -52,15 +50,12 @@ namespace kOSMainframe.VesselExtra
         public VesselType vesselType;
         public bool isEnginePlate;
 
-        private static PartSim Create()
-        {
+        private static PartSim Create() {
             return new PartSim();
         }
 
-        private static void Reset(PartSim partSim)
-        {
-            for (int i = 0; i < partSim.attachNodes.Count; i++)
-            {
+        private static void Reset(PartSim partSim) {
+            for (int i = 0; i < partSim.attachNodes.Count; i++) {
                 partSim.attachNodes[i].Release();
             }
             partSim.attachNodes.Clear();
@@ -75,13 +70,11 @@ namespace kOSMainframe.VesselExtra
             partSim.startMass = 0d;
         }
 
-        public void Release()
-        {
+        public void Release() {
             pool.Release(this);
         }
 
-        public static PartSim New(Part p, int id, bool debug)
-        {
+        public static PartSim New(Part p, int id, bool debug) {
             PartSim partSim = pool.Borrow();
 
             partSim.part = p;
@@ -108,8 +101,7 @@ namespace kOSMainframe.VesselExtra
             partSim.resPriorityUseParentInverseStage = p.resourcePriorityUseParentInverseStage;
             partSim.resRequestRemainingThreshold = p.resourceRequestRemainingThreshold;
 
-            if (debug)
-            {
+            if (debug) {
                 Debug.Log("Parent part = " + (p.parent == null ? "null" : p.parent.partInfo.name));
                 Debug.Log("physicalSignificance = " + p.physicalSignificance);
                 Debug.Log("PhysicsSignificance = " + p.PhysicsSignificance);
@@ -118,15 +110,12 @@ namespace kOSMainframe.VesselExtra
             // Work out if the part should have no physical significance
             // The root part is never "no physics"
             partSim.isNoPhysics = p.physicalSignificance == Part.PhysicalSignificance.NONE ||
-                                    p.PhysicsSignificance == 1;
+                                  p.PhysicsSignificance == 1;
 
-            if (p.HasModule<LaunchClamp>())
-            {
+            if (p.HasModule<LaunchClamp>()) {
                 partSim.realMass = 0d;
                 if (debug) Debug.Log("Ignoring mass of launch clamp");
-            }
-            else
-            {
+            } else {
                 partSim.realMass = p.mass;
 
                 if (debug) Debug.Log("Using part.mass of " + partSim.realMass);
@@ -135,15 +124,12 @@ namespace kOSMainframe.VesselExtra
             partSim.postStageMassAdjust = 0f;
             if (debug) Debug.Log("Calculating postStageMassAdjust, prefabMass = " + p.prefabMass);
             int count = p.Modules.Count;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 if (debug) Debug.Log("Module: " + p.Modules[i].moduleName);
                 IPartMassModifier partMassModifier = p.Modules[i] as IPartMassModifier;
-                if (partMassModifier != null)
-                {
+                if (partMassModifier != null) {
                     if (debug) Debug.Log("ChangeWhen = " + partMassModifier.GetModuleMassChangeWhen());
-                    if (partMassModifier.GetModuleMassChangeWhen() == ModifierChangeWhen.STAGED)
-                    {
+                    if (partMassModifier.GetModuleMassChangeWhen() == ModifierChangeWhen.STAGED) {
                         float preStage = partMassModifier.GetModuleMass(p.prefabMass, ModifierStagingSituation.UNSTAGED);
                         float postStage = partMassModifier.GetModuleMass(p.prefabMass, ModifierStagingSituation.STAGED);
                         if (debug) Debug.Log("preStage = " + preStage + "   postStage = " + postStage);
@@ -154,29 +140,24 @@ namespace kOSMainframe.VesselExtra
 
             if (debug) Debug.Log("postStageMassAdjust = " + partSim.postStageMassAdjust);
 
-            for (int i = 0; i < p.Resources.Count; i++)
-            {
+            for (int i = 0; i < p.Resources.Count; i++) {
                 PartResource resource = p.Resources[i];
 
                 // Make sure it isn't NaN as this messes up the part mass and hence most of the values
                 // This can happen if a resource capacity is 0 and tweakable
-                if (!Double.IsNaN(resource.amount))
-                {
+                if (!Double.IsNaN(resource.amount)) {
                     if (debug) Debug.Log(resource.resourceName + " = " + resource.amount);
 
                     partSim.resources.Add(resource.info.id, resource.amount);
                     partSim.resourceFlowStates.Add(resource.info.id, resource.flowState ? 1 : 0);
-                }
-                else
-                {
+                } else {
                     if (debug) Debug.Log(resource.resourceName + " is NaN. Skipping.");
                 }
             }
 
             partSim.hasVessel = (p.vessel != null);
             partSim.isLanded = partSim.hasVessel && p.vessel.Landed;
-            if (partSim.hasVessel)
-            {
+            if (partSim.hasVessel) {
                 partSim.vesselName = p.vessel.vesselName;
                 partSim.vesselType = p.vesselType;
             }
@@ -192,122 +173,96 @@ namespace kOSMainframe.VesselExtra
             return partSim;
         }
 
-        public void ReleasePart()
-        {
+        public void ReleasePart() {
             this.part = null;
         }
 
-        public void CreateEngineSims(List<EngineSim> allEngines, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug)
-        {
+        public void CreateEngineSims(List<EngineSim> allEngines, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug) {
             if (debug) Debug.Log("CreateEngineSims for " + this.name);
             List<ModuleEngines> cacheModuleEngines = part.FindModulesImplementing<ModuleEngines>();
 
-            try
-            {
-                if (cacheModuleEngines.Count > 0)
-                {
+            try {
+                if (cacheModuleEngines.Count > 0) {
                     //find first active engine, assuming that two are never active at the same time
-                    foreach (ModuleEngines engine in cacheModuleEngines)
-                    {
-                        if (engine.isEnabled)
-                        {
+                    foreach (ModuleEngines engine in cacheModuleEngines) {
+                        if (engine.isEnabled) {
                             if (debug) Debug.Log("Module: " + engine.moduleName);
                             EngineSim engineSim = EngineSim.New(
-                                this,
-                                engine,
-                                atmosphere,
-                                (float)mach,
-                                vectoredThrust,
-                                fullThrust,
-                                debug);
+                                                      this,
+                                                      engine,
+                                                      atmosphere,
+                                                      (float)mach,
+                                                      vectoredThrust,
+                                                      fullThrust,
+                                                      debug);
                             allEngines.Add(engineSim);
                         }
                     }
                 }
-            }
-            catch
-            {
+            } catch {
                 Debug.Log("[KER] Error Catch in CreateEngineSims");
             }
         }
 
-        public void CreateRCSSims(List<RCSSim> allRCS, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug)
-        {
+        public void CreateRCSSims(List<RCSSim> allRCS, double atmosphere, double mach, bool vectoredThrust, bool fullThrust, bool debug) {
             if (debug) Debug.Log("CreateRCSSims for " + this.name);
             List<ModuleRCS> cacheModuleRCS = part.FindModulesImplementing<ModuleRCS>();
 
-            try
-            {
-                if (cacheModuleRCS.Count > 0)
-                {
+            try {
+                if (cacheModuleRCS.Count > 0) {
                     //find first active engine, assuming that two are never active at the same time
-                    foreach (ModuleRCS engine in cacheModuleRCS)
-                    {
-                        if (engine.isEnabled)
-                        {
+                    foreach (ModuleRCS engine in cacheModuleRCS) {
+                        if (engine.isEnabled) {
                             if (debug) Debug.Log("Module: " + engine.moduleName);
                             RCSSim engineSim = RCSSim.New(
-                                this,
-                                engine,
-                                atmosphere,
-                                (float)mach,
-                                vectoredThrust,
-                                fullThrust,
-                                debug);
+                                                   this,
+                                                   engine,
+                                                   atmosphere,
+                                                   (float)mach,
+                                                   vectoredThrust,
+                                                   fullThrust,
+                                                   debug);
                             allRCS.Add(engineSim);
                         }
                     }
                 }
-            }
-            catch
-            {
+            } catch {
                 Debug.Log("[KER] Error Catch in CreateRCSSims");
             }
         }
 
-        public void SetupAttachNodes(Dictionary<Part, PartSim> partSimLookup, bool debug)
-        {
+        public void SetupAttachNodes(Dictionary<Part, PartSim> partSimLookup, bool debug) {
             if (debug) Debug.Log("SetupAttachNodes for " + name + ":" + partId);
 
             attachNodes.Clear();
 
-            for (int i = 0; i < part.attachNodes.Count; ++i)
-            {
+            for (int i = 0; i < part.attachNodes.Count; ++i) {
                 AttachNode attachNode = part.attachNodes[i];
 
                 if (debug) Debug.Log("AttachNode " + attachNode.id + " = " + (attachNode.attachedPart != null ? attachNode.attachedPart.partInfo.name : "null"));
 
-                if (attachNode.attachedPart != null && attachNode.id != "Strut")
-                {
+                if (attachNode.attachedPart != null && attachNode.id != "Strut") {
                     PartSim attachedSim;
-                    if (partSimLookup.TryGetValue(attachNode.attachedPart, out attachedSim))
-                    {
+                    if (partSimLookup.TryGetValue(attachNode.attachedPart, out attachedSim)) {
                         if (debug) Debug.Log("Adding attached node " + attachedSim.name + ":" + attachedSim.partId);
 
                         attachNodes.Add(AttachNodeSim.New(attachedSim, attachNode.id, attachNode.nodeType));
-                    }
-                    else
-                    {
+                    } else {
                         if (debug) Debug.Log("No PartSim for attached part (" + attachNode.attachedPart.partInfo.name + ")");
                     }
                 }
             }
 
-            for (int i = 0; i < part.fuelLookupTargets.Count; ++i)
-            {
+            for (int i = 0; i < part.fuelLookupTargets.Count; ++i) {
                 Part p = part.fuelLookupTargets[i];
 
-                if (p != null)
-                {
+                if (p != null) {
                     PartSim targetSim;
-                    if (partSimLookup.TryGetValue(p, out targetSim))
-                    {
+                    if (partSimLookup.TryGetValue(p, out targetSim)) {
                         if (debug) Debug.Log("Fuel target: " + targetSim.name + ":" + targetSim.partId);
 
                         fuelTargets.Add(targetSim);
-                    }
-                    else
-                    {
+                    } else {
                         if (debug) Debug.Log("No PartSim for fuel target (" + p.name + ")");
                     }
                 }
@@ -315,34 +270,26 @@ namespace kOSMainframe.VesselExtra
         }
 
 
-        public void SetupParent(Dictionary<Part, PartSim> partSimLookup, bool debug)
-        {
-            if (part.parent != null)
-            {
+        public void SetupParent(Dictionary<Part, PartSim> partSimLookup, bool debug) {
+            if (part.parent != null) {
                 parent = null;
-                if (partSimLookup.TryGetValue(part.parent, out parent))
-                {
+                if (partSimLookup.TryGetValue(part.parent, out parent)) {
                     if (debug) Debug.Log("Parent part is " +  parent.name + ":"+ parent.partId);
-                    if (part.attachMode == AttachModes.SRF_ATTACH && part.attachRules.srfAttach && part.fuelCrossFeed && part.parent.fuelCrossFeed)
-                    {
-                        if (debug)
-                        {
+                    if (part.attachMode == AttachModes.SRF_ATTACH && part.attachRules.srfAttach && part.fuelCrossFeed && part.parent.fuelCrossFeed) {
+                        if (debug) {
                             Debug.Log("Added " + name + ":" + partId);
                             Debug.Log(", " + parent.name + ":" + parent.partId + " to surface mounted fuel targets.");
                         }
                         parent.surfaceMountFuelTargets.Add(this);
                         surfaceMountFuelTargets.Add(parent);
                     }
-                }
-                else
-                {
+                } else {
                     if (debug) Debug.Log("No PartSim for parent part (" + part.parent.partInfo.name + ")");
                 }
             }
         }
 
-        private int DecoupledInStage(Part thePart)
-        {
+        private int DecoupledInStage(Part thePart) {
             int stage = -1;
             Part original = thePart;
 
@@ -351,52 +298,41 @@ namespace kOSMainframe.VesselExtra
 
             List<Part> chain = new List<Part>(); //prolly dont need a list, just the previous part but whatever.
 
-            while (thePart != null)
-            {
+            while (thePart != null) {
 
                 chain.Add(thePart);
 
-                if (thePart.inverseStage > stage)
-                {
+                if (thePart.inverseStage > stage) {
 
                     ModuleDecouple mdec = thePart.GetModule<ModuleDecouple>();
                     ModuleDockingNode mdock = thePart.GetModule<ModuleDockingNode>();
                     ModuleAnchoredDecoupler manch = thePart.GetModule<ModuleAnchoredDecoupler>();
 
-                    if (mdec != null)
-                    {
+                    if (mdec != null) {
                         AttachNode att = thePart.FindAttachNode(mdec.explosiveNodeID);
                         if (mdec.isOmniDecoupler)
                             stage = thePart.inverseStage;
-                        else
-                        {
-                            if (att != null)
-                            {
+                        else {
+                            if (att != null) {
                                 if ((thePart.parent != null && att.attachedPart == thePart.parent) || chain.Contains(att.attachedPart))
                                     stage = thePart.inverseStage;
-                            }
-                            else stage = thePart.inverseStage;
+                            } else stage = thePart.inverseStage;
                         }
                     }
 
-                    if (manch != null) //radial decouplers (ALSO REENTRY PODS BECAUSE REASONS!)
-                    {
+                    if (manch != null) { //radial decouplers (ALSO REENTRY PODS BECAUSE REASONS!)
                         AttachNode att = thePart.FindAttachNode(manch.explosiveNodeID); // these stupid fuckers don't initialize in the Editor scene.
-                        if (att != null)
-                        {
+                        if (att != null) {
                             if ((thePart.parent != null && att.attachedPart == thePart.parent) || chain.Contains(att.attachedPart))
                                 stage = thePart.inverseStage;
-                        }
-                        else stage = thePart.inverseStage; //radial decouplers it seems the attach node ('surface') comes back null.
+                        } else stage = thePart.inverseStage; //radial decouplers it seems the attach node ('surface') comes back null.
                     }
 
-                    if (mdock != null) //docking port
-                    {
-                        if (original == thePart)
-                        {    //checking self, never leaves.
+                    if (mdock != null) { //docking port
+                        if (original == thePart) {
+                            //checking self, never leaves.
 
-                        }
-                        else stage = thePart.inverseStage;
+                        } else stage = thePart.inverseStage;
                     }
 
                 }
@@ -407,11 +343,9 @@ namespace kOSMainframe.VesselExtra
             return stage;
         }
 
-        private static bool IsEnginePlate(Part thePart)
-        {
+        private static bool IsEnginePlate(Part thePart) {
             ModuleDecouple mdec = thePart.GetModule<ModuleDecouple>();
-            if (mdec != null && mdec.IsStageable())
-            {
+            if (mdec != null && mdec.IsStageable()) {
                 ModuleDynamicNodes mdyn = thePart.GetModule<ModuleDynamicNodes>();
                 if (mdyn != null)
                     return true;
@@ -420,10 +354,8 @@ namespace kOSMainframe.VesselExtra
             return false;
         }
 
-        private bool IsSepratron()
-        {
-            if (!part.ActivatesEvenIfDisconnected)
-            {
+        private bool IsSepratron() {
+            if (!part.ActivatesEvenIfDisconnected) {
                 return false;
             }
 
@@ -432,44 +364,36 @@ namespace kOSMainframe.VesselExtra
             return modList.Any(module => module.throttleLocked);
         }
 
-        public void RemoveAttachedParts(HashSet<PartSim> partSims)
-        {
+        public void RemoveAttachedParts(HashSet<PartSim> partSims) {
             // Loop through the attached parts
-            for (int i = 0; i < this.attachNodes.Count; i++)
-            {
+            for (int i = 0; i < this.attachNodes.Count; i++) {
                 AttachNodeSim attachSim = this.attachNodes[i];
                 // If the part is in the set then "remove" it by clearing the PartSim reference
-                if (partSims.Contains(attachSim.attachedPartSim))
-                {
+                if (partSims.Contains(attachSim.attachedPartSim)) {
                     attachSim.attachedPartSim = null;
                 }
             }
 
             // Loop through the fuel targets (fuel line sources)
-            for (int i = 0; i < this.fuelTargets.Count; i++)
-            {
+            for (int i = 0; i < this.fuelTargets.Count; i++) {
                 PartSim fuelTargetSim = this.fuelTargets[i];
                 // If the part is in the set then "remove" it by clearing the PartSim reference
-                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim))
-                {
+                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim)) {
                     this.fuelTargets[i] = null;
                 }
             }
 
             // Loop through the surface attached fuel targets (surface attached parts for new flow modes)
-            for (int i = 0; i < this.surfaceMountFuelTargets.Count; i++)
-            {
+            for (int i = 0; i < this.surfaceMountFuelTargets.Count; i++) {
                 PartSim fuelTargetSim = this.surfaceMountFuelTargets[i];
                 // If the part is in the set then "remove" it by clearing the PartSim reference
-                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim))
-                {
+                if (fuelTargetSim != null && partSims.Contains(fuelTargetSim)) {
                     this.surfaceMountFuelTargets[i] = null;
                 }
             }
         }
 
-        public void DumpPartToLog(String prefix, List<PartSim> allParts = null)
-        {
+        public void DumpPartToLog(String prefix, List<PartSim> allParts = null) {
             String msg = "";
 
             msg += prefix;
@@ -486,55 +410,41 @@ namespace kOSMainframe.VesselExtra
 
             msg += ", isSep = " + isSepratron;
 
-            try
-            {
-                for (int i = 0; i < resources.Types.Count; i++)
-                {
+            try {
+                for (int i = 0; i < resources.Types.Count; i++) {
                     int type = resources.Types[i];
                     msg += ", " + ResourceContainer.GetResourceName(type) + " = " + resources[type];
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 msg += "error dumping part resources " + e.ToString();
             }
 
-            try
-            {
+            try {
 
-                if (attachNodes.Count > 0)
-                {
+                if (attachNodes.Count > 0) {
                     msg += ", attached = <";
                     attachNodes[0].DumpToLog();
-                    for (int i = 1; i < attachNodes.Count; i++)
-                    {
+                    for (int i = 1; i < attachNodes.Count; i++) {
                         msg += ", ";
                         if (attachNodes[i] != null) attachNodes[i].DumpToLog(); //its u, isn't it?
                     }
                     msg += ">";
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 msg += "error dumping part nodes" + e.ToString();
 
             }
 
-            try
-            {
-                if (surfaceMountFuelTargets.Count > 0)
-                {
+            try {
+                if (surfaceMountFuelTargets.Count > 0) {
                     msg += ", surface = <";
                     if (surfaceMountFuelTargets[0] != null) msg += surfaceMountFuelTargets[0].name + ":" + surfaceMountFuelTargets[0].partId;
-                    for (int i = 1; i < surfaceMountFuelTargets.Count; i++)
-                    {
+                    for (int i = 1; i < surfaceMountFuelTargets.Count; i++) {
                         if (surfaceMountFuelTargets[i] != null) msg += ", " + surfaceMountFuelTargets[i].name + ":" + surfaceMountFuelTargets[i].partId; //no it was u.
                     }
                     msg += ">";
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 msg += "error dumping part surface fuels " + e.ToString();
             }
 
@@ -545,11 +455,9 @@ namespace kOSMainframe.VesselExtra
             msg += "]";
             Debug.Log(msg);
 
-            if (allParts != null)
-            {
+            if (allParts != null) {
                 String newPrefix = prefix + " ";
-                for (int i = 0; i < allParts.Count; i++)
-                {
+                for (int i = 0; i < allParts.Count; i++) {
                     PartSim partSim = allParts[i];
                     if (partSim.parent == this)
                         partSim.DumpPartToLog(newPrefix, allParts);
@@ -557,10 +465,8 @@ namespace kOSMainframe.VesselExtra
             }
         }
 
-        public bool EmptyOf(HashSet<int> types)
-        {
-            foreach (int type in types)
-            {
+        public bool EmptyOf(HashSet<int> types) {
+            foreach (int type in types) {
                 if (resources.HasType(type) && resourceFlowStates[type] != 0 && resources[type] > SimManager.RESOURCE_PART_EMPTY_THRESH)
                     return false;
             }
@@ -568,37 +474,31 @@ namespace kOSMainframe.VesselExtra
             return true;
         }
 
-        public double GetMass(int currentStage, bool forCoM = false)
-        {
+        public double GetMass(int currentStage, bool forCoM = false) {
             if (decoupledInStage >= currentStage)
                 return 0d;
 
             double mass = forCoM ? baseMassForCoM : baseMass;
 
-            for (int i = 0; i < resources.Types.Count; ++i)
-            {
+            for (int i = 0; i < resources.Types.Count; ++i) {
                 mass += resources.GetResourceMass(resources.Types[i]);
             }
 
-            if (postStageMassAdjust != 0.0 && currentStage <= inverseStage)
-            {
+            if (postStageMassAdjust != 0.0 && currentStage <= inverseStage) {
                 mass += postStageMassAdjust;
             }
 
             return mass;
         }
 
-        public double TimeToDrainResource()
-        {
+        public double TimeToDrainResource() {
             //if (log != null) log.AppendLine("TimeToDrainResource(", name, ":", partId, ")");
             double time = double.MaxValue;
 
-            for (int i = 0; i < resourceDrains.Types.Count; ++i)
-            {
+            for (int i = 0; i < resourceDrains.Types.Count; ++i) {
                 int type = resourceDrains.Types[i];
 
-                if (resourceDrains[type] > 0)
-                {
+                if (resourceDrains[type] > 0) {
                     time = Math.Min(time, resources[type] / resourceDrains[type]);
                     //if (log != null) log.AppendLine("type = " + ResourceContainer.GetResourceName(type) + "  amount = " + resources[type] + "  rate = " + resourceDrains[type] + "  time = " + time);
                 }
@@ -610,12 +510,10 @@ namespace kOSMainframe.VesselExtra
             return time;
         }
 
-        public void DrainResources(double time)
-        {
+        public void DrainResources(double time) {
             //if (log != null) log.Append("DrainResources(", name, ":", partId)
             //                    .AppendLine(", ", time, ")");
-            for (int i = 0; i < resourceDrains.Types.Count; ++i)
-            {
+            for (int i = 0; i < resourceDrains.Types.Count; ++i) {
                 int type = resourceDrains.Types[i];
 
                 //if (log != null) log.AppendLine("draining ", (time * resourceDrains[type]), " ", ResourceContainer.GetResourceName(type));
@@ -624,14 +522,12 @@ namespace kOSMainframe.VesselExtra
             }
         }
 
-        public int GetResourcePriority()
-        {
+        public int GetResourcePriority() {
             return ((!resPriorityUseParentInverseStage || !(parent != null)) ? inverseStage : parent.inverseStage) * 10 + resPriorityOffset;
         }
 
         // This is a new function for STAGE_STACK_FLOW(_BALANCE)
-        public void GetSourceSet(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, bool debug, String indent)
-        {
+        public void GetSourceSet(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, bool debug, String indent) {
             // Initial version of support for new flow mode
 
             // Call a modified version of the old GetSourceSet code that adds all potential sources rather than stopping the recursive scan
@@ -641,17 +537,14 @@ namespace kOSMainframe.VesselExtra
             if (debug) Debug.Log(allSources.Count + " parts with priority of " + priMax);
         }
 
-        public void GetSourceSet_Internal(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, ref int priMax, bool debug, String indent)
-        {
-            if (debug)
-            {
+        public void GetSourceSet_Internal(int type, List<PartSim> allParts, HashSet<PartSim> visited, HashSet<PartSim> allSources, ref int priMax, bool debug, String indent) {
+            if (debug) {
                 Debug.Log(indent + "GetSourceSet_Internal(" + ResourceContainer.GetResourceName(type) + ") for " + name + ":" + partId);
                 indent += "  ";
             }
 
             // Rule 1: Each part can be only visited once, If it is visited for second time in particular search it returns as is.
-            if (visited.Contains(this))
-            {
+            if (visited.Contains(this)) {
                 if (debug) Debug.Log(indent + "Nothing added, already visited (" + name + ":" + partId + ")");
                 return;
             }
@@ -666,17 +559,12 @@ namespace kOSMainframe.VesselExtra
 
             int lastCount = allSources.Count;
 
-            for (int i = 0; i < this.fuelTargets.Count; i++)
-            {
+            for (int i = 0; i < this.fuelTargets.Count; i++) {
                 PartSim partSim = this.fuelTargets[i];
-                if (partSim != null)
-                {
-                    if (visited.Contains(partSim))
-                    {
+                if (partSim != null) {
+                    if (visited.Contains(partSim)) {
                         if (debug) Debug.Log(indent + "Fuel target already visited, skipping (" + partSim.name + ":" + partSim.partId + ")");
-                    }
-                    else
-                    {
+                    } else {
                         if (debug) Debug.Log(indent + "Adding fuel target as source (" + partSim.name + ":" + partSim.partId + ")");
 
                         partSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
@@ -684,21 +572,15 @@ namespace kOSMainframe.VesselExtra
                 }
             }
 
-            if (fuelCrossFeed)
-            {
+            if (fuelCrossFeed) {
 
                 // check surface mounted fuel targets
-                for (int i = 0; i < surfaceMountFuelTargets.Count; i++)
-                {
+                for (int i = 0; i < surfaceMountFuelTargets.Count; i++) {
                     PartSim partSim = this.surfaceMountFuelTargets[i];
-                    if (partSim != null)
-                    {
-                        if (visited.Contains(partSim))
-                        {
+                    if (partSim != null) {
+                        if (visited.Contains(partSim)) {
                             if (debug) Debug.Log(indent + "Surface part already visited, skipping (" + partSim.name + ":" + partSim.partId + ")");
-                        }
-                        else
-                        {
+                        } else {
                             if (debug) Debug.Log(indent + "Adding surface part as source (" + partSim.name + ":" + partSim.partId + ")");
 
                             partSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
@@ -708,34 +590,24 @@ namespace kOSMainframe.VesselExtra
 
                 lastCount = allSources.Count;
                 //MonoBehaviour.print("for each attach node");
-                for (int i = 0; i < this.attachNodes.Count; i++)
-                {
+                for (int i = 0; i < this.attachNodes.Count; i++) {
                     AttachNodeSim attachSim = this.attachNodes[i];
-                    if (attachSim.attachedPartSim != null)
-                    {
-                        if (attachSim.nodeType == AttachNode.NodeType.Stack)
-                        {
-                            if ((string.IsNullOrEmpty(noCrossFeedNodeKey) == false && attachSim.id.Contains(noCrossFeedNodeKey)) == false)
-                            {
-                                if (visited.Contains(attachSim.attachedPartSim))
-                                {
+                    if (attachSim.attachedPartSim != null) {
+                        if (attachSim.nodeType == AttachNode.NodeType.Stack) {
+                            if ((string.IsNullOrEmpty(noCrossFeedNodeKey) == false && attachSim.id.Contains(noCrossFeedNodeKey)) == false) {
+                                if (visited.Contains(attachSim.attachedPartSim)) {
                                     if (debug) Debug.Log(indent + "Attached part already visited, skipping (" + attachSim.attachedPartSim.name + ":" + attachSim.attachedPartSim.partId + ")");
-                                }
-                                else
-                                {
+                                } else {
                                     bool flg = true;
 
-                                    if (attachSim.attachedPartSim.isEnginePlate) //y u make me do dis.
-                                    {
-                                        foreach (AttachNodeSim att in attachSim.attachedPartSim.attachNodes)
-                                        {
+                                    if (attachSim.attachedPartSim.isEnginePlate) { //y u make me do dis.
+                                        foreach (AttachNodeSim att in attachSim.attachedPartSim.attachNodes) {
                                             if (att.attachedPartSim == this && att.id == "bottom")
                                                 flg = false;
                                         }
                                     }
 
-                                    if (flg)
-                                    {
+                                    if (flg) {
                                         if (debug) Debug.Log(indent + "Adding attached part as source  (" + attachSim.attachedPartSim.name + ":" + attachSim.attachedPartSim.partId + ")");
 
                                         attachSim.attachedPartSim.GetSourceSet_Internal(type, allParts, visited, allSources, ref priMax, debug, indent);
@@ -747,36 +619,28 @@ namespace kOSMainframe.VesselExtra
                 }
             }
 
-            // If the part is fuel container for searched type of fuel (i.e. it has capability to contain that type of fuel and the fuel 
+            // If the part is fuel container for searched type of fuel (i.e. it has capability to contain that type of fuel and the fuel
             // type was not disabled) and it contains fuel, it adds itself.
-            if (resources.HasType(type) && resourceFlowStates[type] > 0.0)
-            {
-                if (resources[type] > resRequestRemainingThreshold)
-                {
+            if (resources.HasType(type) && resourceFlowStates[type] > 0.0) {
+                if (resources[type] > resRequestRemainingThreshold) {
                     // Get the priority of this tank
                     int pri = GetResourcePriority();
-                    if (pri > priMax)
-                    {
+                    if (pri > priMax) {
                         // This tank is higher priority than the previously added ones so we clear the sources
                         // and set the priMax to this priority
                         allSources.Clear();
                         priMax = pri;
                     }
                     // If this is the correct priority then add this to the sources
-                    if (pri == priMax)
-                    {
+                    if (pri == priMax) {
                         if (debug) Debug.Log(indent + "Adding enabled tank as source (" + name + ":" + partId + ")");
 
                         allSources.Add(this);
                     }
-                }
-                else
-                {
+                } else {
                     if (debug) Debug.Log(indent + name + " not enough " + ResourceContainer.GetResourceName(type) + "  Requested = " + resRequestRemainingThreshold + " actual " + resources[type]);
                 }
-            }
-            else
-            {
+            } else {
                 if (debug) Debug.Log(indent + name + " not fuel tank or disabled. HasType = " + resources.HasType(type) + "  FlowState = " + resourceFlowStates[type]);
             }
         }

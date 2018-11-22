@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using KSP.UI.Screens;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class Simulation
-    {
+namespace kOSMainframe.VesselExtra {
+    public class Simulation {
         private const double SECONDS_PER_DAY = 86400;
         private List<EngineSim> activeEngines;
         private List<EngineSim> allEngines;
@@ -55,8 +53,7 @@ namespace kOSMainframe.VesselExtra
         private double RCSTWR;
         private double RCSBurnTime;
 
-        public Simulation()
-        {
+        public Simulation() {
             activeEngines = new List<EngineSim>();
             allEngines = new List<EngineSim>();
             allRCS = new List<RCSSim>();
@@ -72,8 +69,7 @@ namespace kOSMainframe.VesselExtra
             vectorAverager = new WeightedVectorAverager();
         }
 
-        public bool PrepareSimulation(List<Part> parts, double theGravity, double theAtmosphere = 0, double theMach = 0, bool dumpTree = false, bool vectoredThrust = false, bool fullThrust = false, bool _debug = false)
-        {
+        public bool PrepareSimulation(List<Part> parts, double theGravity, double theAtmosphere = 0, double theMach = 0, bool dumpTree = false, bool vectoredThrust = false, bool fullThrust = false, bool _debug = false) {
             debug = _debug;
             partList = parts;
             gravity = theGravity;
@@ -94,20 +90,17 @@ namespace kOSMainframe.VesselExtra
             // A dictionary for fast lookup of Part->PartSim during the preparation phase
             partSimLookup.Clear();
 
-            if (partList.Count > 0 && partList[0].vessel != null)
-            {
+            if (partList.Count > 0 && partList[0].vessel != null) {
                 vesselName = partList[0].vessel.vesselName;
                 vesselType = partList[0].vessel.vesselType;
             }
             // First we create a PartSim for each Part (giving each a unique id)
             int partId = 1;
-            for (int i = 0; i < partList.Count; ++i)
-            {
+            for (int i = 0; i < partList.Count; ++i) {
                 Part part = partList[i];
 
                 // If the part is already in the lookup dictionary then log it and skip to the next part
-                if (partSimLookup.ContainsKey(part))
-                {
+                if (partSimLookup.ContainsKey(part)) {
                     if (debug) Debug.Log("Part " + part.name + " appears in vessel list more than once");
                     continue;
                 }
@@ -119,26 +112,22 @@ namespace kOSMainframe.VesselExtra
                 partSimLookup.Add(part, partSim);
                 allParts.Add(partSim);
 
-                if (partSim.isFuelLine)
-                {
+                if (partSim.isFuelLine) {
                     allFuelLines.Add(partSim);
                 }
 
-                if (partSim.isEngine)
-                {
+                if (partSim.isEngine) {
                     partSim.CreateEngineSims(allEngines, atmosphere, mach, vectoredThrust, fullThrust, debug);
                 }
 
-                if (partSim.isRCS)
-                {
+                if (partSim.isRCS) {
                     partSim.CreateRCSSims(allRCS, atmosphere, mach, vectoredThrust, fullThrust, debug);
                 }
 
                 partId++;
             }
 
-            for (int i = 0; i < allEngines.Count; ++i)
-            {
+            for (int i = 0; i < allEngines.Count; ++i) {
                 maxMach = Mathf.Max(maxMach, allEngines[i].maxMach);
             }
 
@@ -146,28 +135,24 @@ namespace kOSMainframe.VesselExtra
 
             // Now that all the PartSims have been created we can do any set up that needs access to other parts
             // First we set up all the parent links
-            for (int i = 0; i < allParts.Count; i++)
-            {
+            for (int i = 0; i < allParts.Count; i++) {
                 PartSim partSim = allParts[i];
                 partSim.SetupParent(partSimLookup, debug);
             }
 
             if (debug) Debug.Log("SetupAttachNodes and count stages");
-            for (int i = 0; i < allParts.Count; ++i)
-            {
+            for (int i = 0; i < allParts.Count; ++i) {
                 PartSim partSim = allParts[i];
 
                 partSim.SetupAttachNodes(partSimLookup, debug);
-                if (partSim.decoupledInStage >= lastStage)
-                {
+                if (partSim.decoupledInStage >= lastStage) {
                     lastStage = partSim.decoupledInStage + 1;
                 }
             }
 
             // And finally release the Part references from all the PartSims
             if (debug) Debug.Log("ReleaseParts");
-            for (int i = 0; i < allParts.Count; ++i)
-            {
+            for (int i = 0; i < allParts.Count; ++i) {
                 allParts[i].ReleasePart();
             }
 
@@ -178,19 +163,17 @@ namespace kOSMainframe.VesselExtra
         }
 
         // This function runs the simulation and returns a newly created array of Stage objects
-        public StageInfo[] RunSimulation()
-        {
+        public StageInfo[] RunSimulation() {
             if (debug) Debug.Log("RunSimulation started");
 
             // Start with the last stage to simulate
             // (this is in a member variable so it can be accessed by AllowedToStage and ActivateStage)
             currentStage = lastStage;
-            // Work out which engines would be active if just doing the staging and if this is different to the 
+            // Work out which engines would be active if just doing the staging and if this is different to the
             // currently active engines then generate an extra stage
             // Loop through all the engines
             bool anyActive = false;
-            for (int i = 0; i < allEngines.Count; ++i)
-            {
+            for (int i = 0; i < allEngines.Count; ++i) {
                 EngineSim engine = allEngines[i];
 
                 if (debug) Debug.Log("Testing engine mod of " + engine.partSim.name + ":" + engine.partSim.partId);
@@ -198,23 +181,17 @@ namespace kOSMainframe.VesselExtra
                 bool bActive = engine.isActive;
                 bool bStage = (engine.partSim.inverseStage >= currentStage);
                 if (debug) Debug.Log("bActive = " + bActive + "   bStage = " + bStage);
-                if (HighLogic.LoadedSceneIsFlight)
-                {
-                    if (bActive)
-                    {
+                if (HighLogic.LoadedSceneIsFlight) {
+                    if (bActive) {
                         anyActive = true;
                     }
-                    if (bActive != bStage)
-                    {
+                    if (bActive != bStage) {
                         // If the active state is different to the state due to staging
                         if (debug) Debug.Log("Need to do current active engines first");
                         doingCurrent = true;
                     }
-                }
-                else
-                {
-                    if (bStage)
-                    {
+                } else {
+                    if (bStage) {
                         if (debug) Debug.Log("Marking as active");
                         engine.isActive = true;
                     }
@@ -223,12 +200,9 @@ namespace kOSMainframe.VesselExtra
 
             // If we need to do current because of difference in engine activation and there actually are active engines
             // then we do the extra stage otherwise activate the next stage and don't treat it as current
-            if (doingCurrent && anyActive)
-            {
+            if (doingCurrent && anyActive) {
                 currentStage++;
-            }
-            else
-            {
+            } else {
                 ActivateStage();
                 doingCurrent = false;
             }
@@ -242,10 +216,8 @@ namespace kOSMainframe.VesselExtra
             int startStage = currentStage;
 
             // Loop through the stages
-            while (currentStage >= 0)
-            {
-                if (debug)
-                {
+            while (currentStage >= 0) {
+                if (debug) {
                     Debug.Log("Simulating stage " + currentStage);
                 }
 
@@ -287,8 +259,7 @@ namespace kOSMainframe.VesselExtra
                 stage.RCSTWRStart = RCSTWR;
                 stage.RCSBurnTime = RCSBurnTime;
 
-                if (debug)
-                {
+                if (debug) {
                     Debug.Log("stage.thrust = " + stage.thrust);
                     Debug.Log("StageMass = " + stageStartMass);
                     Debug.Log("Initial maxTWR = " + stage.maxThrustToWeight);
@@ -306,11 +277,9 @@ namespace kOSMainframe.VesselExtra
 
                 // the combination of the above two values gives an approximation of the offset angle.
                 double sinThrustOffsetAngle = 0;
-                if (thrustDistance > 1e-7)
-                {
+                if (thrustDistance > 1e-7) {
                     sinThrustOffsetAngle = torqueLeverArmLength / thrustDistance;
-                    if (sinThrustOffsetAngle > 1)
-                    {
+                    if (sinThrustOffsetAngle > 1) {
                         sinThrustOffsetAngle = 1;
                     }
                 }
@@ -321,34 +290,27 @@ namespace kOSMainframe.VesselExtra
                 stage.totalMass = stageStartMass;
 
                 // If we have done a previous stage
-                if (currentStage < startStage)
-                {
+                if (currentStage < startStage) {
                     // Calculate what the previous stage's mass and cost were by subtraction
                     StageInfo prev = stages[currentStage + 1];
                     prev.mass = prev.totalMass - stage.totalMass;
                 }
 
                 // The above code will never run for the last stage so set those directly
-                if (currentStage == 0)
-                {
+                if (currentStage == 0) {
                     stage.mass = stage.totalMass;
                 }
 
                 dontStageParts = dontStagePartsLists[currentStage];
 
-                if (debug)
-                {
-                    if (dontStageParts.Count > 0)
-                    {
+                if (debug) {
+                    if (dontStageParts.Count > 0) {
                         Debug.Log("Parts preventing staging:");
-                        for (int i = 0; i < dontStageParts.Count; i++)
-                        {
+                        for (int i = 0; i < dontStageParts.Count; i++) {
                             PartSim partSim = dontStageParts[i];
                             partSim.DumpPartToLog("");
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Debug.Log("No parts preventing staging");
                     }
                 }
@@ -356,19 +318,16 @@ namespace kOSMainframe.VesselExtra
 
                 // Now we will loop until we are allowed to stage
                 int loopCounter = 0;
-                while (!AllowedToStage())
-                {
+                while (!AllowedToStage()) {
                     loopCounter++;
                     //if (log != null) log.AppendLine("loop = ", loopCounter);
                     // Calculate how long each draining tank will take to drain and run for the minimum time
                     double resourceDrainTime = double.MaxValue;
                     PartSim partMinDrain = null;
 
-                    foreach (PartSim partSim in drainingParts)
-                    {
+                    foreach (PartSim partSim in drainingParts) {
                         double time = partSim.TimeToDrainResource();
-                        if (time < resourceDrainTime)
-                        {
+                        if (time < resourceDrainTime) {
                             resourceDrainTime = time;
                             partMinDrain = partSim;
                         }
@@ -376,8 +335,7 @@ namespace kOSMainframe.VesselExtra
 
                     if (debug) Debug.Log("Drain time = " + resourceDrainTime + " (" + partMinDrain.name + ":" + partMinDrain.partId + ")");
 
-                    foreach (PartSim partSim in drainingParts)
-                    {
+                    foreach (PartSim partSim in drainingParts) {
                         partSim.DrainResources(resourceDrainTime);
                     }
 
@@ -392,16 +350,14 @@ namespace kOSMainframe.VesselExtra
                         log.AppendLine("currentThrust = ", totalStageThrust);
                         log.AppendLine("currentTWR = ", stepEndTWR);
                     }*/
-                    if (stepEndTWR > stage.maxThrustToWeight)
-                    {
+                    if (stepEndTWR > stage.maxThrustToWeight) {
                         stage.maxThrustToWeight = stepEndTWR;
                     }
 
                     //if (log != null) log.AppendLine("newMaxTWR = ", stage.maxThrustToWeight);
 
                     // If we have drained anything and the masses make sense then add this step's deltaV to the stage total
-                    if (resourceDrainTime > 0d && stepStartMass > stepEndMass && stepStartMass > 0d && stepEndMass > 0d)
-                    {
+                    if (resourceDrainTime > 0d && stepStartMass > stepEndMass && stepStartMass > 0d && stepEndMass > 0d) {
                         vecStageDeltaV += vecThrust * (float)((currentisp * Units.GRAVITY * Math.Log(stepStartMass / stepEndMass)) / simpleTotalThrust);
                     }
 
@@ -412,17 +368,14 @@ namespace kOSMainframe.VesselExtra
                     CalculateThrustAndISP();
 
                     // Check if we actually changed anything
-                    if (stepStartMass == stepEndMass)
-                    {
+                    if (stepStartMass == stepEndMass) {
                         //MonoBehaviour.print("No change in mass");
                         break;
                     }
 
                     // Check to stop rampant looping
-                    if (loopCounter == 1000)
-                    {
-                        if (debug)
-                        {
+                    if (loopCounter == 1000) {
+                        if (debug) {
                             Debug.Log("exceeded loop count");
                             Debug.Log("stageStartMass = " + stageStartMass);
                             Debug.Log("stepStartMass = " + stepStartMass);
@@ -449,12 +402,9 @@ namespace kOSMainframe.VesselExtra
 
                 // Recalculate effective stage isp from the stage deltaV (flip the standard deltaV calculation around)
                 // Note: If the mass doesn't change then this is a divide by zero
-                if (stageStartMass != stepStartMass)
-                {
+                if (stageStartMass != stepStartMass) {
                     stage.isp = stage.deltaV / (Units.GRAVITY * Math.Log(stageStartMass / stepStartMass));
-                }
-                else
-                {
+                } else {
                     stage.isp = 0;
                 }
 
@@ -474,25 +424,21 @@ namespace kOSMainframe.VesselExtra
             }
 
             // Now we add up the various total fields in the stages
-            for (int i = 0; i < stages.Length; i++)
-            {
+            for (int i = 0; i < stages.Length; i++) {
                 // For each stage we total up the cost, mass, deltaV and time for this stage and all the stages above
-                for (int j = i; j >= 0; j--)
-                {
+                for (int j = i; j >= 0; j--) {
                     stages[i].totalDeltaV += stages[j].deltaV;
                     stages[i].totalTime += stages[j].time;
                     stages[i].partCount = i > 0 ? stages[i].totalPartCount - stages[i - 1].totalPartCount : stages[i].totalPartCount;
                 }
                 // We also total up the deltaV for stage and all stages below
-                for (int j = i; j < stages.Length; j++)
-                {
+                for (int j = i; j < stages.Length; j++) {
                     stages[i].inverseTotalDeltaV += stages[j].deltaV;
                 }
 
                 // Zero the total time if the value will be huge (24 hours?) to avoid the display going weird
                 // (this should be moved into the window code)
-                if (stages[i].totalTime > SECONDS_PER_DAY)
-                {
+                if (stages[i].totalTime > SECONDS_PER_DAY) {
                     stages[i].totalTime = 0d;
                 }
             }
@@ -504,48 +450,38 @@ namespace kOSMainframe.VesselExtra
 
         // This function activates the next stage
         // currentStage must be updated before calling this function
-        private void ActivateStage()
-        {
+        private void ActivateStage() {
             // Build a set of all the parts that will be decoupled
             decoupledParts.Clear();
-            for (int i = 0; i < allParts.Count; ++i)
-            {
+            for (int i = 0; i < allParts.Count; ++i) {
                 PartSim partSim = allParts[i];
 
-                if (partSim.decoupledInStage >= currentStage)
-                {
+                if (partSim.decoupledInStage >= currentStage) {
                     decoupledParts.Add(partSim);
                 }
             }
 
-            foreach (PartSim partSim in decoupledParts)
-            {
+            foreach (PartSim partSim in decoupledParts) {
                 // Remove it from the all parts list
                 allParts.Remove(partSim);
                 partSim.Release();
 
-                if (partSim.isEngine)
-                {
+                if (partSim.isEngine) {
                     // If it is an engine then loop through all the engine modules and remove all the ones from this engine part
-                    for (int i = allEngines.Count - 1; i >= 0; i--)
-                    {
+                    for (int i = allEngines.Count - 1; i >= 0; i--) {
                         EngineSim engine = allEngines[i];
-                        if (engine.partSim == partSim)
-                        {
+                        if (engine.partSim == partSim) {
                             allEngines.RemoveAt(i);
                             engine.Release();
                         }
                     }
                 }
 
-                if (partSim.isRCS)
-                {
+                if (partSim.isRCS) {
                     // If it is an engine then loop through all the engine modules and remove all the ones from this engine part
-                    for (int i = allRCS.Count - 1; i >= 0; i--)
-                    {
+                    for (int i = allRCS.Count - 1; i >= 0; i--) {
                         RCSSim engine = allRCS[i];
-                        if (engine.partSim == partSim)
-                        {
+                        if (engine.partSim == partSim) {
                             allRCS.RemoveAt(i);
                             engine.Release();
                         }
@@ -553,58 +489,47 @@ namespace kOSMainframe.VesselExtra
                 }
 
                 // If it is a fuel line then remove it from the list of all fuel lines
-                if (partSim.isFuelLine)
-                {
+                if (partSim.isFuelLine) {
                     allFuelLines.Remove(partSim);
                 }
             }
 
             // Loop through all the (remaining) parts
-            for (int i = 0; i < allParts.Count; ++i)
-            {
+            for (int i = 0; i < allParts.Count; ++i) {
                 // Ask the part to remove all the parts that are decoupled
                 allParts[i].RemoveAttachedParts(decoupledParts);
             }
 
             // Now we loop through all the engines and activate those that are ignited in this stage
-            for (int i = 0; i < allEngines.Count; ++i)
-            {
+            for (int i = 0; i < allEngines.Count; ++i) {
                 EngineSim engine = allEngines[i];
-                if (engine.partSim.inverseStage == currentStage)
-                {
+                if (engine.partSim.inverseStage == currentStage) {
                     engine.isActive = true;
                 }
             }
         }
 
         // This function works out if it is time to stage
-        private bool AllowedToStage()
-        {
+        private bool AllowedToStage() {
             if (debug) Debug.Log("AllowedToStage: currentStage = " + currentStage);
 
-            if (activeEngines.Count > 0)
-            {
-                for (int i = 0; i < dontStageParts.Count; ++i)
-                {
+            if (activeEngines.Count > 0) {
+                for (int i = 0; i < dontStageParts.Count; ++i) {
                     PartSim partSim = dontStageParts[i];
 
                     if (debug) partSim.DumpPartToLog("Testing: ");
                     //if (log != null) log.AppendLine("isSepratron = ", partSim.isSepratron ? "true" : "false");
 
-                    if (!partSim.isSepratron && !partSim.EmptyOf(drainingResources))
-                    {
+                    if (!partSim.isSepratron && !partSim.EmptyOf(drainingResources)) {
                         if (debug) partSim.DumpPartToLog("Decoupled part not empty => false: ");
                         return false;
                     }
 
-                    if (partSim.isEngine)
-                    {
-                        for (int j = 0; j < activeEngines.Count; ++j)
-                        {
+                    if (partSim.isEngine) {
+                        for (int j = 0; j < activeEngines.Count; ++j) {
                             EngineSim engine = activeEngines[j];
 
-                            if (engine.dontDecoupleActive && engine.partSim == partSim)
-                            {
+                            if (engine.dontDecoupleActive && engine.partSim == partSim) {
                                 if (debug) partSim.DumpPartToLog( "Decoupled part is active engine => false: ");
                                 return false;
                             }
@@ -613,8 +538,7 @@ namespace kOSMainframe.VesselExtra
                 }
             }
 
-            if (currentStage == 0 && doingCurrent)
-            {
+            if (currentStage == 0 && doingCurrent) {
                 if (debug) Debug.Log("Current stage == 0 && doingCurrent => false");
                 return false;
             }
@@ -624,23 +548,19 @@ namespace kOSMainframe.VesselExtra
         }
 
         // This function simply rebuilds the active engines by testing the isActive flag of all the engines
-        private void UpdateActiveEngines()
-        {
+        private void UpdateActiveEngines() {
             activeEngines.Clear();
-            for (int i = 0; i < allEngines.Count; ++i)
-            {
+            for (int i = 0; i < allEngines.Count; ++i) {
                 EngineSim engine = allEngines[i];
-                if (engine.isActive && engine.isFlamedOut == false)
-                {
+                if (engine.isActive && engine.isFlamedOut == false) {
                     activeEngines.Add(engine);
                 }
             }
         }
 
-        // This function does all the hard work of working out which engines are burning, which tanks are being drained 
+        // This function does all the hard work of working out which engines are burning, which tanks are being drained
         // and setting the drain rates
-        private void UpdateResourceDrains()
-        {
+        private void UpdateResourceDrains() {
             // Update the active engines
             UpdateActiveEngines();
 
@@ -648,8 +568,7 @@ namespace kOSMainframe.VesselExtra
             drainingResources.Clear();
 
             // Reset the resource drains of all draining parts
-            foreach (PartSim partSim in drainingParts)
-            {
+            foreach (PartSim partSim in drainingParts) {
                 partSim.resourceDrains.Reset();
             }
 
@@ -657,16 +576,13 @@ namespace kOSMainframe.VesselExtra
             drainingParts.Clear();
 
             // Loop through all the active engine modules
-            for (int i = 0; i < activeEngines.Count; ++i)
-            {
+            for (int i = 0; i < activeEngines.Count; ++i) {
                 EngineSim engine = activeEngines[i];
 
                 // Set the resource drains for this engine
-                if (engine.SetResourceDrains(allParts, allFuelLines, drainingParts, debug))
-                {
+                if (engine.SetResourceDrains(allParts, allFuelLines, drainingParts, debug)) {
                     // If it is active then add the consumed resource types to the set
-                    for (int j = 0; j < engine.ResourceConsumptions.Types.Count; ++j)
-                    {
+                    for (int j = 0; j < engine.ResourceConsumptions.Types.Count; ++j) {
                         drainingResources.Add(engine.ResourceConsumptions.Types[j]);
                     }
                 }
@@ -675,12 +591,10 @@ namespace kOSMainframe.VesselExtra
             // Update the active engines again to remove any engines that have no fuel supply
             UpdateActiveEngines();
 
-            if (debug)
-            {
+            if (debug) {
                 Debug.Log("Active engines = " + activeEngines.Count);
                 int i = 0;
-                for (int j = 0; j < activeEngines.Count; j++)
-                {
+                for (int j = 0; j < activeEngines.Count; j++) {
                     EngineSim engine = activeEngines[j];
                     Debug.Log("Engine " + (i++) + ":");
                     engine.DumpEngineToLog();
@@ -688,29 +602,23 @@ namespace kOSMainframe.VesselExtra
             }
         }
 
-        public double UpdatePartMasses()
-        {
-            for (int i = 0; i < allParts.Count; i++)
-            {
+        public double UpdatePartMasses() {
+            for (int i = 0; i < allParts.Count; i++) {
                 allParts[i].baseMass = allParts[i].realMass;
                 allParts[i].baseMassForCoM = allParts[i].realMass;
             }
 
-            for (int i = 0; i < allParts.Count; i++)
-            {
+            for (int i = 0; i < allParts.Count; i++) {
                 PartSim part = allParts[i];
 
                 // Check if part should pass it's mass onto its parent.
-                if (part.isNoPhysics && part.parent != null)
-                {
+                if (part.isNoPhysics && part.parent != null) {
                     PartSim partParent = part.parent;
 
                     // Loop through all parents until a physically significant parent is found.
-                    while (partParent != null)
-                    {
+                    while (partParent != null) {
                         // Check if parent is physically significant.
-                        if (partParent.isNoPhysics == false)
-                        {
+                        if (partParent.isNoPhysics == false) {
                             // Apply the mass to the parent and remove it from the originating part.
                             partParent.baseMassForCoM += part.baseMassForCoM;
                             part.baseMassForCoM = 0.0;
@@ -726,16 +634,14 @@ namespace kOSMainframe.VesselExtra
             }
 
             double totalMass = 0d;
-            for (int i = 0; i < allParts.Count; i++)
-            {
+            for (int i = 0; i < allParts.Count; i++) {
                 totalMass += allParts[i].startMass = allParts[i].GetMass(currentStage);
             }
 
             return totalMass;
         }
 
-        private void CalculateThrustAndISP()
-        {
+        private void CalculateThrustAndISP() {
             // Reset all the values
             vecThrust = Vector3.zero;
             vecActualThrust = Vector3.zero;
@@ -749,8 +655,7 @@ namespace kOSMainframe.VesselExtra
             // Loop through all the active engines totalling the thrust, actual thrust and mass flow rates
             // The thrust is totalled as vectors
 
-            for (int i = 0; i < activeEngines.Count; ++i)
-            {
+            for (int i = 0; i < activeEngines.Count; ++i) {
                 EngineSim engine = activeEngines[i];
 
                 simpleTotalThrust += engine.thrust;
@@ -760,8 +665,7 @@ namespace kOSMainframe.VesselExtra
                 totalStageFlowRate += engine.ResourceConsumptions.Mass;
                 totalStageIspFlowRate += engine.ResourceConsumptions.Mass * engine.isp;
 
-                for (int j = 0; j < engine.appliedForces.Count; ++j)
-                {
+                for (int j = 0; j < engine.appliedForces.Count; ++j) {
                     totalStageThrustForce.AddForce(engine.appliedForces[j]);
                 }
             }
@@ -771,19 +675,15 @@ namespace kOSMainframe.VesselExtra
             totalStageActualThrust = vecActualThrust.magnitude;
 
             // Calculate the effective isp at this point
-            if (totalStageFlowRate > 0d && totalStageIspFlowRate > 0d)
-            {
+            if (totalStageFlowRate > 0d && totalStageIspFlowRate > 0d) {
                 currentisp = totalStageIspFlowRate / totalStageFlowRate;
-            }
-            else
-            {
+            } else {
                 currentisp = 0;
             }
         }
 
         //by jrbudda.
-        private void CalculateRCS(double localGravity, bool final)
-        {
+        private void CalculateRCS(double localGravity, bool final) {
             // Reset all the values
             var vecThrust = Vector3.zero;
             var vecActualThrust = Vector3.zero;
@@ -799,15 +699,12 @@ namespace kOSMainframe.VesselExtra
             var fueltypes = new HashSet<int>();
 
             //populate
-            foreach (RCSSim engine in allRCS)
-            {
+            foreach (RCSSim engine in allRCS) {
 
                 engine.DumpEngineToLog();
 
-                foreach (int type in engine.resourceConsumptions.Types)
-                {
-                    if (!fueltypes.Contains(type))
-                    {
+                foreach (int type in engine.resourceConsumptions.Types) {
+                    if (!fueltypes.Contains(type)) {
                         fueltypes.Add(type);
                         FlowRateByFuel.Add(type, 0);
                         IspFlowRateByFuel.Add(type, 0);
@@ -816,29 +713,23 @@ namespace kOSMainframe.VesselExtra
                     }
                 }
             }
-            foreach (int fuel in fueltypes)
-            {
-                foreach (PartSim p in allParts)
-                {
-                    if (p.resources.HasType(fuel) && p.resourceFlowStates[fuel] > 0.0)
-                    {
+            foreach (int fuel in fueltypes) {
+                foreach (PartSim p in allParts) {
+                    if (p.resources.HasType(fuel) && p.resourceFlowStates[fuel] > 0.0) {
                         FuelSources[fuel] += p.resources[fuel];
                     }
                 }
             }
 
-            foreach (RCSSim engine in allRCS)
-            {
+            foreach (RCSSim engine in allRCS) {
                 bool active = engine.isActive;
 
-                foreach (int type in engine.resourceConsumptions.Types)
-                {
+                foreach (int type in engine.resourceConsumptions.Types) {
                     if (FuelSources[type] < SimManager.RESOURCE_MIN)
                         active = false;
                 }
 
-                if (active)
-                {
+                if (active) {
                     simpleTotalThrust += engine.thrust;
                     vecThrust += ((float)engine.thrust * engine.thrustVec);
                     totalStageFlowRate += engine.resourceConsumptions.Mass;
@@ -855,26 +746,22 @@ namespace kOSMainframe.VesselExtra
             int loopcount = 0;
 
 
-            if (debug)
-            {
+            if (debug) {
                 Debug.Log("**RCS PRE ");
                 Debug.Log("   StartingMss = " + mass);
-                foreach (var type in fueltypes)
-                {
+                foreach (var type in fueltypes) {
                     Debug.Log("   **Fuel " + type);
                     Debug.Log("      FuelMass = " + FuelSources[type]);
                 }
             }
 
             //simulate
-            while (true)
-            {
+            while (true) {
 
                 //so... many... loops....
 
                 //reset
-                foreach (int fuel in fueltypes)
-                {
+                foreach (int fuel in fueltypes) {
                     thrustByFuel[fuel] = 0;
                     FlowRateByFuel[fuel] = 0;
                     IspFlowRateByFuel[fuel] = 0;
@@ -884,20 +771,16 @@ namespace kOSMainframe.VesselExtra
                 var combinedIspFlowRate = 0d;
 
                 //check for flamed out engines.
-                foreach (RCSSim engine in allRCS)
-                {
+                foreach (RCSSim engine in allRCS) {
                     bool active = engine.isActive;
 
-                    foreach (int type in engine.resourceConsumptions.Types)
-                    {
+                    foreach (int type in engine.resourceConsumptions.Types) {
                         if (FuelSources[type] < SimManager.RESOURCE_MIN)
                             active = false;
                     }
 
-                    if (active)
-                    {
-                        foreach (int type in engine.resourceConsumptions.Types)
-                        {
+                    if (active) {
+                        foreach (int type in engine.resourceConsumptions.Types) {
                             thrustByFuel[type] += engine.thrust;
                             FlowRateByFuel[type] += engine.resourceConsumptions[type];
                             IspFlowRateByFuel[type] += engine.resourceConsumptions[type] * engine.isp;
@@ -914,12 +797,10 @@ namespace kOSMainframe.VesselExtra
 
                 double burnTime = double.MaxValue;
 
-                foreach (int fuel in fueltypes)
-                { //min time til something goes empty.
-                    if (FuelSources[fuel] > SimManager.RESOURCE_MIN)
-                    {
-                        if (FlowRateByFuel[fuel] > 0)
-                        {
+                foreach (int fuel in fueltypes) {
+                    //min time til something goes empty.
+                    if (FuelSources[fuel] > SimManager.RESOURCE_MIN) {
+                        if (FlowRateByFuel[fuel] > 0) {
                             var time = FuelSources[fuel] / FlowRateByFuel[fuel];
                             if (time < burnTime)
                                 burnTime = time;
@@ -927,12 +808,10 @@ namespace kOSMainframe.VesselExtra
                     }
                 }
 
-                if (burnTime > 0 && burnTime != double.MaxValue)
-                { //subtract masses.
-                    foreach (var type in fueltypes)
-                    {
-                        if (FuelSources[type] > SimManager.RESOURCE_MIN)
-                        {
+                if (burnTime > 0 && burnTime != double.MaxValue) {
+                    //subtract masses.
+                    foreach (var type in fueltypes) {
+                        if (FuelSources[type] > SimManager.RESOURCE_MIN) {
                             var sub = burnTime * FlowRateByFuel[type];
                             mass -= sub * PartResourceLibrary.Instance.GetDefinition(type).density;
                             FuelSources[type] -= sub;
@@ -940,14 +819,12 @@ namespace kOSMainframe.VesselExtra
                     }
                 }
 
-                if (debug)
-                {
+                if (debug) {
                     Debug.Log("**RCS STEP " + loopcount);
                     Debug.Log("   burnTime = " + burnTime);
                     Debug.Log("   StartMass = " + startmass);
                     Debug.Log("   StepEndMass = " + mass);
-                    foreach (var type in fueltypes)
-                    {
+                    foreach (var type in fueltypes) {
                         Debug.Log("   **Fuel " + type);
                         Debug.Log("      FuelMass = " + FuelSources[type]);
                         Debug.Log("      FlowRateByFuel = " + FlowRateByFuel[type]);
@@ -966,8 +843,7 @@ namespace kOSMainframe.VesselExtra
                 RCSBurnTime += burnTime;
                 loopcount++;
 
-                if (loopcount == 1000)
-                {
+                if (loopcount == 1000) {
                     Debug.Log("RCS exceeded loop count");
                     Debug.Log("stageStartMass = " + preMAss);
                     Debug.Log("burnTime = " + RCSBurnTime);
@@ -986,94 +862,72 @@ namespace kOSMainframe.VesselExtra
                 RCSTWR = RCSThrust / ShipMass / localGravity;
 
 
-            if (totalStageFlowRate > 0d && totalStageIspFlowRate > 0d)
-            {
+            if (totalStageFlowRate > 0d && totalStageIspFlowRate > 0d) {
                 RCSIsp = totalStageIspFlowRate / totalStageFlowRate;
-            }
-            else
-            {
+            } else {
                 RCSIsp = 0;
             }
 
         }
 
 
-        private void BuildDontStageLists()
-        {
+        private void BuildDontStageLists() {
             if (debug) Debug.Log("Creating list with capacity of " + (currentStage + 1));
 
             dontStagePartsLists.Clear();
-            for (int i = 0; i <= currentStage; i++)
-            {
-                if (i < dontStagePartsLists.Count)
-                {
+            for (int i = 0; i <= currentStage; i++) {
+                if (i < dontStagePartsLists.Count) {
                     dontStagePartsLists[i].Clear();
-                }
-                else
-                {
+                } else {
                     dontStagePartsLists.Add(new List<PartSim>());
                 }
             }
 
-            for (int i = 0; i < allParts.Count; ++i)
-            {
+            for (int i = 0; i < allParts.Count; ++i) {
                 PartSim partSim = allParts[i];
 
-                if (partSim.isEngine || !partSim.resources.Empty)
-                {
+                if (partSim.isEngine || !partSim.resources.Empty) {
                     if (debug) Debug.Log(partSim.name + ":" + partSim.partId + " is engine or tank, decoupled = " + partSim.decoupledInStage);
 
-                    if (partSim.decoupledInStage < -1 || partSim.decoupledInStage > currentStage - 1)
-                    {
+                    if (partSim.decoupledInStage < -1 || partSim.decoupledInStage > currentStage - 1) {
                         if (debug) Debug.Log("decoupledInStage out of range");
-                    }
-                    else
-                    {
+                    } else {
                         dontStagePartsLists[partSim.decoupledInStage + 1].Add(partSim);
                     }
                 }
             }
 
-            for (int i = 1; i <= lastStage; i++)
-            {
-                if (dontStagePartsLists[i].Count == 0)
-                {
+            for (int i = 1; i <= lastStage; i++) {
+                if (dontStagePartsLists[i].Count == 0) {
                     dontStagePartsLists[i] = dontStagePartsLists[i - 1];
                 }
             }
         }
 
         // Make sure we free them all, even if they should all be free already at this point
-        public void FreePooledObject()
-        {
+        public void FreePooledObject() {
             //MonoBehaviour.print("FreePooledObject pool size before = " + PartSim.pool.Count() + " for " + allParts.Count + " parts");
-            foreach (PartSim part in allParts)
-            {
+            foreach (PartSim part in allParts) {
                 part.Release();
             }
             //MonoBehaviour.print("FreePooledObject pool size after = " + PartSim.pool.Count());
 
             //MonoBehaviour.print("FreePooledObject pool size before = " + EngineSim.pool.Count() + " for " + allEngines.Count + " engines");
-            foreach (EngineSim engine in allEngines)
-            {
+            foreach (EngineSim engine in allEngines) {
                 engine.Release();
             }
             //MonoBehaviour.print("FreePooledObject pool size after = " + EngineSim.pool.Count());
 
-            foreach (RCSSim engine in allRCS)
-            {
+            foreach (RCSSim engine in allRCS) {
                 engine.Release();
             }
         }
 
-        private double ShipMass
-        {
-            get
-            {
+        private double ShipMass {
+            get {
                 double mass = 0d;
 
-                for (int i = 0; i < allParts.Count; ++i)
-                {
+                for (int i = 0; i < allParts.Count; ++i) {
                     mass += allParts[i].GetMass(currentStage);
                 }
 
@@ -1081,14 +935,11 @@ namespace kOSMainframe.VesselExtra
             }
         }
 
-        private Vector3d ShipCom
-        {
-            get
-            {
+        private Vector3d ShipCom {
+            get {
                 vectorAverager.Reset();
 
-                for (int i = 0; i < allParts.Count; ++i)
-                {
+                for (int i = 0; i < allParts.Count; ++i) {
                     PartSim partSim = allParts[i];
                     vectorAverager.Add(partSim.centerOfMass, partSim.GetMass(currentStage, true));
                 }

@@ -2,23 +2,19 @@
 using UnityEngine;
 using Smooth.Pools;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class AttachNodeSim
-    {
+namespace kOSMainframe.VesselExtra {
+    public class AttachNodeSim {
         private static readonly Pool<AttachNodeSim> pool = new Pool<AttachNodeSim>(Create, Reset);
 
         public PartSim attachedPartSim;
         public String id;
         public AttachNode.NodeType nodeType;
 
-        private static AttachNodeSim Create()
-        {
+        private static AttachNodeSim Create() {
             return new AttachNodeSim();
         }
 
-        public static AttachNodeSim New(PartSim partSim, String newId, AttachNode.NodeType newNodeType)
-        {
+        public static AttachNodeSim New(PartSim partSim, String newId, AttachNode.NodeType newNodeType) {
             AttachNodeSim nodeSim = pool.Borrow();
 
             nodeSim.attachedPartSim = partSim;
@@ -28,25 +24,19 @@ namespace kOSMainframe.VesselExtra
             return nodeSim;
         }
 
-        static private void Reset(AttachNodeSim attachNodeSim)
-        {
+        static private void Reset(AttachNodeSim attachNodeSim) {
             attachNodeSim.attachedPartSim = null;
         }
 
 
-        public void Release()
-        {
+        public void Release() {
             pool.Release(this);
         }
 
-        public void DumpToLog()
-        {
-            if (attachedPartSim == null)
-            {
+        public void DumpToLog() {
+            if (attachedPartSim == null) {
                 Debug.Log("<staged>:<n>");
-            }
-            else
-            {
+            } else {
                 Debug.Log(attachedPartSim.name + ":" + attachedPartSim.partId);
             }
             Debug.Log("#" + nodeType + ":" + id);

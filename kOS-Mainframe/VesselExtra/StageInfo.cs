@@ -2,11 +2,9 @@
 using kOS.Safe.Encapsulation.Suffixes;
 using System;
 
-namespace kOSMainframe.VesselExtra
-{
-	[kOS.Safe.Utilities.KOSNomenclature("StageInfo")]
-	public class StageInfo : Structure
-    {
+namespace kOSMainframe.VesselExtra {
+    [kOS.Safe.Utilities.KOSNomenclature("StageInfo")]
+    public class StageInfo : Structure {
         public double actualThrust = 0.0;
         public double actualThrustToWeight = 0.0;
         public double deltaV = 0.0;
@@ -38,21 +36,20 @@ namespace kOSMainframe.VesselExtra
         public double RCSTWREnd = 0.0;
         public double RCSBurnTime = 0.0;
 
-		public StageInfo() {
-			InitializeSuffixes();
-		}
+        public StageInfo() {
+            InitializeSuffixes();
+        }
 
-		private void InitializeSuffixes()
-		{
-			AddSuffix("ACTUAL_THRUST", new Suffix<ScalarDoubleValue>(() => actualThrust));
-			AddSuffix("ACTUAL_TWR", new Suffix<ScalarDoubleValue>(() => actualThrustToWeight));
-			AddSuffix("DELTA_V", new Suffix<ScalarDoubleValue>(() => deltaV));
-			AddSuffix("INVERSE_TOTAL_DELTA_V", new Suffix<ScalarDoubleValue>(() => inverseTotalDeltaV));
-			AddSuffix("ISP", new Suffix<ScalarDoubleValue>(() => isp));
-			AddSuffix("MAX_TWR", new Suffix<ScalarDoubleValue>(() => maxThrustToWeight));
-			AddSuffix("THRUST", new Suffix<ScalarDoubleValue>(() => thrust));
-			AddSuffix("TWR", new Suffix<ScalarDoubleValue>(() => thrustToWeight));
-			AddSuffix("TIME", new Suffix<ScalarDoubleValue>(() => time));
-		}
+        private void InitializeSuffixes() {
+            AddSuffix("ACTUAL_THRUST", new Suffix<ScalarDoubleValue>(() => actualThrust));
+            AddSuffix("ACTUAL_TWR", new Suffix<ScalarDoubleValue>(() => actualThrustToWeight));
+            AddSuffix("DELTA_V", new Suffix<ScalarDoubleValue>(() => deltaV));
+            AddSuffix("INVERSE_TOTAL_DELTA_V", new Suffix<ScalarDoubleValue>(() => inverseTotalDeltaV));
+            AddSuffix("ISP", new Suffix<ScalarDoubleValue>(() => isp));
+            AddSuffix("MAX_TWR", new Suffix<ScalarDoubleValue>(() => maxThrustToWeight));
+            AddSuffix("THRUST", new Suffix<ScalarDoubleValue>(() => thrust));
+            AddSuffix("TWR", new Suffix<ScalarDoubleValue>(() => thrustToWeight));
+            AddSuffix("TIME", new Suffix<ScalarDoubleValue>(() => time));
+        }
     }
 }

@@ -1,18 +1,14 @@
 ﻿using System;
 
-namespace kOSMainframe.VesselExtra
-{
-    public class VesselInfo
-    {
-		private Vessel vessel;
+namespace kOSMainframe.VesselExtra {
+    public class VesselInfo {
+        private Vessel vessel;
 
-		public VesselInfo(Vessel vessel)
-        {
-			this.vessel = vessel;
+        public VesselInfo(Vessel vessel) {
+            this.vessel = vessel;
         }
 
-		public double RCSDeltaVVacuum()
-        {
+        public double RCSDeltaVVacuum() {
             // Use the average specific impulse of all RCS parts.
             double totalIsp = 0;
             int numThrusters = 0;
@@ -20,8 +16,7 @@ namespace kOSMainframe.VesselExtra
 
             double monopropMass = vessel.TotalResourceMass("MonoPropellant");
 
-            foreach (ModuleRCS pm in vessel.GetModules<ModuleRCS>())
-            {
+            foreach (ModuleRCS pm in vessel.GetModules<ModuleRCS>()) {
                 totalIsp += pm.atmosphereCurve.Evaluate(0);
                 numThrusters++;
                 gForRCS = pm.G;
@@ -34,14 +29,12 @@ namespace kOSMainframe.VesselExtra
             return isp * gForRCS * Math.Log(m0 / m1);
         }
 
-        public double MonoPropellantMass()
-        {
+        public double MonoPropellantMass() {
             return vessel.TotalResourceMass("MonoPropellant");
         }
 
-        public double VesselMass()
-        {
-			return vessel.totalMass;
+        public double VesselMass() {
+            return vessel.totalMass;
         }
     }
 }

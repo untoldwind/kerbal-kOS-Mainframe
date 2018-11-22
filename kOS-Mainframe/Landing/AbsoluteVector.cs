@@ -1,7 +1,6 @@
 ﻿using System;
 
-namespace kOSMainframe.Landing
-{
+namespace kOSMainframe.Landing {
     //Why do AbsoluteVector and ReferenceFrame exist? What problem are they trying to solve? Here is the problem.
     //
     //The reentry simulation runs in a separate thread from the rest of the game. In principle, the reentry simulation
@@ -24,14 +23,13 @@ namespace kOSMainframe.Landing
     //be provided in some unambiguous format, so that we can interpret these positions and velocities correctly at a later
     //time, regardless of what sort of origin shifts and axis rotations have occurred.
     //
-    //Now, it doesn't particularly matter what unambiguous format we use, as long as it is in fact unambiguous. We choose to 
+    //Now, it doesn't particularly matter what unambiguous format we use, as long as it is in fact unambiguous. We choose to
     //represent positions unambiguously via a latitude, a longitude, a radius, and a time. If we record these four data points
     //for an event, we can unambiguously reconstruct the position of the event at a later time. We just have to account for the
     //fact that the rotation of the planet means that the same position will have a different longitude.
 
     //An AbsoluteVector stores the information needed to unambiguously reconstruct a position or velocity at a later time.
-    public struct AbsoluteVector
-    {
+    public struct AbsoluteVector {
         public double latitude;
         public double longitude;
         public double radius;

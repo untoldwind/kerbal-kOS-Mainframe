@@ -5,30 +5,28 @@ using kOS.Serialization;
 using kOS.Safe.Encapsulation.Suffixes;
 using System;
 
-namespace kOSMainframe
-{
+namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("VesselLanding")]
-    public class VesselLanding : Structure, IHasSharedObjects
-    {
-        public SharedObjects Shared { get; set; }
+    public class VesselLanding : Structure, IHasSharedObjects {
+        public SharedObjects Shared {
+            get;
+            set;
+        }
         private readonly Vessel vessel;
 
-        public VesselLanding(SharedObjects sharedObjs)
-        {
+        public VesselLanding(SharedObjects sharedObjs) {
             Shared = sharedObjs;
             this.vessel = sharedObjs.Vessel;
             InitializeSuffixes();
         }
 
-        public VesselLanding(SharedObjects sharedObjs, VesselTarget vessel)
-        {
+        public VesselLanding(SharedObjects sharedObjs, VesselTarget vessel) {
             Shared = sharedObjs;
             this.vessel = vessel.Vessel;
             InitializeSuffixes();
         }
 
-        private void InitializeSuffixes()
-        {
+        private void InitializeSuffixes() {
 
         }
     }

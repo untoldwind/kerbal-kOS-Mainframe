@@ -5,10 +5,8 @@ using Smooth.Pools;
 using kOSMainframe.Orbital;
 using kOSMainframe.Simulation;
 
-namespace kOSMainframe.Landing
-{
-    public class ReentrySimulation
-    {
+namespace kOSMainframe.Landing {
+    public class ReentrySimulation {
         // Input values
         Orbit input_initialOrbit;
         double input_UT;
@@ -59,7 +57,7 @@ namespace kOSMainframe.Landing
         double parachuteSemiDeployMultiplier;
         bool multiplierHasError;
 
-        //Dynamical variables 
+        //Dynamical variables
         Vector3d x; //coordinate system used is centered on main body
         Vector3d startX; //start position
         Vector3d v;
@@ -88,34 +86,30 @@ namespace kOSMainframe.Landing
 
         private static readonly Pool<ReentrySimulation> pool = new Pool<ReentrySimulation>(Create, Reset);
 
-        public static int PoolSize
-        {
-            get { return pool.Size; }
+        public static int PoolSize {
+            get {
+                return pool.Size;
+            }
         }
 
-        private static ReentrySimulation Create()
-        {
+        private static ReentrySimulation Create() {
             return new ReentrySimulation();
         }
 
-        public void Release()
-        {
+        public void Release() {
             pool.Release(this);
         }
 
-        private static void Reset(ReentrySimulation obj)
-        {
+        private static void Reset(ReentrySimulation obj) {
         }
 
-        public static ReentrySimulation Borrow(Orbit _initialOrbit, double _UT, SimulatedVessel _vessel, SimCurves _simcurves, IDescentSpeedPolicy _descentSpeedPolicy, double _decelEndAltitudeASL, double _maxThrustAccel, double _parachuteSemiDeployMultiplier, double _probableLandingSiteASL, bool _multiplierHasError, double _dt, double _min_dt, double _maxOrbits, bool _noSKiptoFreefall)
-        {
+        public static ReentrySimulation Borrow(Orbit _initialOrbit, double _UT, SimulatedVessel _vessel, SimCurves _simcurves, IDescentSpeedPolicy _descentSpeedPolicy, double _decelEndAltitudeASL, double _maxThrustAccel, double _parachuteSemiDeployMultiplier, double _probableLandingSiteASL, bool _multiplierHasError, double _dt, double _min_dt, double _maxOrbits, bool _noSKiptoFreefall) {
             ReentrySimulation sim = pool.Borrow();
             sim.Init(_initialOrbit, _UT, _vessel, _simcurves, _descentSpeedPolicy, _decelEndAltitudeASL, _maxThrustAccel, _parachuteSemiDeployMultiplier, _probableLandingSiteASL, _multiplierHasError, _dt, _min_dt, _maxOrbits, _noSKiptoFreefall);
             return sim;
         }
 
-        public void Init(Orbit _initialOrbit, double _UT, SimulatedVessel _vessel, SimCurves _simcurves, IDescentSpeedPolicy _descentSpeedPolicy, double _decelEndAltitudeASL, double _maxThrustAccel, double _parachuteSemiDeployMultiplier, double _probableLandingSiteASL, bool _multiplierHasError, double _dt, double _min_dt, double _maxOrbits, bool _noSKiptoFreefall)
-        {
+        public void Init(Orbit _initialOrbit, double _UT, SimulatedVessel _vessel, SimCurves _simcurves, IDescentSpeedPolicy _descentSpeedPolicy, double _decelEndAltitudeASL, double _maxThrustAccel, double _parachuteSemiDeployMultiplier, double _probableLandingSiteASL, bool _multiplierHasError, double _dt, double _min_dt, double _maxOrbits, bool _noSKiptoFreefall) {
             // Store all the input values as they were given
             input_initialOrbit = _initialOrbit;
             input_UT = _UT;
@@ -165,8 +159,7 @@ namespace kOSMainframe.Landing
 
             startX = initialOrbit.SwappedRelativePositionAtUT(startUT);
             // This calls some Unity function so it should be done outside the thread
-            if (orbitReenters)
-            {
+            if (orbitReenters) {
                 startUT = _UT;
                 t = startUT;
                 AdvanceToFreefallEnd(initialOrbit);
@@ -181,11 +174,9 @@ namespace kOSMainframe.Landing
             once = true;
         }
 
-        public Result RunSimulation()
-        {
+        public Result RunSimulation() {
             result = Result.Borrow();
-            try
-            {
+            try {
                 // First put all the problem parameters into the result, to aid debugging.
                 result.input_initialOrbit = this.input_initialOrbit;
                 result.input_UT = this.input_UT;
@@ -199,8 +190,7 @@ namespace kOSMainframe.Landing
 
                 //MechJebCore.print("Sim Start");
 
-                if (!orbitReenters)
-                {
+                if (!orbitReenters) {
                     result.outcome = Outcome.NO_REENTRY;
                     return result;
                 }
@@ -213,23 +203,19 @@ namespace kOSMainframe.Landing
                 RecordTrajectory();
 
                 double maxT = t + maxSimulatedTime;
-                while (true)
-                {
-                    if (Landed())
-                    {
+                while (true) {
+                    if (Landed()) {
                         result.outcome = Outcome.LANDED;
                         break;
                     }
-                    if (!result.aeroBrake && Aerobraked())
-                    {
+                    if (!result.aeroBrake && Aerobraked()) {
                         result.aeroBrake = true;
                         result.aeroBrakeUT = t;
                         result.aeroBrakePosition = referenceFrame.ToAbsolute(x, t);
                         result.aeroBrakeVelocity = referenceFrame.ToAbsolute(v, t);
                         //break;
                     }
-                    if (t > maxT || Escaping() || steps > 50000)
-                    {
+                    if (t > maxT || Escaping() || steps > 50000) {
                         result.outcome = result.aeroBrake ? Outcome.AEROBRAKED : Outcome.TIMED_OUT;
                         break;
                     }
@@ -254,15 +240,11 @@ namespace kOSMainframe.Landing
                 result.multiplierHasError = this.multiplierHasError;
                 result.maxdt = this.max_dt;
                 result.steps = steps;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 //Debug.LogError("Exception thrown during Rentry Simulation : " + ex.GetType() + ":" + ex.Message + "\n"+ ex.StackTrace);
                 result.exception = ex;
                 result.outcome = Outcome.ERROR;
-            }
-            finally
-            {
+            } finally {
                 if (trajectory != result.trajectory)
                     ListPool<AbsoluteVector>.Instance.Release(trajectory);
                 vessel.Release();
@@ -271,37 +253,31 @@ namespace kOSMainframe.Landing
             return result;
         }
 
-        bool OrbitReenters(Orbit initialOrbit)
-        {
+        bool OrbitReenters(Orbit initialOrbit) {
             return (initialOrbit.PeR < decelRadius || initialOrbit.PeR < aerobrakedRadius);
         }
 
-        bool Landed()
-        {
+        bool Landed() {
             return x.magnitude < this.probableLandingSiteRadius;
         }
 
-        bool Aerobraked()
-        {
+        bool Aerobraked() {
             return bodyHasAtmosphere && (x.magnitude > aerobrakedRadius) && (Vector3d.Dot(x, v) > 0);
         }
 
-        bool Escaping()
-        {
+        bool Escaping() {
             double escapeVel = Math.Sqrt(2 * gravParameter / x.magnitude);
             return bodyHasAtmosphere && (v.magnitude > escapeVel) && (Vector3d.Dot(x, v) > 0);
         }
 
 
-        void AdvanceToFreefallEnd(Orbit initialOrbit)
-        {
+        void AdvanceToFreefallEnd(Orbit initialOrbit) {
             t = FindFreefallEndTime(initialOrbit);
 
             x = initialOrbit.SwappedRelativePositionAtUT(t);
             v = initialOrbit.SwappedOrbitalVelocityAtUT(t);
 
-            if (Double.IsNaN(v.magnitude))
-            {
+            if (Double.IsNaN(v.magnitude)) {
                 //For eccentricities close to 1, the Orbit class functions are unreliable and
                 //v may come out as NaN. If that happens we estimate v from conservation
                 //of energy and the assumption that v is vertical (since ecc. is approximately 1).
@@ -316,10 +292,8 @@ namespace kOSMainframe.Landing
 
         //This is a convenience function used by the reentry simulation. It does a binary search for the first UT
         //in the interval (lowerUT, upperUT) for which condition(UT, relative position, orbital velocity) is true
-        double FindFreefallEndTime(Orbit initialOrbit)
-        {
-            if (noSKiptoFreefall || FreefallEnded(initialOrbit, t))
-            {
+        double FindFreefallEndTime(Orbit initialOrbit) {
+            if (noSKiptoFreefall || FreefallEnded(initialOrbit, t)) {
                 return t;
             }
 
@@ -327,8 +301,7 @@ namespace kOSMainframe.Landing
             double upperUT = initialOrbit.NextPeriapsisTime(t);
 
             const double PRECISION = 1.0;
-            while (upperUT - lowerUT > PRECISION)
-            {
+            while (upperUT - lowerUT > PRECISION) {
                 double testUT = (upperUT + lowerUT) / 2;
                 if (FreefallEnded(initialOrbit, testUT)) upperUT = testUT;
                 else lowerUT = testUT;
@@ -341,8 +314,7 @@ namespace kOSMainframe.Landing
         // - our vertical velocity is negative and either
         //    - we've landed or
         //    - the descent speed policy says to start braking
-        bool FreefallEnded(Orbit initialOrbit, double UT)
-        {
+        bool FreefallEnded(Orbit initialOrbit, double UT) {
             Vector3d pos = initialOrbit.SwappedRelativePositionAtUT(UT);
             Vector3d surfaceVelocity = SurfaceVelocity(pos, initialOrbit.SwappedOrbitalVelocityAtUT(UT));
 
@@ -353,9 +325,8 @@ namespace kOSMainframe.Landing
             return false;
         }
 
-        // one time step of RK4: There is logic to reduce the dt and repeat if a larger dt results in very large accelerations. Also the parachute opening logic is called from in order to allow the dt to be reduced BEFORE deploying parachutes to give more precision over the point of deployment.  
-        void RK4Step()
-        {
+        // one time step of RK4: There is logic to reduce the dt and repeat if a larger dt results in very large accelerations. Also the parachute opening logic is called from in order to allow the dt to be reduced BEFORE deploying parachutes to give more precision over the point of deployment.
+        void RK4Step() {
             bool repeatWithSmallerStep = false;
             bool parachutesDeploying = false;
 
@@ -364,8 +335,7 @@ namespace kOSMainframe.Landing
 
             //Log(x, v);
 
-            do
-            {
+            do {
                 steps++;
                 activeStep = steps;
                 activeDt = dt;
@@ -391,13 +361,10 @@ namespace kOSMainframe.Landing
 
                 // If the change in velocity is more than half the current velocity, then we need to try again with a smaller delta-t
                 // or if dt is already small enough then continue anyway.
-                if (v.magnitude < dv.magnitude * 2 && dt >= min_dt * 2)
-                {
+                if (v.magnitude < dv.magnitude * 2 && dt >= min_dt * 2) {
                     dt = dt / 2;
                     repeatWithSmallerStep = true;
-                }
-                else
-                {
+                } else {
                     // Consider opening the parachutes. If we do open them, and the dt is not as small as it could me, make it smaller and repeat,
                     Vector3 xForChuteSim = x + dx;
                     double vForChuteSim = (v + dv).magnitude;
@@ -409,40 +376,33 @@ namespace kOSMainframe.Landing
                     maxDragGees = Math.Max(maxDragGees, lastRecordedDrag.magnitude / 9.81f);
 
                     // If parachutes are about to open and we are running with a dt larger than the physics frame then drop dt to the physics frame rate and start again
-                    if (willChutesOpen && dt > min_dt) // TODO test to see if we are better off just setting a minimum dt of the physics frame rate.
-                    {
+                    if (willChutesOpen && dt > min_dt) { // TODO test to see if we are better off just setting a minimum dt of the physics frame rate.
                         dt = Math.Max(dt / 2, min_dt);
                         repeatWithSmallerStep = true;
-                    }
-                    else
-                    {
+                    } else {
                         parachutesDeploying = vessel.Simulate(altAGL, altASL, probableLandingSiteASL, pressure, vForChuteSim, t, parachuteSemiDeployMultiplier);
                     }
                 }
-            }
-            while (repeatWithSmallerStep);
+            } while (repeatWithSmallerStep);
 
             x += dx;
             v += dv;
             t += dt;
 
-            // decide what the dt needs to be for the next iteration 
+            // decide what the dt needs to be for the next iteration
             // Is there a parachute in the process of opening? If so then we follow special rules - fix the dt at the physics frame rate. This is because the rate for deployment depends on the frame rate for stock parachutes.
             // If parachutes are part way through deploying then we need to use the physics frame rate for the next step of the simulation
-            if (parachutesDeploying)
-            {
+            if (parachutesDeploying) {
                 dt = min_dt; // TODO There is a potential problem here. If the physics frame rate is so large that is causes too large a change in velocity, then we could get stuck in an infinte loop.
             }
             // If dt has been reduced, try increasing it, but only by one step. (but not if there is a parachute being deployed)
-            else if (dt < max_dt)
-            {
+            else if (dt < max_dt) {
                 dt = Math.Min(dt * 2, max_dt);
             }
         }
 
         // Bogacki–Shampine method
-        void BS34Step()
-        {
+        void BS34Step() {
             bool repeatWithSmallerStep = false;
             bool parachutesDeploying = false;
 
@@ -454,8 +414,7 @@ namespace kOSMainframe.Landing
             const double d9 = 1d / 9d;
             const double d24 = 1d / 24d;
 
-            do
-            {
+            do {
                 steps++;
                 activeStep = steps;
                 activeDt = dt;
@@ -502,12 +461,9 @@ namespace kOSMainframe.Landing
 
                 double next_dt;
                 var errorMagnitude = Math.Max(errorv.magnitude, 10e-6);
-                if (!willChutesOpen)
-                {
+                if (!willChutesOpen) {
                     next_dt = dt * 0.9 * Math.Pow(tol / errorMagnitude, 1 / 3d);
-                }
-                else
-                {
+                } else {
                     // The chute will open at the next dt so we want to make it shorter so they don't
                     // until we have dt = min_dt and we can safely open them
                     // The same system avoids skiping the ground with a large dt
@@ -530,41 +486,32 @@ namespace kOSMainframe.Landing
                 else if (sqrStartDist < 10000 * 10000)
                     next_dt = Math.Min(next_dt, 1);
 
-                if ((errorMagnitude > tol || willChutesOpen) && dt > min_dt)
-                {
+                if ((errorMagnitude > tol || willChutesOpen) && dt > min_dt) {
                     dt = next_dt;
                     repeatWithSmallerStep = true;
-                }
-                else
-                {
+                } else {
                     maxDragGees = Math.Max(maxDragGees, lastRecordedDrag.magnitude / 9.81f);
                     parachutesDeploying = vessel.Simulate(altAGL, altASL, probableLandingSiteASL, pressure, shockTemp, t, parachuteSemiDeployMultiplier);
                     x += dx;
                     v += dv;
                     t += dt;
-                    if (parachutesDeploying)
-                    {
+                    if (parachutesDeploying) {
                         dt = min_dt;
-                    }
-                    else
-                    {
+                    } else {
                         // If a parachute is opening we need to lower dt to make sure we capture the opening sequence properly
                         dt = next_dt;
                     }
                 }
-            }
-            while (repeatWithSmallerStep);
+            } while (repeatWithSmallerStep);
         }
 
         //enforce the descent speed policy
-        void LimitSpeed()
-        {
+        void LimitSpeed() {
             if (descentSpeedPolicy == null) return;
 
             Vector3d surfaceVel = SurfaceVelocity(x, v);
             double maxAllowedSpeed = descentSpeedPolicy.MaxAllowedSpeed(x, surfaceVel);
-            if (surfaceVel.magnitude > maxAllowedSpeed)
-            {
+            if (surfaceVel.magnitude > maxAllowedSpeed) {
                 double dV = Math.Min(surfaceVel.magnitude - maxAllowedSpeed, dt * maxThrustAccel);
                 surfaceVel -= dV * surfaceVel.normalized;
                 deltaVExpended += dV;
@@ -572,13 +519,11 @@ namespace kOSMainframe.Landing
             }
         }
 
-        void RecordTrajectory()
-        {
+        void RecordTrajectory() {
             trajectory.Add(referenceFrame.ToAbsolute(x, t));
         }
 
-        Vector3d TotalAccel(Vector3d pos, Vector3d vel, bool record = false)
-        {
+        Vector3d TotalAccel(Vector3d pos, Vector3d vel, bool record = false) {
             Vector3d airVel = SurfaceVelocity(pos, vel);
             double altitude = pos.magnitude - bodyRadius;
 
@@ -592,8 +537,7 @@ namespace kOSMainframe.Landing
             double pseudoReynolds = airDensity * airVel.magnitude;
             double pseudoReDragMult = (double)simCurves.DragCurvePseudoReynolds.Evaluate((float)pseudoReynolds);
 
-            if (once)
-            {
+            if (once) {
                 result.prediction.firstDrag = DragForce(pos, vel, dynamicPressurekPa, mach).magnitude / 9.81;
                 result.prediction.firstLift = LiftForce(pos, vel, dynamicPressurekPa, mach).magnitude / 9.81;
                 result.prediction.mach = mach;
@@ -616,13 +560,11 @@ namespace kOSMainframe.Landing
             return totalAccel;
         }
 
-        Vector3d GravAccel(Vector3d pos)
-        {
+        Vector3d GravAccel(Vector3d pos) {
             return -(gravParameter / pos.sqrMagnitude) * pos.normalized;
         }
 
-        Vector3d DragForce(Vector3d pos, Vector3d vel, float dynamicPressurekPa, float mach)
-        {
+        Vector3d DragForce(Vector3d pos, Vector3d vel, float dynamicPressurekPa, float mach) {
             if (!bodyHasAtmosphere) return Vector3d.zero;
 
             Vector3d airVel = SurfaceVelocity(pos, vel);
@@ -652,10 +594,10 @@ namespace kOSMainframe.Landing
             //    msg += "\n " + temp.ToString("F3") + " " + vessel.parts[0].oPart.vessel.atmosphericTemperature.ToString("F3");
             //
             //
-            //    //this.atmosphericTemperature = 
+            //    //this.atmosphericTemperature =
             //    //    this.currentMainBody.GetTemperature(this.altitude) +
-            //    //    (double)this.currentMainBody.atmosphereTemperatureSunMultCurve.Evaluate((float)this.altitude) * 
-            //    //        ((double)this.currentMainBody.latitudeTemperatureBiasCurve.Evaluate((float)(num1 * 57.2957801818848)) + 
+            //    //    (double)this.currentMainBody.atmosphereTemperatureSunMultCurve.Evaluate((float)this.altitude) *
+            //    //        ((double)this.currentMainBody.latitudeTemperatureBiasCurve.Evaluate((float)(num1 * 57.2957801818848)) +
             //    //         (double)this.currentMainBody.latitudeTemperatureSunMultCurve.Evaluate((float)(num1 * 57.2957801818848)) * (1 + this.sunDot) * 0.5
             //    //          + (double)this.currentMainBody.axialTemperatureSunMultCurve.Evaluate(this.sunAxialDot));
             //    //
@@ -669,8 +611,7 @@ namespace kOSMainframe.Landing
             return -airVel.normalized * shipDrag.magnitude;
         }
 
-        private Vector3d LiftForce(Vector3d pos, Vector3d vel, float dynamicPressurekPa, float mach)
-        {
+        private Vector3d LiftForce(Vector3d pos, Vector3d vel, float dynamicPressurekPa, float mach) {
             if (!bodyHasAtmosphere) return Vector3d.zero;
 
             Vector3d airVel = SurfaceVelocity(pos, vel);
@@ -684,51 +625,42 @@ namespace kOSMainframe.Landing
             return vesselToWorld * localLift;
         }
 
-        double Pressure(Vector3d pos)
-        {
+        double Pressure(Vector3d pos) {
             double altitude = pos.magnitude - bodyRadius;
             return StaticPressure(altitude);
         }
 
-        Vector3d SurfaceVelocity(Vector3d pos, Vector3d vel)
-        {
+        Vector3d SurfaceVelocity(Vector3d pos, Vector3d vel) {
             //if we're low enough, calculate the airspeed properly:
             return vel - Vector3d.Cross(bodyAngularVelocity, pos);
         }
 
-        double AirDensity(Vector3d pos, double altitude)
-        {
+        double AirDensity(Vector3d pos, double altitude) {
             double pressure = StaticPressure(altitude);
             double temp = GetTemperature(pos, altitude);
 
             return FlightGlobals.getAtmDensity(pressure, temp, mainBody);
         }
 
-        double StaticPressure(double altitude)
-        {
-            if (!mainBody.atmosphere)
-            {
+        double StaticPressure(double altitude) {
+            if (!mainBody.atmosphere) {
                 return 0;
             }
 
-            if (altitude >= mainBody.atmosphereDepth)
-            {
+            if (altitude >= mainBody.atmosphereDepth) {
                 return 0;
             }
-            if (!mainBody.atmosphereUsePressureCurve)
-            {
+            if (!mainBody.atmosphereUsePressureCurve) {
                 return mainBody.atmospherePressureSeaLevel * Math.Pow(1 - mainBody.atmosphereTemperatureLapseRate * altitude / mainBody.atmosphereTemperatureSeaLevel, mainBody.atmosphereGasMassLapseRate);
             }
-            if (!mainBody.atmospherePressureCurveIsNormalized)
-            {
+            if (!mainBody.atmospherePressureCurveIsNormalized) {
                 return simCurves.AtmospherePressureCurve.Evaluate((float)altitude);
             }
             return Mathf.Lerp(0f, (float)mainBody.atmospherePressureSeaLevel, simCurves.AtmospherePressureCurve.Evaluate((float)(altitude / mainBody.atmosphereDepth)));
         }
 
         // Lifted from the Trajectories mod.
-        private double GetTemperature(Vector3d position, double altitude)
-        {
+        private double GetTemperature(Vector3d position, double altitude) {
             if (!mainBody.atmosphere)
                 return PhysicsGlobals.SpaceTemperature;
 
@@ -737,8 +669,7 @@ namespace kOSMainframe.Landing
 
             Vector3 up = position.normalized;
             float polarAngle = Mathf.Acos(Vector3.Dot(mainBody.bodyTransform.up, up));
-            if (polarAngle > Mathf.PI * 0.5f)
-            {
+            if (polarAngle > Mathf.PI * 0.5f) {
                 polarAngle = Mathf.PI - polarAngle;
             }
             float time = (Mathf.PI * 0.5f - polarAngle) * Mathf.Rad2Deg;
@@ -754,15 +685,12 @@ namespace kOSMainframe.Landing
             double atmosphereTemperatureOffset = (double)simCurves.LatitudeTemperatureBiasCurve.Evaluate(time) + (double)simCurves.LatitudeTemperatureSunMultCurve.Evaluate(time) * sunDotNormalized + (double)simCurves.AxialTemperatureSunMultCurve.Evaluate(sunAxialDot);
 
             double temperature;
-            if (!mainBody.atmosphereUseTemperatureCurve)
-            {
+            if (!mainBody.atmosphereUseTemperatureCurve) {
                 temperature = mainBody.atmosphereTemperatureSeaLevel - mainBody.atmosphereTemperatureLapseRate * altitude;
-            }
-            else
-            {
+            } else {
                 temperature = !mainBody.atmosphereTemperatureCurveIsNormalized ?
-                    simCurves.AtmosphereTemperatureCurve.Evaluate((float)altitude) :
-                    UtilMath.Lerp(simCurves.SpaceTemperature, mainBody.atmosphereTemperatureSeaLevel, simCurves.AtmosphereTemperatureCurve.Evaluate((float)(altitude / mainBody.atmosphereDepth)));
+                              simCurves.AtmosphereTemperatureCurve.Evaluate((float)altitude) :
+                              UtilMath.Lerp(simCurves.SpaceTemperature, mainBody.atmosphereTemperatureSeaLevel, simCurves.AtmosphereTemperatureCurve.Evaluate((float)(altitude / mainBody.atmosphereDepth)));
             }
 
             temperature += (double)simCurves.AtmosphereTemperatureSunMultCurve.Evaluate((float)altitude) * atmosphereTemperatureOffset;
@@ -770,12 +698,10 @@ namespace kOSMainframe.Landing
             return temperature;
         }
 
-        private double ShockTemperature(double velocity, double mach)
-        {
+        private double ShockTemperature(double velocity, double mach) {
             double newtonianTemperatureFactor = velocity * PhysicsGlobals.NewtonianTemperatureFactor;
             double convectiveMachLerp = Math.Pow(UtilMath.Clamp01((mach - PhysicsGlobals.NewtonianMachTempLerpStartMach) / (PhysicsGlobals.NewtonianMachTempLerpEndMach - PhysicsGlobals.NewtonianMachTempLerpStartMach)), PhysicsGlobals.NewtonianMachTempLerpExponent);
-            if (convectiveMachLerp > 0)
-            {
+            if (convectiveMachLerp > 0) {
                 double machTemperatureScalar = PhysicsGlobals.MachTemperatureScalar * Math.Pow(velocity, PhysicsGlobals.MachTemperatureVelocityExponent);
                 newtonianTemperatureFactor = UtilMath.LerpUnclamped(newtonianTemperatureFactor, machTemperatureScalar, convectiveMachLerp);
             }
