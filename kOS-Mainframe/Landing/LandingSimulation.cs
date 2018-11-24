@@ -64,7 +64,7 @@ namespace kOSMainframe.Landing {
             targetBody = vessel.mainBody;
             targetLatitude = latitude;
             targetLongitude = longitude;
-            descentSpeedPolicy = new PoweredCoastDescentSpeedPolicy(targetBody.Radius + decelEndAltitudeASL, targetBody.GeeASL * 9.81, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass);
+            descentSpeedPolicy = new SafeDescentSpeedPolicy(targetBody.Radius + decelEndAltitudeASL, targetBody.GeeASL * 9.81, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass);
         }
 
         public void OnGUI() {
@@ -72,6 +72,20 @@ namespace kOSMainframe.Landing {
                 return;
             }
             GLUtils.DrawGroundMarker(targetBody, targetLatitude, targetLongitude, Color.blue, MapView.MapIsEnabled, 60, targetBody.Radius / 100);
+
+            Result drawResult = result;
+
+            if(drawResult != null && drawResult.outcome == Outcome.LANDED) {
+                GLUtils.DrawGroundMarker(targetBody, drawResult.endPosition.latitude, drawResult.endPosition.longitude, Color.red, MapView.MapIsEnabled, 00, targetBody.Radius / 100);
+            }
+            if(drawResult != null && drawResult.outcome != Outcome.ERROR) {
+                double interval = Math.Max(Math.Min((drawResult.endUT - drawResult.input_UT) / 1000, 10), 0.1);
+                using (var list = drawResult.WorldTrajectory(interval)) {
+                    if (!MapView.MapIsEnabled && (noSkipToFreefall || vessel.staticPressurekPa > 0))
+                        list.value[0] = vessel.CoM;
+                    GLUtils.DrawPath(drawResult.body, list.value, Color.red, MapView.MapIsEnabled);
+                }
+            }
         }
 
         public void FixedUpdate() {
@@ -147,9 +161,6 @@ namespace kOSMainframe.Landing {
             ReentrySimulation sim = (ReentrySimulation)o;
             try {
                 Result newResult = sim.RunSimulation();
-
-                Logging.Debug("Millis: {0}", millisecondsBetweenSimulations);
-                Logging.Debug(newResult.outcome.ToString());
 
                 lock (readyResults) {
                     readyResults.Enqueue(newResult);
