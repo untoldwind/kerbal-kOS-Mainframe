@@ -102,8 +102,7 @@ namespace kOSMainframe.Landing {
                     }
 
                     // We also periodically run simulations containing deliberate errors if we have been asked to do so by the landing autop
-                    if (doErrorSim && this.runErrorSimulations && !errorSimulationRunning && (errorStopwatch.ElapsedMilliseconds >= millisecondsBetweenErrorSimulations || !errorStopwatch.IsRunning))
-                    {
+                    if (doErrorSim && this.runErrorSimulations && !errorSimulationRunning && (errorStopwatch.ElapsedMilliseconds >= millisecondsBetweenErrorSimulations || !errorStopwatch.IsRunning)) {
                         StartSimulation(true);
                     }
                 }
@@ -149,7 +148,7 @@ namespace kOSMainframe.Landing {
             try {
                 Result newResult = sim.RunSimulation();
 
-                Logging.Debug("Millis: %d", millisecondsBetweenSimulations);
+                Logging.Debug("Millis: {0}", millisecondsBetweenSimulations);
                 Logging.Debug(newResult.outcome.ToString());
 
                 lock (readyResults) {
@@ -182,11 +181,11 @@ namespace kOSMainframe.Landing {
                     millisecondsBetweenSimulations = Math.Min(Math.Max(2 * millisecondsToCompletion, 200), 5);
                     lastSimTime = millisecondsToCompletion * 0.001;
                     lastSimSteps = newResult.steps;
-                    // Do not wait for too long before running another simulation, but also give the processor a rest. 
+                    // Do not wait for too long before running another simulation, but also give the processor a rest.
 
                     // How long should we set the max_dt to be in the future? Calculate for interationsPerSecond runs per second. If we do not enter the atmosphere, however do not do so as we will complete so quickly, it is not a good guide to how long the reentry simulation takes.
                     if (newResult.outcome == Outcome.AEROBRAKED ||
-                        newResult.outcome == Outcome.LANDED) {
+                            newResult.outcome == Outcome.LANDED) {
                         if (this.variabledt) {
                             dt = newResult.maxdt * (millisecondsToCompletion / 1000d) / (1d / (3d * interationsPerSecond));
                             // There is no point in having a dt that is smaller than the physics frame rate as we would be trying to be more precise than the game.
@@ -259,8 +258,7 @@ namespace kOSMainframe.Landing {
                 }
 
                 patch = nextPatch;
-            }
-            while (patch != null);
+            } while (patch != null);
 
             return null;
         }
@@ -284,7 +282,7 @@ namespace kOSMainframe.Landing {
                     //Put the node at periapsis, unless we're past periapsis. In that case put the node at the current time.
                     double UT;
                     if (preAerobrakeOrbit == vessel.orbit &&
-                        vessel.GetAltitudeASL() < targetBody.RealMaxAtmosphereAltitude() && vessel.GetSpeedVertical() > 0) {
+                            vessel.GetAltitudeASL() < targetBody.RealMaxAtmosphereAltitude() && vessel.GetSpeedVertical() > 0) {
                         UT = Planetarium.GetUniversalTime();
                     } else {
                         UT = preAerobrakeOrbit.NextPeriapsisTime(preAerobrakeOrbit.StartUT);
@@ -337,20 +335,18 @@ namespace kOSMainframe.Landing {
         //ensure a safe touchdown speed. How do we tell if the atmosphere is thick enough? We check
         //to see if there is an altitude within the atmosphere for which the characteristic distance
         //over which drag slows the ship is smaller than the altitude above the terrain. If so, we can
-        //expect to get slowed to near terminal velocity before impacting the ground. 
+        //expect to get slowed to near terminal velocity before impacting the ground.
         public bool UseAtmosphereToBrake() {
             double landingSiteDragLength = targetBody.DragLength(LandingAltitude, VesselAverageDrag() + ParachuteAddedDragCoef(), vessel.totalMass);
 
             //if (mainBody.RealMaxAtmosphereAltitude() > 0 && (ParachutesDeployable() || ParachutesDeployed()))
-            if (targetBody.RealMaxAtmosphereAltitude() > 0 && landingSiteDragLength < 0.7 * targetBody.RealMaxAtmosphereAltitude()) // the ratio is totally arbitrary until I get something better
-            {
+            if (targetBody.RealMaxAtmosphereAltitude() > 0 && landingSiteDragLength < 0.7 * targetBody.RealMaxAtmosphereAltitude()) { // the ratio is totally arbitrary until I get something better
                 return true;
             }
             return false;
         }
 
-        public double LandingAltitude // The altitude above sea level of the terrain at the landing site
-          {
+        public double LandingAltitude { // The altitude above sea level of the terrain at the landing site
             get {
                 if (PredictionReady) {
                     // Although we know the landingASL as it is in the prediction, we suspect that
@@ -378,8 +374,7 @@ namespace kOSMainframe.Landing {
             }
         }
 
-        public bool PredictionReady //We shouldn't do any autopilot stuff until this is true
-         {
+        public bool PredictionReady { //We shouldn't do any autopilot stuff until this is true
             get {
                 // Check that there is a prediction and that it is a landing prediction.
                 if (result == null) {

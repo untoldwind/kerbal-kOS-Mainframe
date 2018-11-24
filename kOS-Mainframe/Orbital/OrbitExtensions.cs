@@ -444,10 +444,10 @@ namespace kOSMainframe.Orbital {
 
         public static NodeParameters DeltaVToNode(this Orbit o, double UT, Vector3d dV) {
             return new NodeParameters(UT,
-                                Vector3d.Dot(o.RadialPlus(UT), dV),
-                                Vector3d.Dot(-o.NormalPlus(UT), dV),
-                                Vector3d.Dot(o.Prograde(UT), dV),
-                                dV);
+                                      Vector3d.Dot(o.RadialPlus(UT), dV),
+                                      Vector3d.Dot(-o.NormalPlus(UT), dV),
+                                      Vector3d.Dot(o.Prograde(UT), dV),
+                                      dV);
         }
     }
 }

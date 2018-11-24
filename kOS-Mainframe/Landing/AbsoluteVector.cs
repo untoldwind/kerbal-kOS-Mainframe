@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using kOSMainframe.UnityToolbag;
 
 namespace kOSMainframe.Landing {
     //Why do AbsoluteVector and ReferenceFrame exist? What problem are they trying to solve? Here is the problem.
@@ -30,6 +31,9 @@ namespace kOSMainframe.Landing {
 
     //An AbsoluteVector stores the information needed to unambiguously reconstruct a position or velocity at a later time.
     public struct AbsoluteVector {
+        public static readonly Pool<List<AbsoluteVector>> listPool = new Pool<List<AbsoluteVector>>(
+            () => new List<AbsoluteVector>(), list => list.Clear());
+
         public double latitude;
         public double longitude;
         public double radius;

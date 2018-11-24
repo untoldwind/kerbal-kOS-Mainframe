@@ -136,6 +136,8 @@
     <Compile Include="Orbital\OrbitSOIChange.cs" />
     <Compile Include="Utils\UIDrawer.cs" />
     <Compile Include="Landing\LandingSimulation.cs" />
+    <Compile Include="UnityToolbag\Pool.cs" />
+    <Compile Include="UnityToolbag\Disposable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

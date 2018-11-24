@@ -28,33 +28,27 @@ namespace kOSMainframe.Debugging {
         }
     }
 
-    public class Param1Action : IWindowContent
-    {
-        public string Text
-        {
+    public class Param1Action : IWindowContent {
+        public string Text {
             get;
             set;
         }
-        public Action<double> OnClick
-        {
+        public Action<double> OnClick {
             get;
             set;
         }
-        public string Value
-        {
+        public string Value {
             get;
             set;
         }
 
-        public Param1Action(string text, double value, Action<double> onClick)
-        {
+        public Param1Action(string text, double value, Action<double> onClick) {
             Text = text;
             Value = value.ToString();
             OnClick = onClick;
         }
 
-        public void Draw()
-        {
+        public void Draw() {
             GUILayout.BeginHorizontal();
             Value = GUILayout.TextField(Value, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100));
             if (GUILayout.Button(Text, GUILayout.ExpandWidth(false)))

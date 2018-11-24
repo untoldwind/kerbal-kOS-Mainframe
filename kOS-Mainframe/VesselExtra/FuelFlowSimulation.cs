@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using KSP.UI.Screens;
 using Smooth.Algebraics;
-using Smooth.Dispose;
-using Smooth.Pools;
 using Smooth.Slinq;
 using kOSMainframe.Utils;
 using kOSMainframe.UnityToolbag;
@@ -12,6 +10,9 @@ using kOS;
 
 namespace kOSMainframe.VesselExtra {
     public class FuelFlowSimulation {
+        public static readonly Pool<List<int>> intListPool = new Pool<List<int>>(
+            () => new List<int>(), list => list.Clear());
+
         public int simStage; //the simulated rocket's current stage
         readonly List<FuelNode> nodes = new List<FuelNode>(); //a list of FuelNodes representing all the parts of the ship
         readonly Dictionary<Part, FuelNode> nodeLookup = new Dictionary<Part, FuelNode>();
@@ -191,8 +192,8 @@ namespace kOSMainframe.VesselExtra {
         private void SimulateStageActivation() {
             simStage--;
 
-            using (Disposable<List<FuelNode>> decoupledNodes = ListPool<FuelNode>.Instance.BorrowDisposable()) {
-                nodes.Slinq().Where((n, stage) => n.decoupledInStage == stage, simStage).AddTo(decoupledNodes);
+            using (Disposable<List<FuelNode>> decoupledNodes = FuelNode.listPool.BorrowDisposable()) {
+                nodes.Slinq().Where((n, stage) => n.decoupledInStage == stage, simStage).AddTo(decoupledNodes.value);
 
                 for (int i = 0; i < decoupledNodes.value.Count; i++) {
                     nodes.Remove(decoupledNodes.value[i]); //remove the decoupled nodes from the simulated ship
@@ -223,8 +224,8 @@ namespace kOSMainframe.VesselExtra {
                     return true;
                 }
 
-                using (Disposable<List<int>> burnedResources = ListPool<int>.Instance.BorrowDisposable()) {
-                    activeEngines.value.Slinq().SelectMany(eng => eng.BurnedResources().Slinq()).Distinct().AddTo(burnedResources);
+                using (Disposable<List<int>> burnedResources = intListPool.BorrowDisposable()) {
+                    activeEngines.value.Slinq().SelectMany(eng => eng.BurnedResources().Slinq()).Distinct().AddTo(burnedResources.value);
 
                     //if staging would decouple an active engine or non-empty fuel tank, we're not allowed to stage
                     for (int i = 0; i < nodes.Count; i++) {
@@ -313,7 +314,7 @@ namespace kOSMainframe.VesselExtra {
         //Returns a list of engines that fire during the current simulated stage.
         private Disposable<List<FuelNode>> FindActiveEngines() {
             var param = new Tuple<int, List<FuelNode>>(simStage, nodes);
-            var activeEngines = ListPool<FuelNode>.Instance.BorrowDisposable();
+            var activeEngines = FuelNode.listPool.BorrowDisposable();
             //print("Finding active engines: excluding resource considerations, there are " + nodes.Slinq().Where(n => n.isEngine && n.inverseStage >= simStage).Count());
             nodes.Slinq().Where((n, p) => n.isEngine && n.inverseStage >= p.Item1 && n.isDrawingResources && n.CanDrawNeededResources(p.Item2), param).AddTo(activeEngines.value);
             //print("Finding active engines: including resource considerations, there are " + activeEngines.value.Count);
@@ -324,6 +325,10 @@ namespace kOSMainframe.VesselExtra {
 
     //A FuelNode is a compact summary of a Part, containing only the information needed to run the fuel flow simulation.
     public class FuelNode {
+        public static readonly Pool<List<FuelNode>> listPool = new Pool<List<FuelNode>>(
+            () => new List<FuelNode>(), list => list.Clear());
+
+
         readonly DefaultableDictionary<int, double> resources = new DefaultableDictionary<int, double>(0);       //the resources contained in the part
         readonly KeyableDictionary<int, double> resourceConsumptions = new KeyableDictionary<int, double>();     //the resources this part consumes per unit time when active at full throttle
         readonly DefaultableDictionary<int, double> resourceDrains = new DefaultableDictionary<int, double>(0);  //the resources being drained from this part per unit time at the current simulation time
@@ -872,7 +877,7 @@ namespace kOSMainframe.VesselExtra {
 
         void AssignFuelDrainRateStagePriorityFlow(int type, double amount, bool usePrio, List<FuelNode> vessel) {
             int maxPrio = int.MinValue;
-            using (var dispoSources = ListPool<FuelNode>.Instance.BorrowDisposable()) {
+            using (var dispoSources = FuelNode.listPool.BorrowDisposable()) {
                 var sources = dispoSources.value;
                 //print("AssignFuelDrainRateStagePriorityFlow for " + partName + " searching for " + amount + " of " + PartResourceLibrary.Instance.GetDefinition(type).name + " in " + vessel.Count + " parts ");
                 for (int i = 0; i < vessel.Count; i++) {

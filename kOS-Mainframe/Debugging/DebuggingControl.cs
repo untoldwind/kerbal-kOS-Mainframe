@@ -43,11 +43,10 @@ namespace kOSMainframe.Debugging {
             GUI.DragWindow();
         }
 
-        private void Circularize()
-        {
+        private void Circularize() {
             CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit, Planetarium.GetUniversalTime() + 20));
         }
-        
+
         private void ReturnFromMoon(double targetPrimaryPeriapsis) {
             var nodeParams = OrbitSOIChange.MoonReturnEjection(Vessel.orbit, Planetarium.GetUniversalTime(), targetPrimaryPeriapsis);
 
@@ -72,7 +71,7 @@ namespace kOSMainframe.Debugging {
         }
 
         private ManeuverNode CleanAndAddNode(NodeParameters nodeParams) {
-            if(Vessel.patchedConicSolver.maneuverNodes.Count > 0 ) { 
+            if(Vessel.patchedConicSolver.maneuverNodes.Count > 0 ) {
                 Vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
             }
 

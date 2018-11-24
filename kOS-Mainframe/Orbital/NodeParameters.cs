@@ -2,10 +2,8 @@
 using kOS.Suffixed;
 using System;
 
-namespace kOSMainframe.Orbital
-{
-    public class NodeParameters
-    {
+namespace kOSMainframe.Orbital {
+    public class NodeParameters {
         public static readonly NodeParameters zero = new NodeParameters(0,0,0,0, Vector3d.zero);
 
         public readonly double time;
@@ -18,8 +16,7 @@ namespace kOSMainframe.Orbital
 
         public readonly Vector3d deltaV;
 
-        public NodeParameters(double time, double radialOut, double normal, double prograde, Vector3d deltaV)
-        {
+        public NodeParameters(double time, double radialOut, double normal, double prograde, Vector3d deltaV) {
             this.time = time;
             this.radialOut = radialOut;
             this.normal = normal;
@@ -27,14 +24,12 @@ namespace kOSMainframe.Orbital
             this.deltaV = deltaV;
         }
 
-        public bool Valid
-        {
-            get
-            {
+        public bool Valid {
+            get {
                 return time >= Planetarium.GetUniversalTime() &&
-                    !double.IsNaN(radialOut) && !double.IsInfinity(radialOut) &&
-                    !double.IsNaN(normal) && !double.IsInfinity(normal) &&
-                    !double.IsNaN(prograde) && !double.IsInfinity(prograde);
+                       !double.IsNaN(radialOut) && !double.IsInfinity(radialOut) &&
+                       !double.IsNaN(normal) && !double.IsInfinity(normal) &&
+                       !double.IsNaN(prograde) && !double.IsInfinity(prograde);
             }
         }
 
@@ -44,10 +39,8 @@ namespace kOSMainframe.Orbital
             }
         }
 
-        public ManeuverNode AddToVessel(Vessel vessel)
-        {
-            if(!Valid)
-            {
+        public ManeuverNode AddToVessel(Vessel vessel) {
+            if(!Valid) {
                 throw new Exception("Invalid NodeParameters");
             }
 
@@ -60,8 +53,7 @@ namespace kOSMainframe.Orbital
             return node;
         }
 
-        public Node ToKOS(SharedObjects sharedObj)
-        {
+        public Node ToKOS(SharedObjects sharedObj) {
             return new Node(time, radialOut, normal, prograde, sharedObj);
         }
     }

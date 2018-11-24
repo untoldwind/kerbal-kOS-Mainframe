@@ -1,5 +1,4 @@
-﻿using System;
-using Smooth.Pools;
+﻿using kOSMainframe.UnityToolbag;
 
 namespace kOSMainframe.Simulation {
     // FloatCurve (Unity Animation curve) are not thread safe so we need a local copy of the curves for the thread

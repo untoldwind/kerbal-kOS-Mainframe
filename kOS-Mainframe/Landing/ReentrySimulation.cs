@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Smooth.Pools;
 using kOSMainframe.Orbital;
 using kOSMainframe.Simulation;
+using kOSMainframe.UnityToolbag;
 
 namespace kOSMainframe.Landing {
     public class ReentrySimulation {
@@ -167,7 +167,7 @@ namespace kOSMainframe.Landing {
 
             maxDragGees = 0;
             deltaVExpended = 0;
-            trajectory = ListPool<AbsoluteVector>.Instance.Borrow();
+            trajectory = AbsoluteVector.listPool.Borrow();
 
             simCurves = _simcurves;
 
@@ -246,7 +246,7 @@ namespace kOSMainframe.Landing {
                 result.outcome = Outcome.ERROR;
             } finally {
                 if (trajectory != result.trajectory)
-                    ListPool<AbsoluteVector>.Instance.Release(trajectory);
+                    AbsoluteVector.listPool.Release(trajectory);
                 vessel.Release();
                 simCurves.Release();
             }

@@ -1,28 +1,23 @@
 ﻿using System;
 using kOSMainframe.ExtraMath;
 
-namespace kOSMainframe.Orbital
-{
-    public static class OrbitChange
-    {
+namespace kOSMainframe.Orbital {
+    public static class OrbitChange {
         //Computes the speed of a circular orbit of a given radius for a given body.
-        public static double CircularOrbitSpeed(CelestialBody body, double radius)
-        {
+        public static double CircularOrbitSpeed(CelestialBody body, double radius) {
             //v = sqrt(GM/r)
             return Math.Sqrt(body.gravParameter / radius);
         }
 
         //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
-        public static NodeParameters Circularize(Orbit o, double UT)
-        {
+        public static NodeParameters Circularize(Orbit o, double UT) {
             Vector3d desiredVelocity = CircularOrbitSpeed(o.referenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
             return o.DeltaVToNode(UT,  desiredVelocity - actualVelocity);
         }
 
         //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
-        public static NodeParameters Ellipticize(Orbit o, double UT, double newPeR, double newApR)
-        {
+        public static NodeParameters Ellipticize(Orbit o, double UT, double newPeR, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize inputs
@@ -48,8 +43,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V of the burn required to attain a given periapsis, starting from
         //a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
         //The computed burn is always horizontal, though this may not be strictly optimal.
-        public static NodeParameters ChangePeriapsis(Orbit o, double UT, double newPeR)
-        {
+        public static NodeParameters ChangePeriapsis(Orbit o, double UT, double newPeR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -61,35 +55,27 @@ namespace kOSMainframe.Orbital
 
             double minDeltaV = 0;
             double maxDeltaV;
-            if (raising)
-            {
+            if (raising) {
                 //put an upper bound on the required deltaV:
                 maxDeltaV = 0.25;
-                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).PeR < newPeR)
-                {
+                while (o.PerturbedOrbit(UT, maxDeltaV * burnDirection).PeR < newPeR) {
                     minDeltaV = maxDeltaV; //narrow the range
                     maxDeltaV *= 2;
                     if (maxDeltaV > 100000) break; //a safety precaution
                 }
-            }
-            else
-            {
+            } else {
                 //when lowering periapsis, we burn horizontally, and max possible deltaV is the deltaV required to kill all horizontal velocity
                 maxDeltaV = Math.Abs(Vector3d.Dot(o.SwappedOrbitalVelocityAtUT(UT), burnDirection));
             }
 
             //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01)
-            {
+            while (maxDeltaV - minDeltaV > 0.01) {
                 double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
                 double testPeriapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).PeR;
 
-                if ((testPeriapsis > newPeR && raising) || (testPeriapsis < newPeR && !raising))
-                {
+                if ((testPeriapsis > newPeR && raising) || (testPeriapsis < newPeR && !raising)) {
                     maxDeltaV = testDeltaV;
-                }
-                else
-                {
+                } else {
                     minDeltaV = testDeltaV;
                 }
             }
@@ -97,8 +83,7 @@ namespace kOSMainframe.Orbital
             return o.DeltaVToNode(UT, ((maxDeltaV + minDeltaV) / 2) * burnDirection);
         }
 
-        public static bool ApoapsisIsHigher(double ApR, double than)
-        {
+        public static bool ApoapsisIsHigher(double ApR, double than) {
             if (than > 0 && ApR < 0) return true;
             if (than < 0 && ApR > 0) return false;
             return ApR > than;
@@ -107,8 +92,7 @@ namespace kOSMainframe.Orbital
         //Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
         //The computed burn is always prograde or retrograde, though this may not be strictly optimal.
         //Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
-        public static NodeParameters ChangeApoapsis(Orbit o, double UT, double newApR)
-        {
+        public static NodeParameters ChangeApoapsis(Orbit o, double UT, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -121,40 +105,32 @@ namespace kOSMainframe.Orbital
 
             double minDeltaV = 0;
             double maxDeltaV;
-            if (raising)
-            {
+            if (raising) {
                 //put an upper bound on the required deltaV:
                 maxDeltaV = 0.25;
 
                 double ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
-                while (ApoapsisIsHigher(newApR, ap))
-                {
+                while (ApoapsisIsHigher(newApR, ap)) {
                     minDeltaV = maxDeltaV; //narrow the range
                     maxDeltaV *= 2;
                     ap = o.PerturbedOrbit(UT, maxDeltaV * burnDirection).ApR;
                     if (maxDeltaV > 100000) break; //a safety precaution
                 }
-            }
-            else
-            {
+            } else {
                 //when lowering apoapsis, we burn retrograde, and max possible deltaV is total velocity
                 maxDeltaV = o.SwappedOrbitalVelocityAtUT(UT).magnitude;
             }
 
             //now do a binary search to find the needed delta-v
-            while (maxDeltaV - minDeltaV > 0.01)
-            {
+            while (maxDeltaV - minDeltaV > 0.01) {
                 double testDeltaV = (maxDeltaV + minDeltaV) / 2.0;
                 double testApoapsis = o.PerturbedOrbit(UT, testDeltaV * burnDirection).ApR;
 
                 bool above = ApoapsisIsHigher(testApoapsis, newApR);
 
-                if ((raising && above) || (!raising && !above))
-                {
+                if ((raising && above) || (!raising && !above)) {
                     maxDeltaV = testDeltaV;
-                }
-                else
-                {
+                } else {
                     minDeltaV = testDeltaV;
                 }
             }
@@ -170,8 +146,7 @@ namespace kOSMainframe.Orbital
         //   - first, clamp newInclination to the range -180, 180
         //   - if newInclination > 0, do the cheaper burn to set that inclination
         //   - if newInclination < 0, do the more expensive burn to set that inclination
-        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination)
-        {
+        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination) {
             double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
             double desiredHeading = OrbitToGround.HeadingForInclination(newInclination, latitude);
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));

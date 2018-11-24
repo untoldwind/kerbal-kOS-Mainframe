@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using kOSMainframe.Orbital;
 using kOSMainframe.ExtraMath;
 using kOSMainframe.Simulation;
-using Smooth.Pools;
-using Smooth.Dispose;
+using kOSMainframe.UnityToolbag;
 using UnityEngine;
 
 namespace kOSMainframe.Landing {
@@ -68,6 +67,8 @@ namespace kOSMainframe.Landing {
         public string debugLog;
 
         private static readonly Pool<Result> pool = new Pool<Result>(Create, Reset);
+        private static readonly Pool<List<Vector3d>> vectorListPool = new Pool<List<Vector3d>>(
+            () => new List<Vector3d>(), list => list.Clear());
 
         public static int PoolSize {
             get {
@@ -81,7 +82,7 @@ namespace kOSMainframe.Landing {
 
         public void Release() {
             if (trajectory != null)
-                ListPool<AbsoluteVector>.Instance.Release(trajectory);
+                AbsoluteVector.listPool.Release(trajectory);
             exception = null;
             pool.Release(this);
         }
@@ -127,7 +128,7 @@ namespace kOSMainframe.Landing {
         }
 
         public Disposable<List<Vector3d>> WorldTrajectory(double timeStep, bool world = true) {
-            Disposable<List<Vector3d>> ret = ListPool<Vector3d>.Instance.BorrowDisposable();
+            Disposable<List<Vector3d>> ret = vectorListPool.BorrowDisposable();
 
             if (trajectory.Count == 0) return ret;
 

@@ -2,10 +2,8 @@
 using kOSMainframe.ExtraMath;
 using kOSMainframe.VesselExtra;
 
-namespace kOSMainframe.Orbital
-{
-    public static class OrbitToGround
-    {
+namespace kOSMainframe.Orbital {
+    public static class OrbitToGround {
         //Computes the heading of the ground track of an orbit with a given inclination at a given latitude.
         //Both inputs are in degrees.
         //Convention: At equator, inclination    0 => heading 90 (east)
@@ -15,17 +13,13 @@ namespace kOSMainframe.Orbital
         //Returned heading is in degrees and in the range 0 to 360.
         //If the given latitude is too large, so that an orbit with a given inclination never attains the
         //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForInclination(double inclinationDegrees, double latitudeDegrees)
-        {
+        public static double HeadingForInclination(double inclinationDegrees, double latitudeDegrees) {
             double cosDesiredSurfaceAngle = Math.Cos(inclinationDegrees * UtilMath.Deg2Rad) / Math.Cos(latitudeDegrees * UtilMath.Deg2Rad);
-            if (Math.Abs(cosDesiredSurfaceAngle) > 1.0)
-            {
+            if (Math.Abs(cosDesiredSurfaceAngle) > 1.0) {
                 //If inclination < latitude, we get this case: the desired inclination is impossible
                 if (Math.Abs(Functions.ClampDegrees180(inclinationDegrees)) < 90) return 90;
                 else return 270;
-            }
-            else
-            {
+            } else {
                 double angleFromEast = (UtilMath.Rad2Deg) * Math.Acos(cosDesiredSurfaceAngle); //an angle between 0 and 180
                 if (inclinationDegrees < 0) angleFromEast *= -1;
                 //now angleFromEast is between -180 and 180
@@ -44,8 +38,7 @@ namespace kOSMainframe.Orbital
         //Returned heading is in degrees and in the range 0 to 360.
         //If the given latitude is too large, so that an orbit with a given inclination never attains the
         //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
-        public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees)
-        {
+        public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
             CelestialBody body = vessel.mainBody;
             double latitudeDegrees = vessel.latitude;
             double orbVel = OrbitChange.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
@@ -67,8 +60,7 @@ namespace kOSMainframe.Orbital
             Vector3d desiredHorizontalVelocity;
             Vector3d deltaHorizontalVelocity;
 
-            if (vessel.GetSpeedSurfaceHorizontal() < 200)
-            {
+            if (vessel.GetSpeedSurfaceHorizontal() < 200) {
                 // at initial launch we have to head the direction the user specifies (90 north instead of -90 south).
                 // 200 m/s of surface velocity also defines a 'grace period' where someone can catch a rocket that they meant
                 // to launch at -90 and typed 90 into the inclination box fast after it started to initiate the turn.
@@ -76,18 +68,13 @@ namespace kOSMainframe.Orbital
                 // take a south travelling rocket and turn north or vice versa.
                 desiredHorizontalVelocity = desiredHorizontalVelocityOne;
                 deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-            }
-            else
-            {
+            } else {
                 // now in order to get great circle tracks correct we pick the side which gives the lowest delta-V, which will get
                 // ground tracks that cross the maximum (or minimum) latitude of a great circle correct.
-                if (deltaHorizontalVelocityOne.magnitude < deltaHorizontalVelocityTwo.magnitude)
-                {
+                if (deltaHorizontalVelocityOne.magnitude < deltaHorizontalVelocityTwo.magnitude) {
                     desiredHorizontalVelocity = desiredHorizontalVelocityOne;
                     deltaHorizontalVelocity = deltaHorizontalVelocityOne;
-                }
-                else
-                {
+                } else {
                     desiredHorizontalVelocity = desiredHorizontalVelocityTwo;
                     deltaHorizontalVelocity = deltaHorizontalVelocityTwo;
                 }
@@ -95,8 +82,7 @@ namespace kOSMainframe.Orbital
 
             // if you circularize in one burn, towards the end deltaHorizontalVelocity will whip around, but we want to
             // fall back to tracking desiredHorizontalVelocity
-            if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90)
-            {
+            if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90) {
                 // it is important that we do NOT do the fracReserveDV math here, we want to ignore the deltaHV entirely at ths point
                 return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(desiredHorizontalVelocity, east), Vector3d.Dot(desiredHorizontalVelocity, north)));
             }
