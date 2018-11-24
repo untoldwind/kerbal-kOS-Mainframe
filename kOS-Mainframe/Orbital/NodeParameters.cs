@@ -38,6 +38,12 @@ namespace kOSMainframe.Orbital
             }
         }
 
+        public Vector3d NodeDeltaV {
+            get {
+                return new Vector3d(radialOut, normal, prograde);
+            }
+        }
+
         public ManeuverNode AddToVessel(Vessel vessel)
         {
             if(!Valid)
@@ -47,7 +53,7 @@ namespace kOSMainframe.Orbital
 
             ManeuverNode node = vessel.patchedConicSolver.AddManeuverNode(this.time);
 
-            node.DeltaV = new Vector3d(this.radialOut, this.normal, this.prograde);
+            node.DeltaV = NodeDeltaV;
 
             vessel.patchedConicSolver.UpdateFlightPlan();
 

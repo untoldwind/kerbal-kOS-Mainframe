@@ -170,10 +170,7 @@ namespace kOSMainframe {
         }
 
         private Node ReturnFromMoon(ScalarValue targetPrimaryRadius) {
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForMoonReturnEjection(orbit, minUT, targetPrimaryRadius, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitSOIChange.MoonReturnEjection(orbit, minUT, targetPrimaryRadius).ToKOS(Shared);
         }
 
         private Node NodeFromDeltaV(Vector3d deltaV, double UT) {

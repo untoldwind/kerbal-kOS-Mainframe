@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using kOSMainframe.Orbital;
 
-namespace MuMech {
+namespace kOSMainframe.Utils {
     public static class GLUtils {
         static Material _material;
         static Material material {
