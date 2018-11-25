@@ -138,6 +138,14 @@
     <Compile Include="Landing\LandingSimulation.cs" />
     <Compile Include="UnityToolbag\Pool.cs" />
     <Compile Include="UnityToolbag\Disposable.cs" />
+    <Compile Include="Simulation\StockAeroUtil.cs" />
+    <Compile Include="Simulation\VesselAerodynamicModel.cs" />
+    <Compile Include="Simulation\AeroForceCache.cs" />
+    <Compile Include="Simulation\StockModel.cs" />
+    <Compile Include="Simulation\FARModel.cs" />
+    <Compile Include="ExtraMath\SecantSolver.cs" />
+    <Compile Include="ExtraMath\BrentSolver.cs" />
+    <Compile Include="ExtraMath\BrentOptimizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
