@@ -120,13 +120,6 @@ namespace kOSMainframe.Simulation {
             for (int i = 0; i < _vessel.Parts.Count; ++i) {
                 // need checks on shielded components
                 Part p = _vessel.Parts[i];
-#if DEBUG
-                TrajectoriesDebug partDebug = VesselAerodynamicModel.DebugParts ? p.FindModuleImplementing<TrajectoriesDebug>() : null;
-                if (partDebug != null) {
-                    partDebug.Drag = 0;
-                    partDebug.Lift = 0;
-                }
-#endif
 
                 if (p.ShieldedFromAirstream || p.Rigidbody == null) {
                     continue;
@@ -190,11 +183,6 @@ namespace kOSMainframe.Simulation {
                     break;
                 }
 
-#if DEBUG
-                if (partDebug != null) {
-                    partDebug.Drag += (float)dragForce.magnitude;
-                }
-#endif
                 total_drag += dragForce;
 
                 // If it isn't a wing or lifter, get body lift.
@@ -231,12 +219,6 @@ namespace kOSMainframe.Simulation {
                         total_lift += local_lift;
                         total_drag += local_drag;
 
-#if DEBUG
-                        if (partDebug != null) {
-                            partDebug.Lift += (float)local_lift.magnitude;
-                            partDebug.Drag += (float)local_drag.magnitude;
-                        }
-#endif
                     }
                 }
 
