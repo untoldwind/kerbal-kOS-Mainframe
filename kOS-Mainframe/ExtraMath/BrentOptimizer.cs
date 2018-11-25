@@ -6,7 +6,7 @@ namespace kOSMainframe.ExtraMath {
         private static double TINY = 1.0e-20;
         private static double CGOLD = 0.3819660;
 
-        public static double Optimize(Function func, double a, double b, double tollerance, int maxIterations) {
+        public static double Optimize(Function func, double a, double b, double tollerance, int maxIterations, out double fmin) {
             double ax, bx, cx, fa, fb, fc;
 
             Bracket(func, a, b, out ax, out bx, out cx, out fa, out fb, out fc);
@@ -22,6 +22,7 @@ namespace kOSMainframe.ExtraMath {
                 double tol1 = tollerance * Math.Abs(x) + double.Epsilon;
                 double tol2 = 2.0 * tol1;
                 if (Math.Abs(x-xm) <= (tol2 - 0.5 *(b-a))) {
+                    fmin = fx;
                     return x;
                 }
                 if(Math.Abs(e) > tol1) {
