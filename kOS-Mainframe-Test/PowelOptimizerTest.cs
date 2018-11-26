@@ -14,7 +14,13 @@ namespace kOSMainframeTest {
 
         [Test]
         public void TestMinimize3() {
+            TestFunc3 func = new TestFunc3();
+            double fmin;
+            Vector3d min = PowelOpimizer.Optimize(func, new Vector3d(1.5, 1.5, 2.5), 1e-6, 1000, out fmin);
 
+            Assert.AreEqual(1.0, min.x, 1e-4);
+            Assert.AreEqual(2.0, min.y, 1e-4);
+            Assert.AreEqual(3.0, min.z, 1e-4);
         }
     }
 }

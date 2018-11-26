@@ -1,6 +1,8 @@
 ﻿using System;
 namespace kOSMainframe.ExtraMath {
     public static class BrentSolver {
+        private const double EPS = 1e-15;
+
         public static double Solve(Function f, double x1, double x2, double tolerance, int maxIterations) {
             double a = x1;
             double b = x2;
@@ -31,7 +33,7 @@ namespace kOSMainframe.ExtraMath {
                     fb = fc;
                     fc = fa;
                 }
-                double tol1 = 2.0 * double.Epsilon * Math.Abs(b) + 0.5 * tolerance;
+                double tol1 = 2.0 * EPS * Math.Abs(b) + 0.5 * tolerance;
                 double xm = 0.5 * (c - b);
                 if (Math.Abs(xm) <= tol1 || fb == 0.0) return b;
                 if(Math.Abs(e) >= tol1 && Math.Abs(fa) > Math.Abs(fb)) {

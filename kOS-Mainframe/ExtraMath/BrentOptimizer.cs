@@ -5,6 +5,7 @@ namespace kOSMainframe.ExtraMath {
         private const double GLIMIT = 100.0;
         private const double TINY = 1.0e-20;
         private const double CGOLD = 0.3819660;
+        private const double ZEPS = 1e-18;
 
         public static double Optimize(Function func, double a, double b, double tollerance, int maxIterations, out double fmin) {
             double ax, bx, cx, fa, fb, fc;
@@ -19,7 +20,7 @@ namespace kOSMainframe.ExtraMath {
 
             for (int i = 0; i < maxIterations; i++ ) {
                 double xm = 0.5 * (a + b);
-                double tol1 = tollerance * Math.Abs(x) + double.Epsilon;
+                double tol1 = tollerance * Math.Abs(x) + ZEPS;
                 double tol2 = 2.0 * tol1;
                 if (Math.Abs(x-xm) <= (tol2 - 0.5 *(b-a))) {
                     fmin = fx;

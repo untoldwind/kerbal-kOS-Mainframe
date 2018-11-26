@@ -42,12 +42,7 @@ namespace kOSMainframe.ExtraMath {
                 }
                 double rtol = 2.0 * Math.Abs(y[ihi] - y[ilo]) / (Math.Abs(y[ihi]) + Math.Abs(y[ilo]) + TINY);
                 if (rtol < tolerance) {
-                    temp = y[0];
-                    y[0] = y[ilo];
-                    y[ilo] = temp;
-                    tempP = p[0];
-                    p[0] = p[ilo];
-                    p[ilo] = tempP;
+                    return psum / npts;
                 }
                 if (nfunc >= maxIterations) {
                     throw new Exception("AmoebaOptimizer reached iteration limit of " + maxIterations + " on " + func.ToString());
@@ -115,12 +110,7 @@ namespace kOSMainframe.ExtraMath {
                 }
                 double rtol = 2.0 * Math.Abs(y[ihi] - y[ilo]) / (Math.Abs(y[ihi]) + Math.Abs(y[ilo]) + TINY);
                 if (rtol < tolerance) {
-                    temp = y[0];
-                    y[0] = y[ilo];
-                    y[ilo] = temp;
-                    tempP = p[0];
-                    p[0] = p[ilo];
-                    p[ilo] = tempP;
+                    return psum / npts;
                 }
                 if (nfunc >= maxIterations) {
                     throw new Exception("AmoebaOptimizer reached iteration limit of " + maxIterations + " on " + func.ToString());
