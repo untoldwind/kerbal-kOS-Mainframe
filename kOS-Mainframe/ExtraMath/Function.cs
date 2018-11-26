@@ -17,4 +17,17 @@ namespace kOSMainframe.ExtraMath {
     public interface Function4 {
         double Evaluate(Vector4d p);
     }
+
+    public class DelegateFunction : Function {
+        public delegate double delegate_func(double x);
+        private delegate_func func;
+
+        public DelegateFunction(delegate_func func) {
+            this.func = func;
+        }
+
+        public double Evaluate(double x) {
+            return func(x);
+        }
+    }
 }

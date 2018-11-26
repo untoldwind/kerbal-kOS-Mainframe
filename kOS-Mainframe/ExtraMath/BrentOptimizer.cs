@@ -1,10 +1,10 @@
 ﻿using System;
 namespace kOSMainframe.ExtraMath {
     public class BrentOptimizer {
-        private static double GOLD = 1.618034;
-        private static double GLIMIT = 100.0;
-        private static double TINY = 1.0e-20;
-        private static double CGOLD = 0.3819660;
+        private const double GOLD = 1.618034;
+        private const double GLIMIT = 100.0;
+        private const double TINY = 1.0e-20;
+        private const double CGOLD = 0.3819660;
 
         public static double Optimize(Function func, double a, double b, double tollerance, int maxIterations, out double fmin) {
             double ax, bx, cx, fa, fb, fc;

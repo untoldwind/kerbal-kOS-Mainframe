@@ -32,13 +32,29 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\KSP\KSP_linux\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\KSP\KSP_linux\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleTests.cs" />
+    <Compile Include="Bessel.cs" />
+    <Compile Include="BesselTests.cs" />
+    <Compile Include="BrentOptimizerTest.cs" />
+    <Compile Include="PowelOptimizerTest.cs" />
+    <Compile Include="AmoebaOptimizerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\kOS-Mainframe\kOS-Mainframe.csproj">
+      <Project>{0519264E-57B5-4796-A7B2-F02A37927E87}</Project>
+      <Name>kOS-Mainframe</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

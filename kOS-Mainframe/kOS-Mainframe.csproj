@@ -148,6 +148,7 @@
     <Compile Include="ExtraMath\BrentOptimizer.cs" />
     <Compile Include="ExtraMath\LineMinOptimizer.cs" />
     <Compile Include="ExtraMath\PowelOpimizer.cs" />
+    <Compile Include="ExtraMath\AmoebaOptimizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

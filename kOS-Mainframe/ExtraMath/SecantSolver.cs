@@ -21,7 +21,7 @@ namespace kOSMainframe.ExtraMath {
                 f1 = f;
                 rts += dx;
                 f = p.Evaluate(rts);
-                if (Math.Abs(dx) < tolerance || f == 0.0) return rts;
+                if (Math.Abs(dx) < tolerance || Math.Abs(f) < tolerance) return rts;
             }
             throw new Exception("SecantSolver reached iteration limit of " + maxIterations + " on " + p.ToString());
         }
