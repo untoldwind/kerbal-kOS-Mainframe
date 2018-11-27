@@ -6,8 +6,7 @@ namespace kOSMainframeTest {
     [TestFixture]
     public class LambertSolverTests {
         [Test]
-        public void TestSimpleTransfer()
-        {
+        public void TestSimpleTransfer() {
         }
     }
 }

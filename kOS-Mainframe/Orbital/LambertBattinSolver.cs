@@ -13,9 +13,7 @@ namespace kOSMainframe.Orbital {
     //There are always two solutions to Lambert's problem, a "short way," which traverses < 180 degrees,
     //and a "long way," which traverses > 180 degrees. The shortway input says which of these solutions to find.
     public static class LambertSolver {
-        public static void Solve(Vector3d R1, Vector3d R2, double dt, CelestialBody primary, bool shortway, out Vector3d V1, out Vector3d V2) {
-            double muCB = primary.gravParameter;
-
+        public static void Solve(Vector3d R1, Vector3d R2, double dt, double muCB, bool shortway, out Vector3d V1, out Vector3d V2) {
             double R1mag = R1.magnitude;
             double R2mag = R2.magnitude;
 

@@ -128,12 +128,12 @@ namespace kOSMainframe.Orbital {
 
             Vector3d transferVi, transferVf;
 
-            LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody, shortway, out transferVi, out transferVf);
+            LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
             // GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
 
             if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
-                LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody, shortway, out transferVi, out transferVf);
+                LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
                 //GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
             }
 
@@ -193,7 +193,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d velAfterBurn;
             Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(burnUT), interceptTarget - o.referenceBody.position, collisionUT - burnUT, o.referenceBody, true, out velAfterBurn, out arrivalVel);
+            LambertSolver.Solve(o.SwappedRelativePositionAtUT(burnUT), interceptTarget - o.referenceBody.position, collisionUT - burnUT, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
 
             Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(burnUT);
             return deltaV;
@@ -211,7 +211,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d velAfterBurn;
             Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(burnUT), interceptTarget - o.referenceBody.position, collisionUT - burnUT, o.referenceBody, true, out velAfterBurn, out arrivalVel);
+            LambertSolver.Solve(o.SwappedRelativePositionAtUT(burnUT), interceptTarget - o.referenceBody.position, collisionUT - burnUT, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
 
             Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(burnUT);
             return deltaV;

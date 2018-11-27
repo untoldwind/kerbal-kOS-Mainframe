@@ -60,7 +60,7 @@
     <Compile Include="kOSMainFramePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="kOSMainFrameAddon.cs" />
-    <Compile Include="Orbital\LambertSolver.cs" />
+    <Compile Include="Orbital\LambertBattinSolver.cs" />
     <Compile Include="ExtraMath\Hyperbolic.cs" />
     <Compile Include="ExtraMath\PolynomialFunction.cs" />
     <Compile Include="ExtraMath\Function.cs" />
@@ -149,6 +149,8 @@
     <Compile Include="ExtraMath\PowelOpimizer.cs" />
     <Compile Include="ExtraMath\AmoebaOptimizer.cs" />
     <Compile Include="ExtraMath\LineMinOptimizer.cs" />
+    <Compile Include="VesselExtendedInfo.cs" />
+    <Compile Include="BurnTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
