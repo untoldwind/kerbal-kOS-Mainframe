@@ -14,8 +14,6 @@ namespace kOSMainframe.ExtraMath {
         public static Vector2d Optimize(Function2 func, Vector2d[] p, double tolerance, int maxIterations) {
             int npts = p.Length;
             int nfunc = 0;
-            double temp;
-            Vector2d tempP;
             Vector2d psum = new Vector2d(0.0, 0.0);
             double[] y = new double[npts];
 
@@ -82,8 +80,6 @@ namespace kOSMainframe.ExtraMath {
         public static Vector3d Optimize(Function3 func, Vector3d[] p, double tolerance, int maxIterations) {
             int npts = p.Length;
             int nfunc = 0;
-            double temp;
-            Vector3d tempP;
             Vector3d psum = new Vector3d(0.0, 0.0, 0.0);
             double[] y = new double[npts];
 
