@@ -4,9 +4,27 @@ using kOS.Safe.Encapsulation.Suffixes;
 using kOS.Suffixed;
 using kOS.Serialization;
 using kOSMainframe.VesselExtra;
-using System;
+using Math = System.Math;
 
 namespace kOSMainframe {
+    [kOS.Safe.Utilities.KOSNomenclature("BurnTime")]
+    public class BurnTime : Structure {
+        public readonly TimeSpan full;
+        public readonly TimeSpan half;
+
+        public BurnTime(double fullUT, double halfUT) {
+            full = new TimeSpan(fullUT);
+            half = new TimeSpan(halfUT);
+
+            InitializeSuffixes();
+        }
+
+        private void InitializeSuffixes() {
+            AddSuffix("FULL", new Suffix<TimeSpan>(() => full));
+            AddSuffix("HALF", new Suffix<TimeSpan>(() => half));
+        }
+    }
+
     [kOS.Safe.Utilities.KOSNomenclature("VesselExtendedInfo")]
     public class VesselExtendedInfo : Structure, IHasSharedObjects  {
         public SharedObjects Shared {

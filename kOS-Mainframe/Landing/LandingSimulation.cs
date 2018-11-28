@@ -45,14 +45,38 @@ namespace kOSMainframe.Landing {
         public bool runErrorSimulations = false;
         protected const int interationsPerSecond = 5;
 
+        public static LandingSimulation Current {
+            get {
+                return kOSMainFramePlugin.Instance.GetComponent<LandingSimulation>();
+            }
+        }
+
+        public CelestialBody Body {
+            get {
+                return targetBody;
+            }
+        }
+
+        public double Latitude {
+            get {
+                return targetLatitude;
+            }
+        }
+
+        public double Longitude {
+            get {
+                return targetLongitude;
+            }
+        }
+
         public static void Start(Vessel vessel, double latitude, double longitude) {
-            LandingSimulation simulation = kOSMainFramePlugin.Instance.GetComponent<LandingSimulation>() ?? (kOSMainFramePlugin.Instance.AddComponent(typeof(LandingSimulation)) as LandingSimulation);
+            LandingSimulation simulation = Current ?? (kOSMainFramePlugin.Instance.AddComponent(typeof(LandingSimulation)) as LandingSimulation);
 
             simulation.SetTarget(vessel, latitude, longitude);
         }
 
         public static void Stop() {
-            LandingSimulation simulation = kOSMainFramePlugin.Instance.GetComponent<LandingSimulation>();
+            LandingSimulation simulation = Current;
 
             if(simulation != null) {
                 Object.Destroy(simulation);
