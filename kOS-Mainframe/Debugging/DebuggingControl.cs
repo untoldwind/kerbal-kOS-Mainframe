@@ -25,7 +25,8 @@ namespace kOSMainframe.Debugging {
                 new Button("Circularize", Circularize),
                 new Param1Action("ReturnFromMoon", 100000, ReturnFromMoon),
                 new Param2Action("Start Landing Sim", 0, 0, StartLandingSim),
-                new Button("Stop Landing Sim", StopLandingSim)
+                new Button("Stop Landing Sim", StopLandingSim),
+                new Button("Biinjective transfer", BiinjectiveTransfer),
             };
         }
 
@@ -70,6 +71,15 @@ namespace kOSMainframe.Debugging {
             LandingSimulation.Stop();
         }
 
+        private void BiinjectiveTransfer()
+        {
+            var target = Vessel.targetObject;
+            if (target == null) return;
+            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime());
+
+            CleanAndAddNode(nodeParams);
+        }
+
         private ManeuverNode CleanAndAddNode(NodeParameters nodeParams) {
             if(Vessel.patchedConicSolver.maneuverNodes.Count > 0 ) {
                 Vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
@@ -77,5 +87,6 @@ namespace kOSMainframe.Debugging {
 
             return nodeParams.AddToVessel(Vessel);
         }
+
     }
 }

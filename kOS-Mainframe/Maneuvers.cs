@@ -108,73 +108,47 @@ namespace kOSMainframe {
 
         private Node Hohmann(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForHohmannTransfer(orbit, target, minUT, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.HohmannTransfer(orbit, target, minUT).ToKOS(Shared);
         }
 
         private Node HohmannLambert(OrbitInfo targetInfo, ScalarValue subtractProgradeDV) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForHohmannLambertTransfer(orbit, target, minUT, out burnUT, subtractProgradeDV);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.HohmannLambertTransfer(orbit, target, minUT, subtractProgradeDV).ToKOS(Shared);
         }
 
         private Node BiImpulsive(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForBiImpulsiveAnnealed(orbit, target, minUT, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(Shared);
         }
 
         private Node CourseCorrection(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            var deltaV = OrbitalManeuverCalculator.DeltaVForCourseCorrection(orbit, minUT, target);
-
-            return NodeFromDeltaV(deltaV, minUT);
+            return OrbitIntercept.CourseCorrection(orbit, minUT, target).ToKOS(Shared);
         }
 
         private Node CheapestCourseCorrection(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForCheapestCourseCorrection(orbit, minUT, target, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target).ToKOS(Shared);
         }
 
         private Node CheapestCourseCorrectionBody(BodyTarget body, ScalarValue finalPeR) {
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForCheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR).ToKOS(Shared);
         }
 
         private Node CheapestCourseCorrectionDist(OrbitInfo targetInfo, ScalarValue caDistance) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
-            double burnUT = 0;
-            var deltaV = OrbitalManeuverCalculator.DeltaVAndTimeForCheapestCourseCorrection(orbit, minUT, target, caDistance, out burnUT);
-
-            return NodeFromDeltaV(deltaV, burnUT);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target, caDistance).ToKOS(Shared);
         }
 
         private Node MatchVelocities(OrbitInfo targetInfo) {
             var target = GetOrbitFromOrbitInfo(targetInfo);
             double collisionUT = orbit.NextClosestApproachTime(target, minUT);
 
-            var deltaV = OrbitalManeuverCalculator.DeltaVToMatchVelocities(orbit, collisionUT, target);
-
-            return NodeFromDeltaV(deltaV, collisionUT);
+            return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(Shared);
         }
 
         private Node ReturnFromMoon(ScalarValue targetPrimaryRadius) {
             return OrbitSOIChange.MoonReturnEjection(orbit, minUT, targetPrimaryRadius).ToKOS(Shared);
-        }
-
-        private Node NodeFromDeltaV(Vector3d deltaV, double UT) {
-            return orbit.DeltaVToNode(UT, deltaV).ToKOS(Shared);
         }
 
         private static Orbit GetOrbitFromOrbitInfo(OrbitInfo orbitInfo) {

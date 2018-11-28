@@ -56,5 +56,10 @@ namespace kOSMainframe.Orbital {
         public Node ToKOS(SharedObjects sharedObj) {
             return new Node(time, radialOut, normal, prograde, sharedObj);
         }
+
+        public override string ToString()
+        {
+            return $"NodeParameters(time={time},dV={deltaV},r={radialOut},n={normal},p={prograde})";
+        }
     }
 }

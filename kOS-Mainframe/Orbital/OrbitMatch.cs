@@ -22,5 +22,12 @@ namespace kOSMainframe.Orbital {
             Vector3d desiredHorizontalVelocity = actualHorizontalVelocity.magnitude * desiredHorizontal;
             return o.DeltaVToNode(burnUT, desiredHorizontalVelocity - actualHorizontalVelocity);
         }
+
+        //Computes the delta-V of the burn at a given time required to zero out the difference in orbital velocities
+        //between a given orbit and a target.
+        public static NodeParameters MatchVelocities(Orbit o, double UT, Orbit target)
+        {
+            return o.DeltaVToNode(UT, target.SwappedOrbitalVelocityAtUT(UT) - o.SwappedOrbitalVelocityAtUT(UT));
+        }
     }
 }

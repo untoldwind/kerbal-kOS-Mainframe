@@ -150,6 +150,7 @@
     <Compile Include="ExtraMath\AmoebaOptimizer.cs" />
     <Compile Include="ExtraMath\LineMinOptimizer.cs" />
     <Compile Include="VesselExtendedInfo.cs" />
+    <Compile Include="Orbital\OrbitIntercept.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

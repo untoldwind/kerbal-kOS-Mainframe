@@ -81,6 +81,12 @@ namespace kOSMainframe.Orbital {
             return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(UT), o.SwappedOrbitalVelocityAtUT(UT) + dV, o.referenceBody, UT);
         }
 
+        public static Orbit PerturbedOrbit(this Orbit o, NodeParameters nodeParams)
+        {
+            //should these in fact be swapped?
+            return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(nodeParams.time), o.SwappedOrbitalVelocityAtUT(nodeParams.time) + nodeParams.deltaV, o.referenceBody, nodeParams.time);
+        }
+
         // This does not allocate a new orbit object and the caller should call new Orbit if/when required
         public static void MutatedOrbit(this Orbit o, double periodOffset = Double.NegativeInfinity) {
             double UT = Planetarium.GetUniversalTime();
