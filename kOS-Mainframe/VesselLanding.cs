@@ -36,7 +36,8 @@ namespace kOSMainframe {
             AddSuffix("PREDICTION_RUNNING", new Suffix<BooleanValue>(PredictionRunning));
             AddSuffix("PREDICTED_OUTCOME", new Suffix<StringValue>(GetOutcome));
             AddSuffix("PREDICTED_SITE", new Suffix<Vector>(GetLandingSite));
-            AddSuffix("PREDICTED_TIME", new Suffix<TimeSpan>(GetLandingTime));
+            AddSuffix("PREDICTED_BREAK_TIME", new Suffix<TimeSpan>(GetDeaccelerationTime));
+            AddSuffix("PREDICTED_LAND_TIME", new Suffix<TimeSpan>(GetLandingTime));
             AddSuffix("COURSE_CORRECTION", new TwoArgsSuffix<Node, TimeSpan, BooleanValue>(CourseCorrection));
         }
 
@@ -94,6 +95,14 @@ namespace kOSMainframe {
             if (result == null && result.outcome != Outcome.LANDED) return Vector.Zero;
 
             return new Vector(result.RelativeEndPosition());
+        }
+
+        private TimeSpan GetDeaccelerationTime()
+        {
+            var result = LandingSimulation.Current?.result;
+            if (result == null && result.outcome != Outcome.LANDED) return new TimeSpan(Planetarium.GetUniversalTime());
+
+            return new TimeSpan(result.startUT);
         }
 
         private TimeSpan GetLandingTime() {

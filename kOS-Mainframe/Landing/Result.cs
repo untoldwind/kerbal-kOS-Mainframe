@@ -30,6 +30,7 @@ namespace kOSMainframe.Landing {
 
         public CelestialBody body;
         public ReferenceFrame referenceFrame;
+        public double startUT;
         public double endUT;
 
         public AbsoluteVector startPosition;

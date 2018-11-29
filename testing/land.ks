@@ -94,6 +94,12 @@ function vacLandPrepareDeorbit {
     uiDebug("Deorbit: Deorbit burn done"). 
 }
 
+function vacCourseCorrection {
+    add addons:mainframe:landing:course_correction(TIME + 20, false).
+    WAIT 0.
+    mainframeExecNode(). 
+}
+
 function vacLand {
     parameter LandLat is 0.
     parameter LandLng is 0.
@@ -104,5 +110,11 @@ function vacLand {
 
     if ship:status = "ORBITING" {
         vacLandPrepareDeorbit(LandingSite).
+    }
+    vacCourseCorrection().
+
+    print addons:mainframe:landing:predicted_break_time.
+    if addons:mainframe:landing:predicted_break_time > TIME + 40 {
+        warpSeconds(addons:mainframe:landing:predicted_break_time:SECONDS - TIME:SECONDS - 40).
     }
 }

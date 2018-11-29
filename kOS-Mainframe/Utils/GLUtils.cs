@@ -14,11 +14,11 @@ namespace kOSMainframe.Utils {
             }
         }
 
-        public static void DrawMapViewGroundMarker(CelestialBody body, double latitude, double longitude, Color c,  double rotation = 0, double radius = 0) {
-            DrawGroundMarker(body, latitude, longitude, c, true, rotation, radius);
+        public static void DrawMapViewGroundMarker(CelestialBody body, double latitude, double longitude, Color c,  double rotation = 0) {
+            DrawGroundMarker(body, latitude, longitude, c, true, rotation);
         }
 
-        public static void DrawGroundMarker(CelestialBody body, double latitude, double longitude, Color c, bool map, double rotation = 0, double radius = 0) {
+        public static void DrawGroundMarker(CelestialBody body, double latitude, double longitude, Color c, bool map, double rotation = 0) {
             Vector3d up = body.GetSurfaceNVector(latitude, longitude);
             var height = body.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right);
             if (height < body.Radius) {
@@ -32,9 +32,7 @@ namespace kOSMainframe.Utils {
 
             Vector3d north = Vector3d.Exclude(up, body.transform.up).normalized;
 
-            if (radius <= 0) {
-                radius = map ? body.Radius / 15 : 5;
-            }
+            double radius = map ? body.Radius / 50 : 5;
 
             if (!map) {
                 Vector3 centerPoint = FlightCamera.fetch.mainCamera.WorldToViewportPoint(center);

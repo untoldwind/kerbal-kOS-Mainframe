@@ -195,6 +195,7 @@ namespace kOSMainframe.Landing {
                     return result;
                 }
 
+                result.startUT = t;
                 result.startPosition = referenceFrame.ToAbsolute(x, t);
 
                 // Simulate a maximum of maxOrbits periods of a circular orbit at the entry altitude
