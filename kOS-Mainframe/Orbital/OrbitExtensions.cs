@@ -81,8 +81,7 @@ namespace kOSMainframe.Orbital {
             return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(UT), o.SwappedOrbitalVelocityAtUT(UT) + dV, o.referenceBody, UT);
         }
 
-        public static Orbit PerturbedOrbit(this Orbit o, NodeParameters nodeParams)
-        {
+        public static Orbit PerturbedOrbit(this Orbit o, NodeParameters nodeParams) {
             //should these in fact be swapped?
             return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(nodeParams.time), o.SwappedOrbitalVelocityAtUT(nodeParams.time) + nodeParams.deltaV, o.referenceBody, nodeParams.time);
         }

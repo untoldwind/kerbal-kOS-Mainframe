@@ -71,8 +71,7 @@ namespace kOSMainframe.Debugging {
             LandingSimulation.Stop();
         }
 
-        private void BiinjectiveTransfer()
-        {
+        private void BiinjectiveTransfer() {
             var target = Vessel.targetObject;
             if (target == null) return;
             var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime());

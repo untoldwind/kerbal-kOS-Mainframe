@@ -67,37 +67,33 @@ namespace kOSMainframe {
             return LandingSimulation.Current != null;
         }
 
-        private StringValue GetOutcome()
-        {
+        private StringValue GetOutcome() {
             var result = LandingSimulation.Current?.result;
             if (result == null) return "NO_RESULT";
-            switch (result.outcome)
-            {
-                case Outcome.LANDED:
-                    return "LANDED";
-                case Outcome.TIMED_OUT:
-                    return "TIMED_OUT";
-                case Outcome.NO_REENTRY:
-                    return "NO_REENTRY";
-                case Outcome.AEROBRAKED:
-                    return "AEROBRAKED";
-                case Outcome.ERROR:
-                    return "ERROR";
-                default:
-                    return "NO_RESULT";
+            switch (result.outcome) {
+            case Outcome.LANDED:
+                return "LANDED";
+            case Outcome.TIMED_OUT:
+                return "TIMED_OUT";
+            case Outcome.NO_REENTRY:
+                return "NO_REENTRY";
+            case Outcome.AEROBRAKED:
+                return "AEROBRAKED";
+            case Outcome.ERROR:
+                return "ERROR";
+            default:
+                return "NO_RESULT";
             }
         }
 
-        private Vector GetLandingSite()
-        {
+        private Vector GetLandingSite() {
             var result = LandingSimulation.Current?.result;
             if (result == null && result.outcome != Outcome.LANDED) return Vector.Zero;
 
             return new Vector(result.RelativeEndPosition());
         }
 
-        private TimeSpan GetLandingTime()
-        {
+        private TimeSpan GetLandingTime() {
             var result = LandingSimulation.Current?.result;
             if (result == null && result.outcome != Outcome.LANDED) return new TimeSpan(Planetarium.GetUniversalTime());
 
