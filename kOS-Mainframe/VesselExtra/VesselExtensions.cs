@@ -98,7 +98,7 @@ namespace kOSMainframe.VesselExtra {
         public static Vector3d GetSurfaceVelocity(this Vessel vessel) {
             return vessel.obt_velocity - vessel.mainBody.getRFrmVel(vessel.CoMD);
         }
-
+        
         public static double GetSpeedSurface(this Vessel vessel) {
             return vessel.GetSurfaceVelocity().magnitude;
         }
@@ -111,6 +111,17 @@ namespace kOSMainframe.VesselExtra {
         public static double GetSpeedVertical(this Vessel vessel) {
             Vector3d up = (vessel.CoMD - vessel.mainBody.position).normalized;
             return Vector3d.Dot(vessel.GetSurfaceVelocity(), up);
+        }
+
+        public static Vector3d GetRadialPlusSurface(this Vessel vessel)
+        {
+            Vector3d up = (vessel.CoMD - vessel.mainBody.position).normalized;
+            return Vector3d.Exclude(GetSurfaceVelocity(vessel), up).normalized;
+        }
+
+        public static Vector3d GetNormalPlusSurface(this Vessel vessel)
+        {
+            return -Vector3d.Cross(GetRadialPlusSurface(vessel), GetSurfaceVelocity(vessel).normalized);
         }
 
         //Computes the angle between two orbital planes. This will be a number between 0 and 180
@@ -145,12 +156,12 @@ namespace kOSMainframe.VesselExtra {
             //and log an exception if we get a bad dV vector:
             for (int i = 0; i < 3; i++) {
                 if (double.IsNaN(dV[i]) || double.IsInfinity(dV[i])) {
-                    throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad dV: " + dV);
+                    throw new Exception("VesselExtensions.PlaceManeuverNode: bad dV: " + dV);
                 }
             }
 
             if (double.IsNaN(UT) || double.IsInfinity(UT)) {
-                throw new Exception("MechJeb VesselExtensions.PlaceManeuverNode: bad UT: " + UT);
+                throw new Exception("VesselExtensions.PlaceManeuverNode: bad UT: " + UT);
             }
 
             //It seems that sometimes the game can freak out if you place a maneuver node in the past, so this

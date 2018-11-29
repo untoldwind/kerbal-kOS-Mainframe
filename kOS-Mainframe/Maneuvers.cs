@@ -10,12 +10,6 @@ using System.Reflection;
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("Maneuvers")]
     public class Maneuvers : Structure, IHasSharedObjects {
-        private const BindingFlags BindFlags = BindingFlags.Instance
-                                               | BindingFlags.Public
-                                               | BindingFlags.NonPublic;
-
-        private static FieldInfo OrbitField = typeof(OrbitInfo).GetField("orbit", BindFlags);
-
         public SharedObjects Shared {
             get;
             set;
@@ -30,9 +24,9 @@ namespace kOSMainframe {
             InitializeSuffixes();
         }
 
-        public Maneuvers(SharedObjects sharedObjs, OrbitInfo orbitInfo) {
+        public Maneuvers(SharedObjects sharedObjs, Orbitable orbitable) {
             Shared = sharedObjs;
-            this.orbit = GetOrbitFromOrbitInfo(orbitInfo);
+            this.orbit = orbitable.Orbit;
             this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
@@ -44,15 +38,16 @@ namespace kOSMainframe {
             AddSuffix("ELLIPTICIZE", new ThreeArgsSuffix<Node, TimeSpan, ScalarValue, ScalarValue>(EllipticizeOrbit, "Ellipticize the given orbit (UT, newPeR, newApR"));
             AddSuffix("CHANGE_PERIAPSIS", new TwoArgsSuffix<Node, TimeSpan, ScalarValue>(ChangePeriapsis, "Change periapsis of given orbit (UT, newPeR"));
             AddSuffix("CHANGE_APOAPSIS", new TwoArgsSuffix<Node, TimeSpan, ScalarValue>(ChangeApoapsis, "Change apoapsis of given orbit (UT, newApR"));
-            AddSuffix("MATCH_PLANES", new OneArgsSuffix<Node, OrbitInfo>(MatchPlanes, "Match planes of given orbit with target orbit"));
-            AddSuffix("HOHMANN", new OneArgsSuffix<Node, OrbitInfo>(Hohmann, "Regular Hohmann transfer from given orbit to target orbit"));
-            AddSuffix("HOHMANN_LAMBERT", new TwoArgsSuffix<Node, OrbitInfo, ScalarValue>(HohmannLambert));
-            AddSuffix("BIIMPULSIVE", new OneArgsSuffix<Node, OrbitInfo>(BiImpulsive));
-            AddSuffix("CORRECTION", new OneArgsSuffix<Node, OrbitInfo>(CourseCorrection));
-            AddSuffix("CHEAPEST_CORRECTION", new OneArgsSuffix<Node, OrbitInfo>(CheapestCourseCorrection));
+            AddSuffix("CHANGE_INCLINATION", new TwoArgsSuffix<Node, TimeSpan, ScalarValue>(ChangeInclination, "Change inclination of given orbit (UT, newInc"));
+            AddSuffix("MATCH_PLANES", new OneArgsSuffix<Node, Orbitable>(MatchPlanes, "Match planes of given orbit with target orbit"));
+            AddSuffix("HOHMANN", new OneArgsSuffix<Node, Orbitable>(Hohmann, "Regular Hohmann transfer from given orbit to target orbit"));
+            AddSuffix("HOHMANN_LAMBERT", new TwoArgsSuffix<Node, Orbitable, ScalarValue>(HohmannLambert));
+            AddSuffix("BIIMPULSIVE", new OneArgsSuffix<Node, Orbitable>(BiImpulsive));
+            AddSuffix("CORRECTION", new OneArgsSuffix<Node, Orbitable>(CourseCorrection));
+            AddSuffix("CHEAPEST_CORRECTION", new OneArgsSuffix<Node, Orbitable>(CheapestCourseCorrection));
             AddSuffix("CHEAPEST_CORRECTION_BODY", new TwoArgsSuffix<Node, BodyTarget, ScalarValue>(CheapestCourseCorrectionBody));
-            AddSuffix("CHEAPEST_CORRECTION_DIST", new TwoArgsSuffix<Node, OrbitInfo, ScalarValue>(CheapestCourseCorrectionDist));
-            AddSuffix("MATCH_VELOCITIES", new OneArgsSuffix<Node, OrbitInfo>(MatchVelocities));
+            AddSuffix("CHEAPEST_CORRECTION_DIST", new TwoArgsSuffix<Node, Orbitable, ScalarValue>(CheapestCourseCorrectionDist));
+            AddSuffix("MATCH_VELOCITIES", new OneArgsSuffix<Node, Orbitable>(MatchVelocities));
             AddSuffix("RETURN_FROM_MOON", new OneArgsSuffix<Node, ScalarValue>(ReturnFromMoon));
         }
 
@@ -90,8 +85,14 @@ namespace kOSMainframe {
             return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(Shared);
         }
 
-        private Node MatchPlanes(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node ChangeInclination(TimeSpan time, ScalarValue newInc)
+        {
+            return OrbitChange.ChangeInclination(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newInc).ToKOS(Shared);
+        }
+
+        private Node MatchPlanes(Orbitable orbitable)
+        {
+            var target = orbitable.Orbit;
             var anExists = orbit.AscendingNodeExists(target);
             var dnExists = orbit.DescendingNodeExists(target);
             var anNode = anExists ? OrbitMatch.MatchPlanesAscending(orbit, target, minUT) : NodeParameters.zero;
@@ -106,28 +107,28 @@ namespace kOSMainframe {
             }
         }
 
-        private Node Hohmann(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node Hohmann(Orbitable orbitable) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.HohmannTransfer(orbit, target, minUT).ToKOS(Shared);
         }
 
-        private Node HohmannLambert(OrbitInfo targetInfo, ScalarValue subtractProgradeDV) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node HohmannLambert(Orbitable orbitable, ScalarValue subtractProgradeDV) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.HohmannLambertTransfer(orbit, target, minUT, subtractProgradeDV).ToKOS(Shared);
         }
 
-        private Node BiImpulsive(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node BiImpulsive(Orbitable orbitable) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(Shared);
         }
 
-        private Node CourseCorrection(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node CourseCorrection(Orbitable orbitable) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.CourseCorrection(orbit, minUT, target).ToKOS(Shared);
         }
 
-        private Node CheapestCourseCorrection(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node CheapestCourseCorrection(Orbitable orbitable) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target).ToKOS(Shared);
         }
 
@@ -135,13 +136,13 @@ namespace kOSMainframe {
             return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR).ToKOS(Shared);
         }
 
-        private Node CheapestCourseCorrectionDist(OrbitInfo targetInfo, ScalarValue caDistance) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node CheapestCourseCorrectionDist(Orbitable orbitable, ScalarValue caDistance) {
+            var target = orbitable.Orbit;
             return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target, caDistance).ToKOS(Shared);
         }
 
-        private Node MatchVelocities(OrbitInfo targetInfo) {
-            var target = GetOrbitFromOrbitInfo(targetInfo);
+        private Node MatchVelocities(Orbitable orbitable) {
+            var target = orbitable.Orbit;
             double collisionUT = orbit.NextClosestApproachTime(target, minUT);
 
             return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(Shared);
@@ -149,10 +150,6 @@ namespace kOSMainframe {
 
         private Node ReturnFromMoon(ScalarValue targetPrimaryRadius) {
             return OrbitSOIChange.MoonReturnEjection(orbit, minUT, targetPrimaryRadius).ToKOS(Shared);
-        }
-
-        private static Orbit GetOrbitFromOrbitInfo(OrbitInfo orbitInfo) {
-            return (Orbit)OrbitField.GetValue(orbitInfo);
         }
     }
 }

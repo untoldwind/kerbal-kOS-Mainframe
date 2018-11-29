@@ -8,6 +8,7 @@ using kOSMainframe.Orbital;
 using kOSMainframe.VesselExtra;
 using kOSMainframe.Simulation;
 using kOSMainframe.UnityToolbag;
+using kOSMainframe.ExtraMath;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = System.Random;
@@ -69,6 +70,60 @@ namespace kOSMainframe.Landing {
             }
         }
 
+        public double LandingAltitude
+        { // The altitude above sea level of the terrain at the landing site
+            get
+            {
+                if (PredictionReady)
+                {
+                    // Although we know the landingASL as it is in the prediction, we suspect that
+                    // it might sometimes be incorrect. So to check we will calculate it again here,
+                    // and if the two differ log an error. It seems that this terrain ASL calls when
+                    // made from the simulatiuon thread are regularly incorrect, but are OK when made
+                    // from this thread. At the time of writting (KSP0.23) there seem to be several
+                    // other things going wrong with he terrain system, such as visual glitches as
+                    // we as the occasional exceptions being thrown when calls to the CelestialBody
+                    // object are made. I suspect a bug or some sort - for now this hack improves
+                    // the landing results.
+                    {
+                        double checkASL = result.body.TerrainAltitude(result.endPosition.latitude, result.endPosition.longitude);
+                        if (checkASL != result.endASL)
+                        {
+                            // I know that this check is not required as we might as well always make
+                            // the asignment. However this allows for some debug monitoring of how often this is occuring.
+                            result.endASL = checkASL;
+                        }
+                    }
+
+                    return result.endASL;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        public bool PredictionReady
+        { //We shouldn't do any autopilot stuff until this is true
+            get
+            {
+                // Check that there is a prediction and that it is a landing prediction.
+                if (result == null)
+                {
+                    return false;
+                }
+                else if (result.outcome != Outcome.LANDED)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
         public static void Start(Vessel vessel, double latitude, double longitude) {
             LandingSimulation simulation = Current ?? (kOSMainFramePlugin.Instance.AddComponent(typeof(LandingSimulation)) as LandingSimulation);
 
@@ -90,6 +145,110 @@ namespace kOSMainframe.Landing {
             targetLongitude = longitude;
             descentSpeedPolicy = new SafeDescentSpeedPolicy(targetBody.Radius + decelEndAltitudeASL, targetBody.GeeASL * 9.81, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass);
         }
+
+        // Estimate the delta-V of the correction burn that would be required to put us on
+        // course for the target
+        public Vector3d ComputeCourseCorrection(double UT, bool allowPrograde)
+        {
+            if (!PredictionReady) return Vector3d.zero;
+
+            // actualLandingPosition is the predicted actual landing position
+            Vector3d actualLandingPosition = result.RelativeEndPosition();
+
+            // orbitLandingPosition is the point where our current orbit intersects the planet
+            double endRadius = targetBody.Radius + DecelerationEndAltitude() - 100;
+            Orbit orbit = vessel.orbit;
+
+            // Seems we are already landed ?
+            if (endRadius > orbit.ApR || vessel.LandedOrSplashed)
+                return Vector3d.zero;
+
+            Vector3d orbitLandingPosition;
+            if (orbit.PeR < endRadius)
+                orbitLandingPosition = orbit.SwappedRelativePositionAtUT(orbit.NextTimeOfRadius(UT, endRadius));
+            else
+                orbitLandingPosition = orbit.SwappedRelativePositionAtUT(orbit.NextPeriapsisTime(UT));
+
+            // convertOrbitToActual is a rotation that rotates orbitLandingPosition on actualLandingPosition
+            Quaternion convertOrbitToActual = Quaternion.FromToRotation(orbitLandingPosition, actualLandingPosition);
+
+            // Consider the effect small changes in the velocity in each of these three directions
+            Vector3d[] perturbationDirections = { vessel.GetSurfaceVelocity().normalized, vessel.GetRadialPlusSurface(), vessel.GetNormalPlusSurface() };
+
+            // Compute the effect burns in these directions would
+            // have on the landing position, where we approximate the landing position as the place
+            // the perturbed orbit would intersect the planet.
+            Vector3d[] deltas = new Vector3d[3];
+            for (int i = 0; i < 3; i++)
+            {
+                const double perturbationDeltaV = 1; //warning: hard experience shows that setting this too low leads to bewildering bugs due to finite precision of Orbit functions
+                Orbit perturbedOrbit = orbit.PerturbedOrbit(UT, perturbationDeltaV * perturbationDirections[i]); //compute the perturbed orbit
+                double perturbedLandingTime;
+                if (perturbedOrbit.PeR < endRadius) perturbedLandingTime = perturbedOrbit.NextTimeOfRadius(UT, endRadius);
+                else perturbedLandingTime = perturbedOrbit.NextPeriapsisTime(UT);
+                Vector3d perturbedLandingPosition = perturbedOrbit.SwappedRelativePositionAtUT(perturbedLandingTime); //find where it hits the planet
+                Vector3d landingDelta = perturbedLandingPosition - orbitLandingPosition; //find the difference between that and the original orbit's intersection point
+                landingDelta = convertOrbitToActual * landingDelta; //rotate that difference vector so that we can now think of it as starting at the actual landing position
+                landingDelta = Vector3d.Exclude(actualLandingPosition, landingDelta); //project the difference vector onto the plane tangent to the actual landing position
+                deltas[i] = landingDelta / perturbationDeltaV; //normalize by the delta-V considered, so that deltas now has units of meters per (meter/second) [i.e., seconds]
+            }
+
+            // Now deltas stores the predicted offsets in landing position produced by each of the three perturbations. 
+            // We now figure out the offset we actually want
+
+            // First we compute the target landing position. We have to convert the latitude and longitude of the target
+            // into a position. We can't just get the current position of those coordinates, because the planet will
+            // rotate during the descent, so we have to account for that.
+            Vector3d desiredLandingPosition = targetBody.GetWorldSurfacePosition(targetLatitude, targetLongitude, 0) - targetBody.position;
+            float bodyRotationAngleDuringDescent = (float)(360 * (result.endUT - UT) / targetBody.rotationPeriod);
+            Quaternion bodyRotationDuringFall = Quaternion.AngleAxis(bodyRotationAngleDuringDescent, targetBody.angularVelocity.normalized);
+            desiredLandingPosition = bodyRotationDuringFall * desiredLandingPosition;
+
+            Vector3d desiredDelta = desiredLandingPosition - actualLandingPosition;
+            desiredDelta = Vector3d.Exclude(actualLandingPosition, desiredDelta);
+
+            // Now desiredDelta gives the desired change in our actual landing position (projected onto a plane
+            // tangent to the actual landing position).
+
+            Vector3d downrangeDirection;
+            Vector3d downrangeDelta;
+            if (allowPrograde)
+            {
+                // Construct the linear combination of the prograde and radial+ perturbations 
+                // that produces the largest effect on the landing position. The Math.Sign is to
+                // detect and handle the case where radial+ burns actually bring the landing sign closer
+                // (e.g. when we are traveling close to straight up)
+                downrangeDirection = (deltas[0].magnitude * perturbationDirections[0]
+                    + Math.Sign(Vector3d.Dot(deltas[0], deltas[1])) * deltas[1].magnitude * perturbationDirections[1]).normalized;
+
+                downrangeDelta = Vector3d.Dot(downrangeDirection, perturbationDirections[0]) * deltas[0]
+                    + Vector3d.Dot(downrangeDirection, perturbationDirections[1]) * deltas[1];
+            }
+            else
+            {
+                // If we aren't allowed to burn prograde, downrange component of the landing
+                // position has to be controlled by radial+/- burns:
+                downrangeDirection = perturbationDirections[1];
+                downrangeDelta = deltas[1];
+            }
+
+            // Now solve a 2x2 system of linear equations to determine the linear combination
+            // of perturbationDirection01 and normal+ that will give the desired offset in the
+            // predicted landing position.
+            Matrix2x2 A = new Matrix2x2(
+                downrangeDelta.sqrMagnitude, Vector3d.Dot(downrangeDelta, deltas[2]),
+                Vector3d.Dot(downrangeDelta, deltas[2]), deltas[2].sqrMagnitude
+            );
+
+            Vector2d b = new Vector2d(Vector3d.Dot(desiredDelta, downrangeDelta), Vector3d.Dot(desiredDelta, deltas[2]));
+
+            Vector2d coeffs = A.inverse() * b;
+
+            Vector3d courseCorrection = coeffs.x * downrangeDirection + coeffs.y * perturbationDirections[2];
+
+            return courseCorrection;
+        }
+
 
         public void OnGUI() {
             if (targetBody == null) {
@@ -379,47 +538,6 @@ namespace kOSMainframe.Landing {
                 return true;
             }
             return false;
-        }
-
-        public double LandingAltitude { // The altitude above sea level of the terrain at the landing site
-            get {
-                if (PredictionReady) {
-                    // Although we know the landingASL as it is in the prediction, we suspect that
-                    // it might sometimes be incorrect. So to check we will calculate it again here,
-                    // and if the two differ log an error. It seems that this terrain ASL calls when
-                    // made from the simulatiuon thread are regularly incorrect, but are OK when made
-                    // from this thread. At the time of writting (KSP0.23) there seem to be several
-                    // other things going wrong with he terrain system, such as visual glitches as
-                    // we as the occasional exceptions being thrown when calls to the CelestialBody
-                    // object are made. I suspect a bug or some sort - for now this hack improves
-                    // the landing results.
-                    {
-                        double checkASL = result.body.TerrainAltitude(result.endPosition.latitude, result.endPosition.longitude);
-                        if (checkASL != result.endASL) {
-                            // I know that this check is not required as we might as well always make
-                            // the asignment. However this allows for some debug monitoring of how often this is occuring.
-                            result.endASL = checkASL;
-                        }
-                    }
-
-                    return result.endASL;
-                } else {
-                    return 0;
-                }
-            }
-        }
-
-        public bool PredictionReady { //We shouldn't do any autopilot stuff until this is true
-            get {
-                // Check that there is a prediction and that it is a landing prediction.
-                if (result == null) {
-                    return false;
-                } else if (result.outcome != Outcome.LANDED) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
         }
 
         public double ParachuteAddedDragCoef() {

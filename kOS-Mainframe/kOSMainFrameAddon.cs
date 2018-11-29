@@ -18,7 +18,7 @@ namespace kOSMainframe {
         private void InitializeSuffixes() {
             Debug.Log("MainFrame booting...");
             AddSuffix("MANEUVERS", new Suffix<Maneuvers>(() => new Maneuvers(shared), "Get maneuvers for current vessel"));
-            AddSuffix("MANEUVERS_FOR", new OneArgsSuffix<Maneuvers, OrbitInfo>(GetManeuvers, "Get maneuvers for a given orbit"));
+            AddSuffix("MANEUVERS_FOR", new OneArgsSuffix<Maneuvers, Orbitable>(GetManeuvers, "Get maneuvers for a given orbitable"));
             AddSuffix("LAUNCH", new Suffix<VesselLaunch>(() => new VesselLaunch(shared), "Get launch helper for current vessel"));
             AddSuffix("LAUNCH_FOR", new OneArgsSuffix<VesselLaunch, VesselTarget>(GetLaunch, "Get launch helper for given vessel"));
             AddSuffix("LANDING", new Suffix<VesselLanding>(() => new VesselLanding(shared), "Get landing helper for current vessel"));
@@ -31,8 +31,8 @@ namespace kOSMainframe {
             return true;
         }
 
-        private Maneuvers GetManeuvers(OrbitInfo orbitInfo) {
-            return new Maneuvers(shared, orbitInfo);
+        private Maneuvers GetManeuvers(Orbitable orbitable) {
+            return new Maneuvers(shared, orbitable);
         }
 
         private VesselLaunch GetLaunch(VesselTarget vessel) {

@@ -151,6 +151,7 @@
     <Compile Include="ExtraMath\LineMinOptimizer.cs" />
     <Compile Include="VesselExtendedInfo.cs" />
     <Compile Include="Orbital\OrbitIntercept.cs" />
+    <Compile Include="ExtraMath\Matrix2x2.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

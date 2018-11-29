@@ -146,7 +146,7 @@ namespace kOSMainframe.Orbital {
         //   - first, clamp newInclination to the range -180, 180
         //   - if newInclination > 0, do the cheaper burn to set that inclination
         //   - if newInclination < 0, do the more expensive burn to set that inclination
-        public static Vector3d DeltaVToChangeInclination(Orbit o, double UT, double newInclination) {
+        public static NodeParameters ChangeInclination(Orbit o, double UT, double newInclination) {
             double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
             double desiredHeading = OrbitToGround.HeadingForInclination(newInclination, latitude);
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));
@@ -155,7 +155,7 @@ namespace kOSMainframe.Orbital {
             if (Vector3d.Dot(actualHorizontalVelocity, northComponent) < 0) northComponent *= -1;
             if (Functions.ClampDegrees180(newInclination) < 0) northComponent *= -1;
             Vector3d desiredHorizontalVelocity = eastComponent + northComponent;
-            return desiredHorizontalVelocity - actualHorizontalVelocity;
+            return o.DeltaVToNode(UT, desiredHorizontalVelocity - actualHorizontalVelocity);
         }
     }
 }

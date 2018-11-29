@@ -4,6 +4,8 @@ using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
 using kOS.Serialization;
 using kOSMainframe.Landing;
+using kOS.Safe.Exceptions;
+using kOSMainframe.Orbital;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("VesselLanding")]
@@ -35,6 +37,7 @@ namespace kOSMainframe {
             AddSuffix("PREDICTED_OUTCOME", new Suffix<StringValue>(GetOutcome));
             AddSuffix("PREDICTED_SITE", new Suffix<Vector>(GetLandingSite));
             AddSuffix("PREDICTED_TIME", new Suffix<TimeSpan>(GetLandingTime));
+            AddSuffix("COURSE_CORRECTION", new TwoArgsSuffix<Node, TimeSpan, BooleanValue>(CourseCorrection));
         }
 
         private ScalarValue GetDesiredSpeed() {
@@ -98,6 +101,14 @@ namespace kOSMainframe {
             if (result == null && result.outcome != Outcome.LANDED) return new TimeSpan(Planetarium.GetUniversalTime());
 
             return new TimeSpan(result.endUT);
+        }
+
+        private Node CourseCorrection(TimeSpan time, BooleanValue allowPrograde)
+        {
+            var deltaV = LandingSimulation.Current?.ComputeCourseCorrection(time.ToUnixStyleTime(), allowPrograde);
+            if (deltaV.HasValue)
+                return vessel.orbit.DeltaVToNode(time.ToUnixStyleTime(), deltaV.Value).ToKOS(Shared);
+            throw new KOSException("Course correction not available");
         }
     }
 }
