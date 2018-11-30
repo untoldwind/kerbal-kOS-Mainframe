@@ -39,6 +39,7 @@ namespace kOSMainframe {
             AddSuffix("PREDICTED_BREAK_TIME", new Suffix<TimeSpan>(GetDeaccelerationTime));
             AddSuffix("PREDICTED_LAND_TIME", new Suffix<TimeSpan>(GetLandingTime));
             AddSuffix("COURSE_CORRECTION", new TwoArgsSuffix<Node, TimeSpan, BooleanValue>(CourseCorrection));
+            AddSuffix("COURSE_CORRECTION_DETLAV", new OneArgsSuffix<Vector, BooleanValue>(CourseCorrectionDeltaV));
         }
 
         private ScalarValue GetDesiredSpeed() {
@@ -115,6 +116,13 @@ namespace kOSMainframe {
             var deltaV = LandingSimulation.Current?.ComputeCourseCorrection(time.ToUnixStyleTime(), allowPrograde);
             if (deltaV.HasValue)
                 return vessel.orbit.DeltaVToNode(time.ToUnixStyleTime(), deltaV.Value).ToKOS(Shared);
+            throw new KOSException("Course correction not available");
+        }
+
+        private Vector CourseCorrectionDeltaV(BooleanValue allowPrograde) {
+            var deltaV = LandingSimulation.Current?.ComputeCourseCorrection(Planetarium.GetUniversalTime(), allowPrograde);
+            if (deltaV.HasValue)
+                return new Vector(deltaV.Value);
             throw new KOSException("Course correction not available");
         }
     }

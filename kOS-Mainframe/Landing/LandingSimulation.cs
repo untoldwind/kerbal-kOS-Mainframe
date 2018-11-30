@@ -29,7 +29,6 @@ namespace kOSMainframe.Landing {
         public double parachuteSemiDeployMultiplier = 3;
         public int limitChutesStage = -1;
         private Random random = new Random();
-        public double decelEndAltitudeASL = 100;
         public IDescentSpeedPolicy descentSpeedPolicy = null;
         public double maxOrbits = 1;
         public bool noSkipToFreefall = false;
@@ -94,7 +93,7 @@ namespace kOSMainframe.Landing {
 
                     return result.endASL;
                 } else {
-                    return 0;
+                    return targetBody.TerrainAltitude(targetLatitude, targetLongitude);
                 }
             }
         }
@@ -132,7 +131,7 @@ namespace kOSMainframe.Landing {
             targetBody = vessel.mainBody;
             targetLatitude = latitude;
             targetLongitude = longitude;
-            descentSpeedPolicy = new SafeDescentSpeedPolicy(targetBody.Radius + decelEndAltitudeASL, targetBody.GeeASL * 9.81, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass);
+            UpdateDescentSpeedPolicy();
         }
 
         // Estimate the delta-V of the correction burn that would be required to put us on
@@ -245,7 +244,7 @@ namespace kOSMainframe.Landing {
             if(drawResult != null && drawResult.outcome == Outcome.LANDED) {
                 GLUtils.DrawGroundMarker(targetBody, drawResult.endPosition.latitude, drawResult.endPosition.longitude, Color.red, MapView.MapIsEnabled);
             }
-            if(drawResult != null && drawResult.outcome != Outcome.ERROR) {
+            if(!MapView.MapIsEnabled && drawResult != null && drawResult.outcome != Outcome.ERROR) {
                 double interval = Math.Max(Math.Min((drawResult.endUT - drawResult.input_UT) / 1000, 10), 0.1);
                 using (var list = drawResult.WorldTrajectory(interval)) {
                     if (!MapView.MapIsEnabled && (noSkipToFreefall || vessel.staticPressurekPa > 0))
@@ -316,7 +315,7 @@ namespace kOSMainframe.Landing {
             SimCurves simCurves = SimCurves.Borrow(patch.referenceBody);
 
             SimulatedVessel simVessel = SimulatedVessel.Borrow(vessel, simCurves, patch.StartUT, limitChutesStage);
-            ReentrySimulation sim = ReentrySimulation.Borrow(patch, patch.StartUT, simVessel, simCurves, descentSpeedPolicy, decelEndAltitudeASL, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass, parachuteMultiplierForThisSimulation, altitudeOfPreviousPrediction, addParachuteError, dt, Time.fixedDeltaTime, maxOrbits, noSkipToFreefall);
+            ReentrySimulation sim = ReentrySimulation.Borrow(patch, patch.StartUT, simVessel, simCurves, descentSpeedPolicy, DecelerationEndAltitude(), VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass, parachuteMultiplierForThisSimulation, altitudeOfPreviousPrediction, addParachuteError, dt, Time.fixedDeltaTime, maxOrbits, noSkipToFreefall);
             //MechJebCore.print("Sim ran with dt=" + dt.ToString("F3"));
 
             //Run the simulation in a separate thread
@@ -407,6 +406,7 @@ namespace kOSMainframe.Landing {
                                 result.Release();
                             result = newResult;
                         }
+                        UpdateDescentSpeedPolicy();
                     } else {
                         if (newResult.exception != null)
                             Logging.Debug("Exception in the last simulation\n" + newResult.exception.Message + "\n" + newResult.exception.StackTrace);
@@ -570,6 +570,10 @@ namespace kOSMainframe.Landing {
                 dragCoef += partAreaDrag / 6;
             }
             return dragCoef * PhysicsGlobals.DragCubeMultiplier;
+        }
+
+        private void UpdateDescentSpeedPolicy() {
+            descentSpeedPolicy = new SafeDescentSpeedPolicy(targetBody.Radius + DecelerationEndAltitude(), targetBody.GeeASL * 9.81, VesselUtils.GetAvailableThrust(vessel) / vessel.totalMass);
         }
     }
 }

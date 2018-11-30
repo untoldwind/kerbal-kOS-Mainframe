@@ -194,8 +194,7 @@ namespace kOSMainframeTest {
             return GetOrbitalVelocityAtTrueAnomaly(GetTrueAnomalyAtOrbitTime(orbitTime));
         }
 
-        public Vector3d GetOrbitalVelocityAtTrueAnomaly(double trueAnomaly)
-        {
+        public Vector3d GetOrbitalVelocityAtTrueAnomaly(double trueAnomaly) {
             double x = Math.Cos(trueAnomaly);
             double y = Math.Sin(trueAnomaly);
             double h = Math.Sqrt(mu / (semiMajorAxis * (1.0 - eccentricity * eccentricity)));
