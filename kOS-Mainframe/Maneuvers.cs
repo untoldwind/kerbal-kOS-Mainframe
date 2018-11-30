@@ -85,13 +85,11 @@ namespace kOSMainframe {
             return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(Shared);
         }
 
-        private Node ChangeInclination(TimeSpan time, ScalarValue newInc)
-        {
+        private Node ChangeInclination(TimeSpan time, ScalarValue newInc) {
             return OrbitChange.ChangeInclination(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newInc).ToKOS(Shared);
         }
 
-        private Node MatchPlanes(Orbitable orbitable)
-        {
+        private Node MatchPlanes(Orbitable orbitable) {
             var target = orbitable.Orbit;
             var anExists = orbit.AscendingNodeExists(target);
             var dnExists = orbit.DescendingNodeExists(target);

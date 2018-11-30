@@ -52,6 +52,7 @@
     <Compile Include="PowelOptimizerTest.cs" />
     <Compile Include="AmoebaOptimizerTest.cs" />
     <Compile Include="LambertBattinSolverTest.cs" />
+    <Compile Include="OrbitTestRef.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

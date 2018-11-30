@@ -70,12 +70,10 @@ namespace kOSMainframe.Landing {
             }
         }
 
-        public double LandingAltitude
-        { // The altitude above sea level of the terrain at the landing site
-            get
-            {
-                if (PredictionReady)
-                {
+        public double LandingAltitude {
+            // The altitude above sea level of the terrain at the landing site
+            get {
+                if (PredictionReady) {
                     // Although we know the landingASL as it is in the prediction, we suspect that
                     // it might sometimes be incorrect. So to check we will calculate it again here,
                     // and if the two differ log an error. It seems that this terrain ASL calls when
@@ -87,8 +85,7 @@ namespace kOSMainframe.Landing {
                     // the landing results.
                     {
                         double checkASL = result.body.TerrainAltitude(result.endPosition.latitude, result.endPosition.longitude);
-                        if (checkASL != result.endASL)
-                        {
+                        if (checkASL != result.endASL) {
                             // I know that this check is not required as we might as well always make
                             // the asignment. However this allows for some debug monitoring of how often this is occuring.
                             result.endASL = checkASL;
@@ -96,29 +93,21 @@ namespace kOSMainframe.Landing {
                     }
 
                     return result.endASL;
-                }
-                else
-                {
+                } else {
                     return 0;
                 }
             }
         }
 
-        public bool PredictionReady
-        { //We shouldn't do any autopilot stuff until this is true
-            get
-            {
+        public bool PredictionReady {
+            //We shouldn't do any autopilot stuff until this is true
+            get {
                 // Check that there is a prediction and that it is a landing prediction.
-                if (result == null)
-                {
+                if (result == null) {
                     return false;
-                }
-                else if (result.outcome != Outcome.LANDED)
-                {
+                } else if (result.outcome != Outcome.LANDED) {
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
@@ -148,8 +137,7 @@ namespace kOSMainframe.Landing {
 
         // Estimate the delta-V of the correction burn that would be required to put us on
         // course for the target
-        public Vector3d ComputeCourseCorrection(double UT, bool allowPrograde)
-        {
+        public Vector3d ComputeCourseCorrection(double UT, bool allowPrograde) {
             if (!PredictionReady) return Vector3d.zero;
 
             // actualLandingPosition is the predicted actual landing position
@@ -179,8 +167,7 @@ namespace kOSMainframe.Landing {
             // have on the landing position, where we approximate the landing position as the place
             // the perturbed orbit would intersect the planet.
             Vector3d[] deltas = new Vector3d[3];
-            for (int i = 0; i < 3; i++)
-            {
+            for (int i = 0; i < 3; i++) {
                 const double perturbationDeltaV = 1; //warning: hard experience shows that setting this too low leads to bewildering bugs due to finite precision of Orbit functions
                 Orbit perturbedOrbit = orbit.PerturbedOrbit(UT, perturbationDeltaV * perturbationDirections[i]); //compute the perturbed orbit
                 double perturbedLandingTime;
@@ -193,7 +180,7 @@ namespace kOSMainframe.Landing {
                 deltas[i] = landingDelta / perturbationDeltaV; //normalize by the delta-V considered, so that deltas now has units of meters per (meter/second) [i.e., seconds]
             }
 
-            // Now deltas stores the predicted offsets in landing position produced by each of the three perturbations. 
+            // Now deltas stores the predicted offsets in landing position produced by each of the three perturbations.
             // We now figure out the offset we actually want
 
             // First we compute the target landing position. We have to convert the latitude and longitude of the target
@@ -212,20 +199,17 @@ namespace kOSMainframe.Landing {
 
             Vector3d downrangeDirection;
             Vector3d downrangeDelta;
-            if (allowPrograde)
-            {
-                // Construct the linear combination of the prograde and radial+ perturbations 
+            if (allowPrograde) {
+                // Construct the linear combination of the prograde and radial+ perturbations
                 // that produces the largest effect on the landing position. The Math.Sign is to
                 // detect and handle the case where radial+ burns actually bring the landing sign closer
                 // (e.g. when we are traveling close to straight up)
                 downrangeDirection = (deltas[0].magnitude * perturbationDirections[0]
-                    + Math.Sign(Vector3d.Dot(deltas[0], deltas[1])) * deltas[1].magnitude * perturbationDirections[1]).normalized;
+                                      + Math.Sign(Vector3d.Dot(deltas[0], deltas[1])) * deltas[1].magnitude * perturbationDirections[1]).normalized;
 
                 downrangeDelta = Vector3d.Dot(downrangeDirection, perturbationDirections[0]) * deltas[0]
-                    + Vector3d.Dot(downrangeDirection, perturbationDirections[1]) * deltas[1];
-            }
-            else
-            {
+                                 + Vector3d.Dot(downrangeDirection, perturbationDirections[1]) * deltas[1];
+            } else {
                 // If we aren't allowed to burn prograde, downrange component of the landing
                 // position has to be controlled by radial+/- burns:
                 downrangeDirection = perturbationDirections[1];

@@ -4,23 +4,18 @@ using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitExtensions {
-        //can probably be replaced with Vector3d.xzy?
-        public static Vector3d SwapYZ(Vector3d v) {
-            return v.Reorder(132);
-        }
-
         //
         // These "Swapped" functions translate preexisting Orbit class functions into world
         // space. For some reason, Orbit class functions seem to use a coordinate system
         // in which the Y and Z coordinates are swapped.
         //
         public static Vector3d SwappedOrbitalVelocityAtUT(this Orbit o, double UT) {
-            return SwapYZ(o.getOrbitalVelocityAtUT(UT));
+            return Orbit.Swizzle(o.getOrbitalVelocityAtUT(UT));
         }
 
         //position relative to the primary
         public static Vector3d SwappedRelativePositionAtUT(this Orbit o, double UT) {
-            return SwapYZ(o.getRelativePositionAtUT(UT));
+            return Orbit.Swizzle(o.getRelativePositionAtUT(UT));
         }
 
         //position in world space
@@ -31,7 +26,7 @@ namespace kOSMainframe.Orbital {
         //normalized vector perpendicular to the orbital plane
         //convention: as you look down along the orbit normal, the satellite revolves counterclockwise
         public static Vector3d SwappedOrbitNormal(this Orbit o) {
-            return -SwapYZ(o.GetOrbitNormal()).normalized;
+            return -Orbit.Swizzle(o.GetOrbitNormal()).normalized;
         }
 
         //normalized vector pointing radially outward from the planet

@@ -97,8 +97,7 @@ namespace kOSMainframe {
             return new Vector(result.RelativeEndPosition());
         }
 
-        private TimeSpan GetDeaccelerationTime()
-        {
+        private TimeSpan GetDeaccelerationTime() {
             var result = LandingSimulation.Current?.result;
             if (result == null && result.outcome != Outcome.LANDED) return new TimeSpan(Planetarium.GetUniversalTime());
 
@@ -112,8 +111,7 @@ namespace kOSMainframe {
             return new TimeSpan(result.endUT);
         }
 
-        private Node CourseCorrection(TimeSpan time, BooleanValue allowPrograde)
-        {
+        private Node CourseCorrection(TimeSpan time, BooleanValue allowPrograde) {
             var deltaV = LandingSimulation.Current?.ComputeCourseCorrection(time.ToUnixStyleTime(), allowPrograde);
             if (deltaV.HasValue)
                 return vessel.orbit.DeltaVToNode(time.ToUnixStyleTime(), deltaV.Value).ToKOS(Shared);

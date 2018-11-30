@@ -98,7 +98,7 @@ namespace kOSMainframe.VesselExtra {
         public static Vector3d GetSurfaceVelocity(this Vessel vessel) {
             return vessel.obt_velocity - vessel.mainBody.getRFrmVel(vessel.CoMD);
         }
-        
+
         public static double GetSpeedSurface(this Vessel vessel) {
             return vessel.GetSurfaceVelocity().magnitude;
         }
@@ -113,14 +113,12 @@ namespace kOSMainframe.VesselExtra {
             return Vector3d.Dot(vessel.GetSurfaceVelocity(), up);
         }
 
-        public static Vector3d GetRadialPlusSurface(this Vessel vessel)
-        {
+        public static Vector3d GetRadialPlusSurface(this Vessel vessel) {
             Vector3d up = (vessel.CoMD - vessel.mainBody.position).normalized;
             return Vector3d.Exclude(GetSurfaceVelocity(vessel), up).normalized;
         }
 
-        public static Vector3d GetNormalPlusSurface(this Vessel vessel)
-        {
+        public static Vector3d GetNormalPlusSurface(this Vessel vessel) {
             return -Vector3d.Cross(GetRadialPlusSurface(vessel), GetSurfaceVelocity(vessel).normalized);
         }
 

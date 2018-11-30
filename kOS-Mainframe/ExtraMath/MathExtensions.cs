@@ -3,24 +3,6 @@ using UnityEngine;
 
 namespace kOSMainframe.ExtraMath {
     public static class MathExtensions {
-        public static Vector3d Reorder(this Vector3d vector, int order) {
-            switch (order) {
-            case 123:
-                return new Vector3d(vector.x, vector.y, vector.z);
-            case 132:
-                return new Vector3d(vector.x, vector.z, vector.y);
-            case 213:
-                return new Vector3d(vector.y, vector.x, vector.z);
-            case 231:
-                return new Vector3d(vector.y, vector.z, vector.x);
-            case 312:
-                return new Vector3d(vector.z, vector.x, vector.y);
-            case 321:
-                return new Vector3d(vector.z, vector.y, vector.x);
-            }
-            throw new ArgumentException("Invalid order", "order");
-        }
-
         // +/- infinity is not a finite number (not finite)
         // NaN is also not a finite number (not a number)
         public static bool IsFinite(this double v) {
