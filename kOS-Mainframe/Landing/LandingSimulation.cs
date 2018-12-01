@@ -244,7 +244,7 @@ namespace kOSMainframe.Landing {
             if(drawResult != null && drawResult.outcome == Outcome.LANDED) {
                 GLUtils.DrawGroundMarker(targetBody, drawResult.endPosition.latitude, drawResult.endPosition.longitude, Color.red, MapView.MapIsEnabled);
             }
-            if(!MapView.MapIsEnabled && drawResult != null && drawResult.outcome != Outcome.ERROR) {
+            if(MapView.MapIsEnabled && drawResult != null && drawResult.outcome != Outcome.ERROR) {
                 double interval = Math.Max(Math.Min((drawResult.endUT - drawResult.input_UT) / 1000, 10), 0.1);
                 using (var list = drawResult.WorldTrajectory(interval)) {
                     if (!MapView.MapIsEnabled && (noSkipToFreefall || vessel.staticPressurekPa > 0))
