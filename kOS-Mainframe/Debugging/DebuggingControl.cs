@@ -27,6 +27,7 @@ namespace kOSMainframe.Debugging {
                 new Param2Action("Start Landing Sim", 0, 0, StartLandingSim),
                 new Button("Stop Landing Sim", StopLandingSim),
                 new Button("Biinjective transfer", BiinjectiveTransfer),
+                new Button("Dump Orbit", DumpOrbit),
             };
         }
 
@@ -85,6 +86,21 @@ namespace kOSMainframe.Debugging {
             }
 
             return nodeParams.AddToVessel(Vessel);
+        }
+
+        private void DumpOrbit() {
+            double UT = Planetarium.GetUniversalTime();
+            var orbit = Vessel.orbit.referenceBody.orbit;
+            Logging.DumpOrbit("Current Orbit", orbit);
+            Logging.Debug("Orbit X: {0}", orbit.OrbitFrame.X);
+            Logging.Debug("Orbit Y: {0}", orbit.OrbitFrame.Y);
+            Logging.Debug("Orbit Z: {0}", orbit.OrbitFrame.Z);
+            Logging.Debug("Orbit: meanMotion={0}", orbit.meanMotion);
+            double ta = orbit.TrueAnomalyAtUT(UT);
+            Logging.Debug("Orbit: UT={0} tA={1} slr={2}", UT, ta, orbit.semiLatusRectum);
+            Logging.Debug("Orbit: UT={0} p={1} v={2}", UT, Planetarium.Zup.LocalToWorld( orbit.getRelativePositionAtUT(UT)), Planetarium.Zup.LocalToWorld( orbit.getOrbitalVelocityAtUT(UT)));
+            Logging.Debug("Zup: X={0} Y={1} Z={2}", Planetarium.Zup.X, Planetarium.Zup.Y, Planetarium.Zup.Z);
+            Logging.Debug("InvRot: {0}", Planetarium.InverseRotAngle);
         }
 
     }

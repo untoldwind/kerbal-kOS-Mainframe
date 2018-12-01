@@ -7,7 +7,7 @@ namespace kOSMainframe {
         }
 
         public static void DumpOrbit(String name, Orbit o) {
-            Debug("Orbit {0}: body={1} sMa={2} sma={3} PeA={4} ApA={5} E={6}", name, o.referenceBody, o.semiMajorAxis, o.semiMinorAxis, o.PeA, o.ApA, o.eccentricity);
+            Debug($"Orbit {name}: body={o.referenceBody} inc={o.inclination} ecc={o.eccentricity} sMa={o.semiMajorAxis} sma={o.semiMinorAxis} PeR={o.PeR} ApR={o.ApR} Epoch={o.epoch} LAN={o.LAN} ArgPe={o.argumentOfPeriapsis} meanAtEpoch={o.meanAnomalyAtEpoch}");
         }
     }
 }

@@ -2,7 +2,9 @@
 
 namespace kOSMainframeTest {
     public class OrbitTestRef {
-        public double mu;
+        public const double DegToRad = Math.PI / 180.0;
+
+        public BodyTestRef body;
         public double inclination;
         public double LAN;
         public double eccentricity;
@@ -31,14 +33,15 @@ namespace kOSMainframeTest {
             }
         }
 
-        public OrbitTestRef(double inclination,
+        public OrbitTestRef(BodyTestRef body,
+                            double inclination,
                             double eccentricity,
                             double semiMajorAxis,
                             double LAN,
                             double argumentOfPeriapsis,
-                            double meanAnomalyAtEpoch,
                             double epoch,
-                            double mu) {
+                            double meanAnomalyAtEpoch) {
+            this.body = body;
             this.inclination = inclination;
             this.eccentricity = eccentricity;
             this.semiMajorAxis = semiMajorAxis;
@@ -46,14 +49,13 @@ namespace kOSMainframeTest {
             this.argumentOfPeriapsis = argumentOfPeriapsis;
             this.meanAnomalyAtEpoch = meanAnomalyAtEpoch;
             this.epoch = epoch;
-            this.mu = mu;
 
-            double anX = Math.Cos(LAN);
-            double anY = Math.Sin(LAN);
-            double incX = Math.Cos(inclination);
-            double incY = Math.Sin(inclination);
-            double peX = Math.Cos(argumentOfPeriapsis);
-            double peY = Math.Sin(argumentOfPeriapsis);
+            double anX = Math.Cos(LAN * DegToRad);
+            double anY = Math.Sin(LAN * DegToRad);
+            double incX = Math.Cos(inclination * DegToRad);
+            double incY = Math.Sin(inclination * DegToRad);
+            double peX = Math.Cos(argumentOfPeriapsis * DegToRad);
+            double peY = Math.Sin(argumentOfPeriapsis * DegToRad);
             FrameX = new Vector3d(anX * peX - anY * incX * peY, anY * peX + anX * incX * peY, incY * peY);
             FrameY = new Vector3d(-anX * peY - anY * incX * peX, -anY * peY + anX * incX * peX, incY * peX);
             FrameZ = new Vector3d(anY * incY, -anX * incY, incX);
@@ -72,11 +74,11 @@ namespace kOSMainframeTest {
             }
         }
 
-        public OrbitTestRef(Vector3d position, Vector3d velocity, double mu, double UT) {
-            this.mu = mu;
+        public OrbitTestRef(BodyTestRef body, Vector3d position, Vector3d velocity, double UT) {
+            this.body = body;
 
             Vector3d H = Vector3d.Cross(position, velocity);
-            double orbitalEnergy = velocity.sqrMagnitude / 2.0 - mu / position.magnitude;
+            double orbitalEnergy = velocity.sqrMagnitude / 2.0 - body.mu / position.magnitude;
 
             if (H.sqrMagnitude == 0.0) {
                 ascendingNode = Vector3d.Cross(position, Vector3d.forward);
@@ -84,12 +86,12 @@ namespace kOSMainframeTest {
                 ascendingNode = Vector3d.Cross(Vector3d.forward, H);
             }
             LAN = Math.Atan2(ascendingNode.y, ascendingNode.x);
-            eccVec = Vector3d.Cross(velocity, H) / mu - position / position.magnitude;
+            eccVec = Vector3d.Cross(velocity, H) / body.mu - position / position.magnitude;
             eccentricity = eccVec.magnitude;
             if (eccentricity < 1.0) {
-                semiMajorAxis = -mu / (2.0 * orbitalEnergy);
+                semiMajorAxis = -body.mu / (2.0 * orbitalEnergy);
             } else {
-                semiMajorAxis = -H.sqrMagnitude / mu / (eccVec.sqrMagnitude - 1.0);
+                semiMajorAxis = -H.sqrMagnitude / body.mu / (eccVec.sqrMagnitude - 1.0);
             }
             if (eccentricity == 0.0) {
                 FrameX = ascendingNode.normalized;
@@ -150,7 +152,11 @@ namespace kOSMainframeTest {
         }
 
         public double GetMeanMotion() {
-            return Math.Sqrt(mu / Math.Abs(semiMajorAxis * semiMajorAxis * semiMajorAxis));
+            return Math.Sqrt(body.mu / Math.Abs(semiMajorAxis * semiMajorAxis * semiMajorAxis));
+        }
+
+        public double GetTrueAnomalyAtUT(double UT) {
+            return GetTrueAnomalyAtOrbitTime(GetOrbitTimeAtUT(UT));
         }
 
         public double GetOrbitTimeAtUT(double UT) {
@@ -183,7 +189,7 @@ namespace kOSMainframeTest {
             double x = Math.Cos(trueAnomaly);
             double y = Math.Sin(trueAnomaly);
             double r = semiMajorAxis * (1.0 - eccentricity * eccentricity) / (1.0 + eccentricity * x);
-            return r* (FrameX * x + FrameY * y);
+            return r * (FrameX * x + FrameY * y);
         }
 
         public Vector3d GetOrbitalVelocityAtUT(double UT) {
@@ -191,13 +197,13 @@ namespace kOSMainframeTest {
         }
 
         public Vector3d GetOrbitalVelocityAtOrbitTime(double orbitTime) {
-            return GetOrbitalVelocityAtTrueAnomaly(GetTrueAnomalyAtOrbitTime(orbitTime));
+            return  GetOrbitalVelocityAtTrueAnomaly(GetTrueAnomalyAtOrbitTime(orbitTime));
         }
 
         public Vector3d GetOrbitalVelocityAtTrueAnomaly(double trueAnomaly) {
             double x = Math.Cos(trueAnomaly);
             double y = Math.Sin(trueAnomaly);
-            double h = Math.Sqrt(mu / (semiMajorAxis * (1.0 - eccentricity * eccentricity)));
+            double h = Math.Sqrt(body.mu / (semiMajorAxis * (1.0 - eccentricity * eccentricity)));
             double vx = -y * h;
             double vy = (x + eccentricity) * h;
             return FrameX * vx + FrameY * vy;
