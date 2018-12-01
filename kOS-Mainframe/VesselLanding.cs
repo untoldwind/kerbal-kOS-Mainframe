@@ -35,7 +35,7 @@ namespace kOSMainframe {
             AddSuffix("PREDICTION_STOP", new NoArgsVoidSuffix(PredictionStop));
             AddSuffix("PREDICTION_RUNNING", new Suffix<BooleanValue>(PredictionRunning));
             AddSuffix("PREDICTED_OUTCOME", new Suffix<StringValue>(GetOutcome));
-            AddSuffix("PREDICTED_SITE", new Suffix<Vector>(GetLandingSite));
+            AddSuffix("PREDICTED_SITE", new Suffix<GeoCoordinates>(GetLandingSite));
             AddSuffix("PREDICTED_BREAK_TIME", new Suffix<TimeSpan>(GetDeaccelerationTime));
             AddSuffix("PREDICTED_LAND_TIME", new Suffix<TimeSpan>(GetLandingTime));
             AddSuffix("COURSE_CORRECTION", new TwoArgsSuffix<Node, TimeSpan, BooleanValue>(CourseCorrection));
@@ -47,7 +47,10 @@ namespace kOSMainframe {
 
             if (speedPolicy == null) return 0;
 
-            return speedPolicy.MaxAllowedSpeed(vessel.CoMD - vessel.mainBody.position, vessel.GetSrfVelocity());
+            double maxSpeed = speedPolicy.MaxAllowedSpeed(vessel.CoMD - vessel.mainBody.position, vessel.GetSrfVelocity());
+
+            if (double.IsNaN(maxSpeed) || double.IsInfinity(maxSpeed)) return 0;
+            return maxSpeed;
         }
 
         private ScalarValue GetDesiredSpeedAfter(TimeSpan time) {
@@ -91,11 +94,11 @@ namespace kOSMainframe {
             }
         }
 
-        private Vector GetLandingSite() {
+        private GeoCoordinates GetLandingSite() {
             var result = LandingSimulation.Current?.result;
-            if (result == null && result.outcome != Outcome.LANDED) return Vector.Zero;
+            if (result == null && result.outcome != Outcome.LANDED) throw new KOSException("No prediction");
 
-            return new Vector(result.RelativeEndPosition());
+            return new GeoCoordinates(Shared, result.endPosition.latitude, result.endPosition.longitude);
         }
 
         private TimeSpan GetDeaccelerationTime() {
