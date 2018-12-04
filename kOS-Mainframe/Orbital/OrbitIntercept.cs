@@ -24,12 +24,12 @@ namespace kOSMainframe.Orbital {
 
             Vector3d transferVi, transferVf;
 
-            LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
+            LambertBattinSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
             // GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
 
             if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
-                LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
+                LambertBattinSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
                 //GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
             }
 
@@ -88,7 +88,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d velAfterBurn;
             Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            LambertBattinSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
 
             Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
             return o.DeltaVToNode(collisionParams.time, deltaV);
@@ -106,7 +106,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d velAfterBurn;
             Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            LambertBattinSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
 
             Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
             return o.DeltaVToNode(collisionParams.time, deltaV);

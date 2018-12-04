@@ -181,7 +181,7 @@ namespace kOSMainframeTest {
                 Vector3d actualV1;
                 Vector3d actualV2;
 
-                LambertSolver.Solve(testSet.R1, testSet.R2, testSet.dt, testSet.mu, testSet.shortway, out actualV1, out actualV2);
+                LambertBattinSolver.Solve(testSet.R1, testSet.R2, testSet.dt, testSet.mu, testSet.shortway, out actualV1, out actualV2);
 
                 Assert.AreEqual(0.0, (testSet.V1 - actualV1).magnitude, 1e-7);
                 Assert.AreEqual(0.0, (testSet.V2 - actualV2).magnitude, 1e-7);

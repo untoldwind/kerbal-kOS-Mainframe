@@ -12,7 +12,7 @@ namespace kOSMainframe.Orbital {
     //of the required orbit segment
     //There are always two solutions to Lambert's problem, a "short way," which traverses < 180 degrees,
     //and a "long way," which traverses > 180 degrees. The shortway input says which of these solutions to find.
-    public static class LambertSolver {
+    public static class LambertBattinSolver {
         public static void Solve(Vector3d R1, Vector3d R2, double dt, double muCB, bool shortway, out Vector3d V1, out Vector3d V2) {
             double R1mag = R1.magnitude;
             double R2mag = R2.magnitude;
@@ -64,8 +64,8 @@ namespace kOSMainframe.Orbital {
                 double h1 = (Math.Pow((l + x), 2) * (1 + 3 * x + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
                 double h2 = (m * (x - l + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
 
-                double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
-                PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
+                // double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
+                // PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
 
                 //const double relativeAccuracy = 1.0e-12;
                 //const double absoluteAccuracy = 1.0e-12;
@@ -74,7 +74,9 @@ namespace kOSMainframe.Orbital {
 
                 //replaced Arrowstar's above four commented lines with this solver:  -The_Duck
                 //Use an initial guess of 10; NewtonSolver will get stuck with an initial guess of zero.
-                y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
+                // y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
+                // Another replacement: This can be done analytically.
+                y = solveYEqn(h2, 1 + h1);
 
                 double x_new = Math.Sqrt(Math.Pow((1 - l) / 2, 2) + m / Math.Pow(y, 2)) - (1 + l) / 2;
                 x_change = Math.Abs(x - x_new);
@@ -145,6 +147,16 @@ namespace kOSMainframe.Orbital {
             ksi = num / denom;
 
             return ksi;
+        }
+
+        private static double solveYEqn(double h2, double h1)
+        {
+            // Analytical solution for x^3-h1*x^2-h2 = 0.
+            // Cause iamgenius eating problems like that for breakfast ... nah, just used maxima for this one.
+
+            double a = Math.Sqrt(h2 * (27.0 * h2 + 4.0 * h1 * h1 * h1) / 108.0);
+            double b = Math.Pow(a + h2 / 2.0 + (h1 * h1 * h1) / 27.0, 1.0 / 3.0);
+            return b + h1 * h1 / (9.0 * b) + h1 / 3;
         }
     }
 }
