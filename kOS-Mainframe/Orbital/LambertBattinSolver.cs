@@ -64,9 +64,6 @@ namespace kOSMainframe.Orbital {
                 double h1 = (Math.Pow((l + x), 2) * (1 + 3 * x + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
                 double h2 = (m * (x - l + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
 
-                // double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
-                // PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
-
                 //const double relativeAccuracy = 1.0e-12;
                 //const double absoluteAccuracy = 1.0e-12;
                 //BracketingNthOrderBrentSolver solver = new BracketingNthOrderBrentSolver(relativeAccuracy, absoluteAccuracy, 10);
@@ -74,9 +71,15 @@ namespace kOSMainframe.Orbital {
 
                 //replaced Arrowstar's above four commented lines with this solver:  -The_Duck
                 //Use an initial guess of 10; NewtonSolver will get stuck with an initial guess of zero.
-                // y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
+                //
                 // Another replacement: This can be done analytically.
                 y = solveYEqn(h2, 1 + h1);
+                if(double.IsNaN(y)) {
+                    Logging.Warning("LambertBattinSolver: analytic edge case h1={1} h2={2} (fallback to Newton)", h1, h2);
+                    double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
+                    PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
+                    y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
+                }
 
                 double x_new = Math.Sqrt(Math.Pow((1 - l) / 2, 2) + m / Math.Pow(y, 2)) - (1 + l) / 2;
                 x_change = Math.Abs(x - x_new);
@@ -149,8 +152,7 @@ namespace kOSMainframe.Orbital {
             return ksi;
         }
 
-        private static double solveYEqn(double h2, double h1)
-        {
+        private static double solveYEqn(double h2, double h1) {
             // Analytical solution for x^3-h1*x^2-h2 = 0.
             // Note: This only works for h1 >= 0 h2 >= 0, which should not be a problem
 
