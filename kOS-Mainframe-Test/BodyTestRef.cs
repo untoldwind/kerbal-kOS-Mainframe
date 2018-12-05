@@ -5,7 +5,7 @@ namespace kOSMainframeTest {
         public static BodyTestRef Kerbin = new BodyTestRef("Kerbin", Kerbol, 0, 0, 13599840256, 0, 0, 0, 3.14000010490417, 3531600000000, 84159286.4796305);
         public static BodyTestRef Mun = new BodyTestRef("Mun", Kerbin, 0, 0, 12000000, 0, 0, 0, 1.70000004768372, 65138397520.7807, 2429559.11656475);
         public static BodyTestRef Minmus = new BodyTestRef("Minmus", Kerbin, 6, 0, 47000000, 78, 38, 0, 0.899999976158142, 1765800026.31247, 2247428.3879023);
-        public static BodyTestRef Duna = new BodyTestRef("Duna", Kerbol, 0.0599999986588955, 0.0509999990463257, 20726155264, 135.5, 0, 0, 3.14000010490417, 301363211975.098, 47921949.369738);
+        public static BodyTestRef Duna = new BodyTestRef("Duna", Kerbol, 0.06, 0.051, 20726155264, 135.5, 0, 0, 3.14000010490417, 301363211975.098, 47921949.369738);
 
         public readonly BodyTestRef parent;
         public readonly String name;

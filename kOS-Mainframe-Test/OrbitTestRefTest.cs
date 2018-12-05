@@ -13,8 +13,6 @@ namespace kOSMainframeTest {
             AssertEqual(orbit.FrameZ, new Vector3d(0.0812375696043732, -0.382192715866505, 0.920504853449106), "Orbit FrameZ");
             Assert.AreEqual(0.000664417038265578, orbit.meanMotion, 1e-7, "Orbit mean motion");
             Assert.AreEqual(-2.55587262120358, orbit.GetTrueAnomalyAtUT(2248030.02958346), 1e-7, "Orbit true anomaly");
-            TestContext.Out.WriteLine(orbit.GetPositionAtUT(2248030.02958346));
-            TestContext.Out.WriteLine(orbit.GetOrbitalVelocityAtUT(2248030.02958346));
             AssertEqual(orbit.GetPositionAtUT(2248030.02958346), new Vector3d(-16555.4669097162, -2375291.03194007, -984757.441721877), "Orbit Pos");
             AssertEqual(orbit.GetOrbitalVelocityAtUT(2248030.02958346), new Vector3d(894.837941056022, 414.309011750899, 93.0483164395469), "Orbit Vel");
         }
@@ -23,6 +21,40 @@ namespace kOSMainframeTest {
         public void TestKerbinOrbit() {
             AssertEqual(BodyTestRef.Kerbin.orbit.GetPositionAtUT(2248727.10958411), new Vector3d(-505812409.43674, -13590430780.3387, 0), "Orbit Pos");
             AssertEqual(BodyTestRef.Kerbin.orbit.GetOrbitalVelocityAtUT(2248727.10958411), new Vector3d(9278.07693080402, -345.314031847963, 0), "Orbit Vel");
+        }
+
+        [Test]
+        public void TestFromPositionMun()
+        {
+            double UT = 20000.0;
+            Vector3d position = BodyTestRef.Mun.GetPositionAtUT(UT);
+            Vector3d velocity = BodyTestRef.Mun.GetOrbitalVelocityAtUT(UT);
+
+            OrbitTestRef orbit = new OrbitTestRef(BodyTestRef.Kerbin, position, velocity, UT);
+
+            Assert.AreEqual(BodyTestRef.Mun.orbit.inclination, orbit.inclination, 1e-7);
+            Assert.AreEqual(BodyTestRef.Mun.orbit.eccentricity, orbit.eccentricity, 1e-7);
+            Assert.AreEqual(BodyTestRef.Mun.orbit.semiMajorAxis, orbit.semiMajorAxis, 1e-7);
+            AssertEqual(BodyTestRef.Mun.GetPositionAtUT(25000.0), orbit.GetPositionAtUT(25000.0), "Position");
+            AssertEqual(BodyTestRef.Mun.GetOrbitalVelocityAtUT(25000.0), orbit.GetOrbitalVelocityAtUT(25000.0), "Position");
+        }
+
+        [Test]
+        public void TestFromPositionDuna()
+        {
+            double UT = 20000.0;
+            Vector3d position = BodyTestRef.Duna.GetPositionAtUT(UT);
+            Vector3d velocity = BodyTestRef.Duna.GetOrbitalVelocityAtUT(UT);
+
+            OrbitTestRef orbit = new OrbitTestRef(BodyTestRef.Kerbol, position, velocity, UT);
+
+            Assert.AreEqual(BodyTestRef.Duna.orbit.inclination, orbit.inclination, 1e-7);
+            Assert.AreEqual(BodyTestRef.Duna.orbit.eccentricity, orbit.eccentricity, 1e-7);
+            Assert.AreEqual(BodyTestRef.Duna.orbit.semiMajorAxis, orbit.semiMajorAxis, 1e-4);
+            Assert.AreEqual(BodyTestRef.Duna.orbit.LAN, orbit.LAN, 1e-7);
+            Assert.AreEqual(BodyTestRef.Duna.orbit.argumentOfPeriapsis, orbit.argumentOfPeriapsis, 1e-5);
+            AssertEqual(BodyTestRef.Duna.GetPositionAtUT(25000.0), orbit.GetPositionAtUT(25000.0), "Position");
+            AssertEqual(BodyTestRef.Duna.GetOrbitalVelocityAtUT(25000.0), orbit.GetOrbitalVelocityAtUT(25000.0), "Position");
         }
 
         private void AssertEqual(Vector3d expected, Vector3d actual, String message) {

@@ -176,7 +176,7 @@ namespace kOSMainframeTest {
         };
 
         [Test]
-        public void TestSimpleTransfer() {
+        public void TestReferenceTransfers() {
             foreach(var testSet in testSets) {
                 Vector3d actualV1;
                 Vector3d actualV2;

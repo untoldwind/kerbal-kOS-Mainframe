@@ -1,8 +1,10 @@
 ﻿using System;
+using NUnit.Framework;
 
 namespace kOSMainframeTest {
     public class OrbitTestRef {
         public const double DegToRad = Math.PI / 180.0;
+        public const double RadToDeg = 180.0 / Math.PI;
 
         public BodyTestRef body;
         public double inclination;
@@ -85,7 +87,11 @@ namespace kOSMainframeTest {
             } else {
                 ascendingNode = Vector3d.Cross(Vector3d.forward, H);
             }
-            LAN = Math.Atan2(ascendingNode.y, ascendingNode.x);
+            if (ascendingNode.sqrMagnitude == 0.0)
+            {
+                ascendingNode = Vector3d.right;
+            }
+            LAN = RadToDeg * Math.Atan2(ascendingNode.y, ascendingNode.x);
             eccVec = Vector3d.Cross(velocity, H) / body.mu - position / position.magnitude;
             eccentricity = eccVec.magnitude;
             if (eccentricity < 1.0) {
@@ -98,19 +104,19 @@ namespace kOSMainframeTest {
                 argumentOfPeriapsis = 0.0;
             } else {
                 FrameX = eccVec.normalized;
-                argumentOfPeriapsis = Math.Acos(Vector3d.Dot(ascendingNode, FrameX) / ascendingNode.magnitude);
+                argumentOfPeriapsis = RadToDeg * Math.Acos(Vector3d.Dot(ascendingNode, FrameX) / ascendingNode.magnitude);
                 if (FrameX.z < 0.0) {
-                    argumentOfPeriapsis = 2 * Math.PI - argumentOfPeriapsis;
+                    argumentOfPeriapsis = 360.0 - argumentOfPeriapsis;
                 }
             }
             if (H.sqrMagnitude == 0.0) {
                 FrameY = ascendingNode.normalized;
                 FrameZ = Vector3d.Cross(FrameX, FrameY);
             } else {
-                FrameY = Vector3d.Cross(FrameZ, FrameX);
                 FrameZ = H.normalized;
+                FrameY = Vector3d.Cross(FrameZ, FrameX);
             }
-            inclination = Math.Acos(FrameZ.z);
+            inclination = RadToDeg * Math.Acos(FrameZ.z);
             epoch = UT;
             double trueAnomaly = Math.Atan2(Vector3d.Dot(FrameY, position), Vector3d.Dot(FrameX, position));
             double eccentricAnomaly = GetEccentricAnomalyForTrue(trueAnomaly);
@@ -270,6 +276,11 @@ namespace kOSMainframeTest {
             double num3 = Math.Sinh(E / 2.0);
             double num4 = Math.Cosh(E / 2.0);
             return 2.0 * Math.Atan2(Math.Sqrt(eccentricity + 1.0) * num3, Math.Sqrt(eccentricity - 1.0) * num4);
+        }
+
+        public override string ToString()
+        {
+            return $"Orbit: body={body.name} inc={inclination} ecc={eccentricity} sMa={semiMajorAxis} Epoch={epoch} LAN={LAN} ArgPe={argumentOfPeriapsis} meanAtEpoch={meanAnomalyAtEpoch} FrameX={FrameX} FrameY={FrameY} FrameZ={FrameZ}";
         }
     }
 }
