@@ -152,10 +152,10 @@ namespace kOSMainframe.Orbital {
         private static double solveYEqn(double h2, double h1)
         {
             // Analytical solution for x^3-h1*x^2-h2 = 0.
-            // Cause iamgenius eating problems like that for breakfast ... nah, just used maxima for this one.
+            // Note: This only works for h1 >= 0 h2 >= 0, which should not be a problem
 
-            double a = Math.Sqrt(h2 * (27.0 * h2 + 4.0 * h1 * h1 * h1) / 108.0);
-            double b = Math.Pow(a + h2 / 2.0 + (h1 * h1 * h1) / 27.0, 1.0 / 3.0);
+            double a = h2 / 4.0 + h1 * h1 * h1 / 27.0;
+            double b = Math.Pow(Math.Sqrt(h2 * a) + h2 / 4.0 + a, 1.0 / 3.0);
             return b + h1 * h1 / (9.0 * b) + h1 / 3;
         }
     }
