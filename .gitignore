@@ -6,7 +6,7 @@
 [Bb]in/
 packages/
 TestResults/
-TestResults.xml
+TestResult.xml
 
 # globs
 Makefile.in
