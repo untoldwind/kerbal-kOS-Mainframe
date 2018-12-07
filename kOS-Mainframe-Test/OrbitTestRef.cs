@@ -87,8 +87,7 @@ namespace kOSMainframeTest {
             } else {
                 ascendingNode = Vector3d.Cross(Vector3d.forward, H);
             }
-            if (ascendingNode.sqrMagnitude == 0.0)
-            {
+            if (ascendingNode.sqrMagnitude == 0.0) {
                 ascendingNode = Vector3d.right;
             }
             LAN = RadToDeg * Math.Atan2(ascendingNode.y, ascendingNode.x);
@@ -278,8 +277,7 @@ namespace kOSMainframeTest {
             return 2.0 * Math.Atan2(Math.Sqrt(eccentricity + 1.0) * num3, Math.Sqrt(eccentricity - 1.0) * num4);
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return $"Orbit: body={body.name} inc={inclination} ecc={eccentricity} sMa={semiMajorAxis} Epoch={epoch} LAN={LAN} ArgPe={argumentOfPeriapsis} meanAtEpoch={meanAnomalyAtEpoch} FrameX={FrameX} FrameY={FrameY} FrameZ={FrameZ}";
         }
     }

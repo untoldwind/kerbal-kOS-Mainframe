@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using NUnit.Framework;
 using kOSMainframe.Orbital;
 using UnityEngine;
@@ -190,27 +189,48 @@ namespace kOSMainframeTest {
         }
 
         [Test]
-        public void TestKerbinDuna()
-        {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
+        public void TestKerbinDuna() {
             const double min_tt = 50 * 5 * 60 * 60; // 50 Days
             const double max_tt = 800 * 5 * 60 * 60; // 800 Days
             const double min_UT = 5 * 60 * 60;
             const double max_UT = 500 * 5 * 60 * 60;
 
-            for(var UT = min_UT; UT < max_UT; UT += 12345)
-            {
+            for(var UT = min_UT; UT < max_UT; UT += 23456) {
                 var R1 = BodyTestRef.Kerbin.GetPositionAtUT(UT);
                 var R2 = BodyTestRef.Duna.GetPositionAtUT(UT);
 
-                for(var tt = min_tt; tt < max_tt; tt += 12345)
-                {
+                for(var tt = min_tt; tt < max_tt; tt += 34567) {
                     Vector3d V1;
                     Vector3d V2;
                     LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbol.mu, true, out V1, out V2);
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbol, R1, V1, UT);
+
+                    AssertEqualRel(R1, transfer.GetPositionAtUT(UT), 1e-5, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-5, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.GetPositionAtUT(UT + tt), 1e-5, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-5, $"V2 UT={UT} tt={tt}");
+                }
+            }
+        }
+
+        [Test]
+        public void TestMunMinmus() {
+            const double min_tt = 5 * 60 * 60; // 50 Days
+            const double max_tt = 40 * 5 * 60 * 60; // 800 Days
+            const double min_UT = 5 * 60 * 60;
+            const double max_UT = 500 * 5 * 60 * 60;
+
+            for (var UT = min_UT; UT < max_UT; UT += 23456) {
+                var R1 = BodyTestRef.Mun.GetPositionAtUT(UT);
+                var R2 = BodyTestRef.Minmus.GetPositionAtUT(UT);
+
+                for (var tt = min_tt; tt < max_tt; tt += 1234) {
+                    Vector3d V1;
+                    Vector3d V2;
+                    LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbin.mu, true, out V1, out V2);
+
+                    OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbin, R1, V1, UT);
 
                     AssertEqualRel(R1, transfer.GetPositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
                     AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
@@ -218,15 +238,12 @@ namespace kOSMainframeTest {
                     AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
                 }
             }
-
-            stopwatch.Stop();
-            TestContext.Out.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         void AssertEqualRel(Vector3d expected, Vector3d actual, double relError, String prefix) {
-            Assert.AreEqual(expected.x, actual.x, Math.Min(60, Math.Abs(expected.x) * relError + relError), prefix + " x");
-            Assert.AreEqual(expected.y, actual.y, Math.Min(60, Math.Abs(expected.y) * relError + relError), prefix + " y");
-            Assert.AreEqual(expected.z, actual.z, Math.Min(60, Math.Abs(expected.z) * relError + relError), prefix + " z");
+            Assert.AreEqual(expected.x, actual.x, Math.Min(60, Math.Max(1e-3, Math.Abs(expected.x) * relError)), prefix + " x");
+            Assert.AreEqual(expected.y, actual.y, Math.Min(60, Math.Max(1e-3, Math.Abs(expected.x) * relError)), prefix + " y");
+            Assert.AreEqual(expected.z, actual.z, Math.Min(60, Math.Max(1e-3, Math.Abs(expected.x) * relError)), prefix + " z");
         }
     }
 

@@ -24,8 +24,7 @@ namespace kOSMainframeTest {
         }
 
         [Test]
-        public void TestFromPositionMun()
-        {
+        public void TestFromPositionMun() {
             double UT = 20000.0;
             Vector3d position = BodyTestRef.Mun.GetPositionAtUT(UT);
             Vector3d velocity = BodyTestRef.Mun.GetOrbitalVelocityAtUT(UT);
@@ -40,8 +39,7 @@ namespace kOSMainframeTest {
         }
 
         [Test]
-        public void TestFromPositionDuna()
-        {
+        public void TestFromPositionDuna() {
             double UT = 20000.0;
             Vector3d position = BodyTestRef.Duna.GetPositionAtUT(UT);
             Vector3d velocity = BodyTestRef.Duna.GetOrbitalVelocityAtUT(UT);

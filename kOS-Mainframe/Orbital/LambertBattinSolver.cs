@@ -25,23 +25,25 @@ namespace kOSMainframe.Orbital {
             }
 
             double cosDeltaTA = (Vector3d.Dot(R1, R2)) / (R1mag * R2mag);
-            double sinDeltaTA = tm * Math.Sqrt(1 - Math.Pow(cosDeltaTA, 2));
+            double sinDeltaTA = tm * Math.Sqrt(1 - cosDeltaTA *  cosDeltaTA);
             double deltaTA = Math.Atan2(sinDeltaTA, cosDeltaTA);
             if (deltaTA < 0) {
                 deltaTA = deltaTA + 2 * Math.PI;
             }
 
-            double c = Math.Sqrt(Math.Pow(R1mag, 2) + Math.Pow(R2mag, 2) - 2 * R1mag * R2mag * cosDeltaTA);
+            double c = Math.Sqrt(R1mag * R1mag + R2mag * R2mag - 2 * R1mag * R2mag * cosDeltaTA);
 
             double s = (R1mag + R2mag + c) / 2;
 
             double epsilon = (R2mag - R1mag) / R1mag;
 
             double intemed1 = R2mag / R1mag;
-            double TanSqr2w = (Math.Pow(epsilon, 2) / 4) / (Math.Sqrt(intemed1) + intemed1 * (2 + Math.Sqrt(intemed1)));
+            double TanSqr2w = (epsilon * epsilon / 4) / (Math.Sqrt(intemed1) + intemed1 * (2 + Math.Sqrt(intemed1)));
 
-            double sinSqrDeltaTAOver4 = Math.Pow(Math.Sin(deltaTA / 4), 2);
-            double cosSqrDeltaTAOver4 = Math.Pow(Math.Cos(deltaTA / 4), 2);
+            double sinSqrDeltaTAOver4 = Math.Sin(deltaTA / 4);
+            sinSqrDeltaTAOver4 *= sinSqrDeltaTAOver4;
+            double cosSqrDeltaTAOver4 = Math.Cos(deltaTA / 4);
+            cosSqrDeltaTAOver4 *= cosSqrDeltaTAOver4;
             double rop = Math.Sqrt(R1mag * R2mag) * (cosSqrDeltaTAOver4 + TanSqr2w);
 
             double l;
@@ -51,7 +53,7 @@ namespace kOSMainframe.Orbital {
                 l = (cosSqrDeltaTAOver4 + TanSqr2w - Math.Cos(deltaTA / 2)) / (cosSqrDeltaTAOver4 + TanSqr2w);
             }
 
-            double m = (muCB * Math.Pow(dt, 2)) / (8 * Math.Pow(rop, 3));
+            double m = (muCB * dt * dt) / (8 * rop * rop * rop);
 
             double x = l;
             double x_change = 1;
@@ -61,7 +63,7 @@ namespace kOSMainframe.Orbital {
             do {
                 double ksi = ComputeKsi(x, 8);
 
-                double h1 = (Math.Pow((l + x), 2) * (1 + 3 * x + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
+                double h1 = ((l + x) * (l + x) * (1 + 3 * x + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
                 double h2 = (m * (x - l + ksi)) / ((1 + 2 * x + l) * (4 * x + ksi * (3 + x)));
 
                 //const double relativeAccuracy = 1.0e-12;
@@ -75,20 +77,24 @@ namespace kOSMainframe.Orbital {
                 // Another replacement: This can be done analytically.
                 y = solveYEqn(h2, 1 + h1);
                 if(double.IsNaN(y)) {
+#if FALLBACK
                     Logging.Warning("LambertBattinSolver: analytic edge case h1={1} h2={2} (fallback to Newton)", h1, h2);
                     double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
                     PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
                     y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
+#else
+                    throw new Exception("LambertBattinSolver: analytic edge case h1={h1} h2={h2}");
+#endif
                 }
 
-                double x_new = Math.Sqrt(Math.Pow((1 - l) / 2, 2) + m / Math.Pow(y, 2)) - (1 + l) / 2;
+                double x_new = Math.Sqrt((1 - l) * (1 - l) / 4 + m / (y * y)) - (1 + l) / 2;
                 x_change = Math.Abs(x - x_new);
                 x = x_new;
                 loops++;
 
-            } while (x_change > Math.Pow(10, -6) && loops < 30);
+            } while (x_change > 1e-6 && loops < 30);
 
-            double a = (muCB * Math.Pow(dt, 2)) / (16 * Math.Pow(rop, 2) * x * Math.Pow(y, 2));
+            double a = (muCB * dt * dt) / (16 * rop * rop * x * y * y);
 
             double f = 0;
             double g = 0;
@@ -103,7 +109,7 @@ namespace kOSMainframe.Orbital {
                 }
 
                 double amin = s / 2;
-                double tmin = Math.Sqrt(Math.Pow(amin, 3) / muCB) * (Math.PI - betaE + Math.Sin(betaE));
+                double tmin = Math.Sqrt(amin * amin * amin / muCB) * (Math.PI - betaE + Math.Sin(betaE));
 
                 double alphaE = 2 * Math.Asin(Math.Sqrt(s / (2 * a)));
                 if (dt > tmin) {
@@ -113,7 +119,7 @@ namespace kOSMainframe.Orbital {
                 double deltaE = alphaE - betaE;
 
                 f = 1 - (a / R1mag) * (1 - Math.Cos(deltaE));
-                g = dt - Math.Sqrt(Math.Pow(a, 3) / muCB) * (deltaE - Math.Sin(deltaE));
+                g = dt - Math.Sqrt(a * a * a / muCB) * (deltaE - Math.Sin(deltaE));
                 g_dot = 1 - (a / R2mag) * (1 - Math.Cos(deltaE));
 
             } else if (a < -small) {
@@ -127,7 +133,7 @@ namespace kOSMainframe.Orbital {
                 double deltaH = alphaH - betaH;
 
                 f = 1 - (a / R1mag) * (1 - Math.Cosh(deltaH));
-                g = dt - Math.Sqrt(-Math.Pow(a, 3) / muCB) * (Math.Sinh(deltaH) - deltaH);
+                g = dt - Math.Sqrt(-a * a * a / muCB) * (Math.Sinh(deltaH) - deltaH);
                 g_dot = 1 - (a / R2mag) * (1 - Math.Cosh(deltaH));
             } else {
                 //List<Vector3d> VArr = null;
@@ -140,8 +146,9 @@ namespace kOSMainframe.Orbital {
 
         private static double ComputeKsi(double x, int numLevels) {
             double ksi = 0;
-            double eta = x / Math.Pow((Math.Sqrt(1 + x) + 1), 2);
-            double num = 8 * (Math.Sqrt(1 + x) + 1);
+            double n = Math.Sqrt(1 + x) + 1;
+            double eta = x / (n * n);
+            double num = 8 * n;
             double denom = 1;
 
             if (numLevels > 0) {
