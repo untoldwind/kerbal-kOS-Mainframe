@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using NUnit.Framework;
 using kOSMainframe.Orbital;
 using UnityEngine;
@@ -183,9 +184,49 @@ namespace kOSMainframeTest {
 
                 LambertBattinSolver.Solve(testSet.R1, testSet.R2, testSet.dt, testSet.mu, testSet.shortway, out actualV1, out actualV2);
 
-                Assert.AreEqual(0.0, (testSet.V1 - actualV1).magnitude, 1e-7);
+                Assert.AreEqual(0.0, (testSet.V1 - actualV1).magnitude, 1e-6);
                 Assert.AreEqual(0.0, (testSet.V2 - actualV2).magnitude, 1e-7);
             }
+        }
+
+        [Test]
+        public void TestKerbinDuna()
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            const double min_tt = 50 * 5 * 60 * 60; // 50 Days
+            const double max_tt = 800 * 5 * 60 * 60; // 800 Days
+            const double min_UT = 5 * 60 * 60;
+            const double max_UT = 500 * 5 * 60 * 60;
+
+            for(var UT = min_UT; UT < max_UT; UT += 12345)
+            {
+                var R1 = BodyTestRef.Kerbin.GetPositionAtUT(UT);
+                var R2 = BodyTestRef.Duna.GetPositionAtUT(UT);
+
+                for(var tt = min_tt; tt < max_tt; tt += 12345)
+                {
+                    Vector3d V1;
+                    Vector3d V2;
+                    LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbol.mu, true, out V1, out V2);
+
+                    OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbol, R1, V1, UT);
+
+                    AssertEqualRel(R1, transfer.GetPositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.GetPositionAtUT(UT + tt), 1e-4, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
+                }
+            }
+
+            stopwatch.Stop();
+            TestContext.Out.WriteLine(stopwatch.ElapsedMilliseconds);
+        }
+
+        void AssertEqualRel(Vector3d expected, Vector3d actual, double relError, String prefix) {
+            Assert.AreEqual(expected.x, actual.x, Math.Min(60, Math.Abs(expected.x) * relError + relError), prefix + " x");
+            Assert.AreEqual(expected.y, actual.y, Math.Min(60, Math.Abs(expected.y) * relError + relError), prefix + " y");
+            Assert.AreEqual(expected.z, actual.z, Math.Min(60, Math.Abs(expected.z) * relError + relError), prefix + " z");
         }
     }
 
