@@ -195,11 +195,11 @@ namespace kOSMainframeTest {
             const double min_UT = 5 * 60 * 60;
             const double max_UT = 500 * 5 * 60 * 60;
 
-            for(var UT = min_UT; UT < max_UT; UT += 23456) {
+            for(var UT = min_UT; UT < max_UT; UT += 34567) {
                 var R1 = BodyTestRef.Kerbin.GetPositionAtUT(UT);
                 var R2 = BodyTestRef.Duna.GetPositionAtUT(UT);
 
-                for(var tt = min_tt; tt < max_tt; tt += 34567) {
+                for(var tt = min_tt; tt < max_tt; tt += 45678) {
                     Vector3d V1;
                     Vector3d V2;
                     LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbol.mu, true, out V1, out V2);
@@ -221,11 +221,11 @@ namespace kOSMainframeTest {
             const double min_UT = 5 * 60 * 60;
             const double max_UT = 500 * 5 * 60 * 60;
 
-            for (var UT = min_UT; UT < max_UT; UT += 23456) {
+            for (var UT = min_UT; UT < max_UT; UT += 34567) {
                 var R1 = BodyTestRef.Mun.GetPositionAtUT(UT);
                 var R2 = BodyTestRef.Minmus.GetPositionAtUT(UT);
 
-                for (var tt = min_tt; tt < max_tt; tt += 1234) {
+                for (var tt = min_tt; tt < max_tt; tt += 2345) {
                     Vector3d V1;
                     Vector3d V2;
                     LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbin.mu, true, out V1, out V2);
