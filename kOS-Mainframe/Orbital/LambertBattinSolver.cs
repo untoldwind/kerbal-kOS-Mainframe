@@ -77,14 +77,10 @@ namespace kOSMainframe.Orbital {
                 // Another replacement: This can be done analytically.
                 y = solveYEqn(h2, 1 + h1);
                 if(double.IsNaN(y)) {
-#if FALLBACK
-                    Logging.Warning("LambertBattinSolver: analytic edge case h1={1} h2={2} (fallback to Newton)", h1, h2);
+                    Logging.Warning($"LambertBattinSolver: analytic edge case h1={h1} h2={h2} (fallback to Newton)");
                     double[] polyConsts = { -h2, 0, -(1 + h1), 1 };
                     PolynomialFunction yEqnPoly = new PolynomialFunction(polyConsts);
                     y = NewtonSolver.Solve(yEqnPoly, 10, 1.0e-12, 50);
-#else
-                    throw new Exception("LambertBattinSolver: analytic edge case h1={h1} h2={h2}");
-#endif
                 }
 
                 double x_new = Math.Sqrt((1 - l) * (1 - l) / 4 + m / (y * y)) - (1 + l) / 2;
