@@ -267,14 +267,18 @@ namespace kOSMainframeTest {
         }
 
         public double GetTrueAnomaly(double E) {
-            if (eccentricity < 1.0) {
-                double num = Math.Cos(E / 2.0);
-                double num2 = Math.Sin(E / 2.0);
-                return 2.0 * Math.Atan2(Math.Sqrt(1.0 + eccentricity) * num2, Math.Sqrt(1.0 - eccentricity) * num);
+            if (eccentricity < 1.0)
+            {
+                double x = Math.Cos(E / 2.0);
+                double y = Math.Sin(E / 2.0);
+                return 2.0 * Math.Atan2(Math.Sqrt(1.0 + eccentricity) * y, Math.Sqrt(1.0 - eccentricity) * x);
             }
-            double num3 = Math.Sinh(E / 2.0);
-            double num4 = Math.Cosh(E / 2.0);
-            return 2.0 * Math.Atan2(Math.Sqrt(eccentricity + 1.0) * num3, Math.Sqrt(eccentricity - 1.0) * num4);
+            else
+            {
+                double x = Math.Cosh(E / 2.0);
+                double y = Math.Sinh(E / 2.0);
+                return 2.0 * Math.Atan2(Math.Sqrt(eccentricity + 1.0) * y, Math.Sqrt(eccentricity - 1.0) * x);
+            }
         }
 
         public override string ToString() {
