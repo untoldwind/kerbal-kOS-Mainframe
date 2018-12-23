@@ -29,14 +29,10 @@ namespace kOSMainframe.Orbital {
 
             if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
-                LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, true, out transferViClockwise, out transferVfClockwise);
-                LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
             }
-            else
-            {
-                LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, true, out transferViClockwise, out transferVfClockwise);
-                LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
-            }
+
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, true, out transferViClockwise, out transferVfClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
 
             double totalClockwise = (finalVelocity - transferVfClockwise).magnitude + (transferViClockwise - initialVelocity).magnitude;
             double totalCounterClockwise = (finalVelocity - transferVfCounterClockwise).magnitude + (transferViCounterClockwise - initialVelocity).magnitude;
