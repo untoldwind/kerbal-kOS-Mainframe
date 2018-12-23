@@ -37,14 +37,11 @@ namespace kOSMainframe.Orbital {
             double totalClockwise = (finalVelocity - transferVfClockwise).magnitude + (transferViClockwise - initialVelocity).magnitude;
             double totalCounterClockwise = (finalVelocity - transferVfCounterClockwise).magnitude + (transferViCounterClockwise - initialVelocity).magnitude;
 
-            if(totalClockwise < totalCounterClockwise)
-            {
+            if(totalClockwise < totalCounterClockwise) {
                 secondDV = finalVelocity - transferVfClockwise;
 
                 return transferViClockwise - initialVelocity;
-            }
-            else
-            {
+            } else {
                 secondDV = finalVelocity - transferVfCounterClockwise;
 
                 return transferViCounterClockwise - initialVelocity;
@@ -99,12 +96,19 @@ namespace kOSMainframe.Orbital {
             Vector3d displacementDir = Vector3d.Cross(collisionRelVel, o.SwappedOrbitNormal()).normalized;
             Vector3d interceptTarget = collisionPosition + desiredImpactParameter * displacementDir;
 
-            Vector3d velAfterBurn;
-            Vector3d arrivalVel;
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
+            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
 
-            Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
-            return o.DeltaVToNode(collisionParams.time, deltaV);
+            Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+
+            if(deltaVClockwise.magnitude < deltaVCounterClockwise.magnitude) {
+                return o.DeltaVToNode(collisionParams.time, deltaVClockwise);
+            } else {
+                return o.DeltaVToNode(collisionParams.time, deltaVCounterClockwise);
+            }
         }
 
         public static NodeParameters CheapestCourseCorrection(Orbit o, double UT, Orbit target, double caDistance) {
@@ -117,12 +121,18 @@ namespace kOSMainframe.Orbital {
 
             Vector3d interceptTarget = targetPos + target.NormalPlus(collisionUT) * caDistance;
 
-            Vector3d velAfterBurn;
-            Vector3d arrivalVel;
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
+            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
 
-            Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
-            return o.DeltaVToNode(collisionParams.time, deltaV);
+            Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            if (deltaVClockwise.magnitude < deltaVCounterClockwise.magnitude) {
+                return o.DeltaVToNode(collisionParams.time, deltaVClockwise);
+            } else {
+                return o.DeltaVToNode(collisionParams.time, deltaVCounterClockwise);
+            }
         }
 
         //Computes the dV of a Hohmann transfer burn at time UT that will put the apoapsis or periapsis
@@ -233,23 +243,18 @@ namespace kOSMainframe.Orbital {
             public bool intercept_only;  // omit the second burn from the cost
             public double zeroUT;
 
-            public double LambertCost(double start, double transferTime)
-            {
+            public double LambertCost(double start, double transferTime) {
                 double UT1 = start + zeroUT;
                 double UT2 = UT1 + transferTime;
                 Vector3d finalVelocity;
                 double result;
 
-                try
-                {
+                try {
                     result = DeltaVToInterceptAtTime(o, UT1, target, UT2, out finalVelocity, 0).magnitude;
-                    if (!intercept_only)
-                    {
+                    if (!intercept_only) {
                         result += finalVelocity.magnitude;
                     }
-                }
-                catch (Exception)
-                {
+                } catch (Exception) {
                     // need Sqrt of MaxValue so least-squares can square it without an infinity
                     return Math.Sqrt(Double.MaxValue);
                 }

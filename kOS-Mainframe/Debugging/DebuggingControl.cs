@@ -81,8 +81,7 @@ namespace kOSMainframe.Debugging {
             CleanAndAddNode(nodeParams);
         }
 
-        private void Interplanetary()
-        {
+        private void Interplanetary() {
             var target = Vessel.targetObject;
             if (target == null) return;
 

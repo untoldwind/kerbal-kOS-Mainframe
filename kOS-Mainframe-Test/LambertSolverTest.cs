@@ -179,20 +179,17 @@ namespace kOSMainframeTest {
         }
 
         [Test]
-        public void TestKerbinDunaIzzo()
-        {
+        public void TestKerbinDunaIzzo() {
             const double min_tt = 80 * 5 * 60 * 60; // 80 Days
             const double max_tt = 800 * 5 * 60 * 60; // 800 Days
             const double min_UT = 5 * 60 * 60;
             const double max_UT = 500 * 5 * 60 * 60;
 
-            for (var UT = min_UT; UT < max_UT; UT += 34567)
-            {
+            for (var UT = min_UT; UT < max_UT; UT += 34567) {
                 var R1 = BodyTestRef.Kerbin.GetPositionAtUT(UT);
                 var R2 = BodyTestRef.Duna.GetPositionAtUT(UT);
 
-                for (var tt = min_tt; tt < max_tt; tt += 45678)
-                {
+                for (var tt = min_tt; tt < max_tt; tt += 45678) {
                     Vector3d V1;
                     Vector3d V2;
 
@@ -236,20 +233,17 @@ namespace kOSMainframeTest {
         }
 
         [Test]
-        public void TestMunMinmusIzzo()
-        {
+        public void TestMunMinmusIzzo() {
             const double min_tt = 5 * 60 * 60; // 5 Days
             const double max_tt = 40 * 5 * 60 * 60; // 40 Days
             const double min_UT = 5 * 60 * 60;
             const double max_UT = 500 * 5 * 60 * 60;
 
-            for (var UT = min_UT; UT < max_UT; UT += 34567)
-            {
+            for (var UT = min_UT; UT < max_UT; UT += 34567) {
                 var R1 = BodyTestRef.Mun.GetPositionAtUT(UT);
                 var R2 = BodyTestRef.Minmus.GetPositionAtUT(UT);
 
-                for (var tt = min_tt; tt < max_tt; tt += 2345)
-                {
+                for (var tt = min_tt; tt < max_tt; tt += 2345) {
                     Vector3d V1;
                     Vector3d V2;
 
