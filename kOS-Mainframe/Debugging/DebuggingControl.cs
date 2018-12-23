@@ -76,7 +76,7 @@ namespace kOSMainframe.Debugging {
         private void BiinjectiveTransfer() {
             var target = Vessel.targetObject;
             if (target == null) return;
-            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime());
+            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime() + 2000);
 
             CleanAndAddNode(nodeParams);
         }
@@ -86,7 +86,7 @@ namespace kOSMainframe.Debugging {
             var target = Vessel.targetObject;
             if (target == null) return;
 
-            var nodeParams = OrbitSOIChange.InterplanetaryLambertTransferEjection(Vessel.orbit, Planetarium.GetUniversalTime(), target.GetOrbit());
+            var nodeParams = OrbitSOIChange.InterplanetaryLambertTransferEjection(Vessel.orbit, Planetarium.GetUniversalTime() + 2000, target.GetOrbit());
 
             CleanAndAddNode(nodeParams);
         }
