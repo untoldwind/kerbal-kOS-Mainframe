@@ -261,9 +261,10 @@ namespace kOSMainframe.Orbital {
             prob.zeroUT = UT;
             prob.intercept_only = intercept_only;
 
-            Vector2d minParam = AmoebaOptimizer.Optimize(new DelegateFunction2(prob.LambertCost), new Vector2d(0, TT), Vector2d.one, 0.000001, 1000);
+            Vector2d minParam;
+            int iter = AmoebaOptimizer.Optimize(new DelegateFunction2(prob.LambertCost), new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out minParam);
 
-            Logging.Debug("DeltaVAndTimeForBiImpulsiveTransfer: x[0] = " + minParam.x + " x[1] = " + minParam.y);
+            Logging.Debug($"DeltaVAndTimeForBiImpulsiveTransfer: UT = {minParam.x} T = {minParam.y} iter = {iter}");
 
             double burnUT = UT + minParam.x;
             Vector3d dV = DeltaVToInterceptAtTime(o, burnUT, target, burnUT + minParam.y, 0, shortway);
@@ -313,10 +314,10 @@ namespace kOSMainframe.Orbital {
             double a = (Math.Abs(o.semiMajorAxis) + Math.Abs(target.semiMajorAxis)) / 2;
             double maxTT = Math.PI * Math.Sqrt(a * a * a / o.referenceBody.gravParameter);   // FIXME: allow tweaking
 
-            Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
+            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
             if (target.patchEndTransition != Orbit.PatchTransitionType.FINAL && target.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
                 // reset the guess to search for start times out to the end of the target orbit
                 maxUT = target.EndUT - UT;
                 // longest possible transfer time would leave now and arrive at the target patch end
@@ -327,7 +328,7 @@ namespace kOSMainframe.Orbital {
 
             // if our orbit ends, search for start times all the way to the end, but don't violate maxUTplusT if its set
             if (o.patchEndTransition != Orbit.PatchTransitionType.FINAL && o.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
                 maxUT = Math.Min(o.EndUT - UT, maxUTplusT);
             }
 
@@ -337,7 +338,7 @@ namespace kOSMainframe.Orbital {
                 minUT = 0;
             }
 
-            Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed Check2: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
+            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed Check2: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
             double currentUT = maxUT / 2;
             double currentTT = maxTT / 2;
@@ -406,7 +407,7 @@ namespace kOSMainframe.Orbital {
             if (hohmannOrbit.semiMajorAxis > o.semiMajorAxis) apsisTime = hohmannOrbit.NextApoapsisTime(hohmannParams.time);
             else apsisTime = hohmannOrbit.NextPeriapsisTime(hohmannParams.time);
 
-            Debug.Log("hohmann = " + hohmannParams + ", apsisTime = " + apsisTime);
+            Logging.Debug("hohmann = " + hohmannParams + ", apsisTime = " + apsisTime);
 
             Vector3d dV = Vector3d.zero;
             double minCost = 999999;
@@ -417,12 +418,12 @@ namespace kOSMainframe.Orbital {
             for (int i = 0; i < subdivisions; i++) {
                 double interceptUT = minInterceptTime + i * (maxInterceptTime - minInterceptTime) / subdivisions;
 
-                Debug.Log("i + " + i + ", trying for intercept at UT = " + interceptUT);
+                Logging.Debug("i + " + i + ", trying for intercept at UT = " + interceptUT);
 
                 //Try both short and long way
                 Vector3d interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0, true);
                 double cost = (interceptBurn - subtractedProgradeDV).magnitude;
-                Debug.Log("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
+                Logging.Debug("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
                 if (cost < minCost) {
                     dV = interceptBurn;
                     minCost = cost;
@@ -430,7 +431,7 @@ namespace kOSMainframe.Orbital {
 
                 interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0, false);
                 cost = (interceptBurn - subtractedProgradeDV).magnitude;
-                Debug.Log("long way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
+                Logging.Debug("long way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
                 if (cost < minCost) {
                     dV = interceptBurn;
                     minCost = cost;
