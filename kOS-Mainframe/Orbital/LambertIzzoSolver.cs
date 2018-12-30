@@ -41,7 +41,7 @@ namespace kOSMainframe.Orbital {
         /// <param name="shortway">Find shortway/longway solution (prograde/retrograde)</param>
         /// <param name="v1">Velocity at r1.</param>
         /// <param name="v2">Velocity at r2.</param>
-        public static int Solve(Vector3d r1, Vector3d r2, double tof, double mu, bool shortway, out Vector3d v1, out Vector3d v2) {
+        public static int Solve(Vector3d r1, Vector3d r2, double tof, double mu, bool clockwise, out Vector3d v1, out Vector3d v2) {
             if (tof <= 0) throw new Exception("Time of flight is negative");
             if (mu <= 0) throw new Exception("Gravity parameter is negative");
 
@@ -64,7 +64,7 @@ namespace kOSMainframe.Orbital {
                 it1 = Vector3d.Cross(ih, ir1).normalized;
                 it2 = Vector3d.Cross(ih, ir2).normalized;
             }
-            if(!shortway) {
+            if(!clockwise) {
                 lambda = -lambda;
                 it1 = -it1;
                 it2 = -it2;

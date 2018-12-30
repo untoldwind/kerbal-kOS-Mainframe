@@ -4,9 +4,9 @@ using kOSMainframe.ExtraMath;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitIntercept {
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0, bool shortway = true) {
+        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0) {
             Vector3d finalVelocity;
-            return DeltaVToInterceptAtTime(o, UT, target, interceptUT, out finalVelocity, offsetDistance, shortway);
+            return DeltaVToInterceptAtTime(o, UT, target, interceptUT, out finalVelocity, offsetDistance);
         }
 
         // Computes the delta-V of a burn at a given time that will put an object with a given orbit on a
@@ -15,27 +15,37 @@ namespace kOSMainframe.Orbital {
         // offsetDistance: this is used by the Rendezvous Autopilot and is only going to be valid over very short distances
         // shortway: the shortway parameter to feed into the Lambert solver
         //
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0, bool shortway = true) {
+        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0) {
             Vector3d initialRelPos = o.SwappedRelativePositionAtUT(initialUT);
             Vector3d finalRelPos = target.SwappedRelativePositionAtUT(finalUT);
 
             Vector3d initialVelocity = o.SwappedOrbitalVelocityAtUT(initialUT);
             Vector3d finalVelocity = target.SwappedOrbitalVelocityAtUT(finalUT);
 
-            Vector3d transferVi, transferVf;
+            Vector3d transferViClockwise, transferVfClockwise;
+            Vector3d transferViCounterClockwise, transferVfCounterClockwise;
 
-            LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
             // GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
 
             if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
-                LambertSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, shortway, out transferVi, out transferVf);
-                //GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
             }
 
-            secondDV = finalVelocity - transferVf;
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, true, out transferViClockwise, out transferVfClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
 
-            return transferVi - initialVelocity;
+            double totalClockwise = (finalVelocity - transferVfClockwise).magnitude + (transferViClockwise - initialVelocity).magnitude;
+            double totalCounterClockwise = (finalVelocity - transferVfCounterClockwise).magnitude + (transferViCounterClockwise - initialVelocity).magnitude;
+
+            if(totalClockwise < totalCounterClockwise) {
+                secondDV = finalVelocity - transferVfClockwise;
+
+                return transferViClockwise - initialVelocity;
+            } else {
+                secondDV = finalVelocity - transferVfCounterClockwise;
+
+                return transferViCounterClockwise - initialVelocity;
+            }
         }
 
         //First finds the time of closest approach to the target during the next orbit after the
@@ -86,12 +96,19 @@ namespace kOSMainframe.Orbital {
             Vector3d displacementDir = Vector3d.Cross(collisionRelVel, o.SwappedOrbitNormal()).normalized;
             Vector3d interceptTarget = collisionPosition + desiredImpactParameter * displacementDir;
 
-            Vector3d velAfterBurn;
-            Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
+            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
 
-            Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
-            return o.DeltaVToNode(collisionParams.time, deltaV);
+            Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+
+            if(deltaVClockwise.magnitude < deltaVCounterClockwise.magnitude) {
+                return o.DeltaVToNode(collisionParams.time, deltaVClockwise);
+            } else {
+                return o.DeltaVToNode(collisionParams.time, deltaVCounterClockwise);
+            }
         }
 
         public static NodeParameters CheapestCourseCorrection(Orbit o, double UT, Orbit target, double caDistance) {
@@ -104,12 +121,18 @@ namespace kOSMainframe.Orbital {
 
             Vector3d interceptTarget = targetPos + target.NormalPlus(collisionUT) * caDistance;
 
-            Vector3d velAfterBurn;
-            Vector3d arrivalVel;
-            LambertSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurn, out arrivalVel);
+            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
+            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
 
-            Vector3d deltaV = velAfterBurn - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
-            return o.DeltaVToNode(collisionParams.time, deltaV);
+            Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
+            if (deltaVClockwise.magnitude < deltaVCounterClockwise.magnitude) {
+                return o.DeltaVToNode(collisionParams.time, deltaVClockwise);
+            } else {
+                return o.DeltaVToNode(collisionParams.time, deltaVCounterClockwise);
+            }
         }
 
         //Computes the dV of a Hohmann transfer burn at time UT that will put the apoapsis or periapsis
@@ -217,79 +240,50 @@ namespace kOSMainframe.Orbital {
         public struct LambertProblem {
             public Orbit o;
             public Orbit target;
-            public bool shortway;
             public bool intercept_only;  // omit the second burn from the cost
             public double zeroUT;
-        }
 
-        // x[0] is the burn time before/after zeroUT
-        // x[1] is the time of the transfer
-        //
-        // f[1] is the cost of the burn
-        //
-        // prob.shortway is which lambert solution to find
-        // prob.intercept_only omits adding the second burn to the cost
-        //
-        public static void LambertCost(double[] x, double[] f, object obj) {
-            LambertProblem prob = (LambertProblem)obj;
-            double UT1 = x[0] + prob.zeroUT;
-            double UT2 = UT1 + x[1];
-            Vector3d finalVelocity;
+            public double LambertCost(double start, double transferTime) {
+                double UT1 = start + zeroUT;
+                double UT2 = UT1 + transferTime;
+                Vector3d finalVelocity;
+                double result;
 
-            try {
-                f[0] = DeltaVToInterceptAtTime(prob.o, UT1, prob.target, UT2, out finalVelocity, 0, prob.shortway).magnitude;
-                if (!prob.intercept_only) {
-                    f[0] += finalVelocity.magnitude;
+                try {
+                    result = DeltaVToInterceptAtTime(o, UT1, target, UT2, out finalVelocity, 0).magnitude;
+                    if (!intercept_only) {
+                        result += finalVelocity.magnitude;
+                    }
+                } catch (Exception) {
+                    // need Sqrt of MaxValue so least-squares can square it without an infinity
+                    return Math.Sqrt(Double.MaxValue);
                 }
-            } catch (Exception) {
-                // need Sqrt of MaxValue so least-squares can square it without an infinity
-                f[0] = Math.Sqrt(Double.MaxValue);
+                if (!result.IsFinite())
+                    return Math.Sqrt(Double.MaxValue);
+                return result;
             }
-            if (!f[0].IsFinite())
-                f[0] = Math.Sqrt(Double.MaxValue);
         }
 
         // Levenburg-Marquardt local optimization of a two burn transfer.  This is used to refine the results of the simulated annealing global
         // optimization search.
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
-        public static NodeParameters BiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000, bool shortway = false) {
+        public static NodeParameters BiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
             double[] x = { 0, TT };
-            double[] scale = { o.period / 2, TT };
-
-            // absolute final time constraint: x[0] + x[1] <= maxUTplusT
-            double[,] C = { { 1, 1, maxUTplusT } };
-            int[] CT = { -1 };
-
-            double[] bndl = { minUT - UT, 0 };
-            double[] bndu = { maxUT - UT, maxTT };
-
-            alglib.minlmstate state;
-            alglib.minlmreport rep = new alglib.minlmreport();
-            alglib.minlmcreatev(1, x, 0.000001, out state);
-            alglib.minlmsetscale(state, scale);
-            alglib.minlmsetbc(state, bndl, bndu);
-            if (maxUTplusT != Double.PositiveInfinity)
-                alglib.minlmsetlc(state, C, CT);
-            alglib.minlmsetcond(state, eps, maxIter);
 
             LambertProblem prob = new LambertProblem();
             prob.o = o;
             prob.target = target;
-            prob.shortway = shortway;
             prob.zeroUT = UT;
             prob.intercept_only = intercept_only;
 
-            // solve it the long way
-            alglib.minlmoptimize(state, LambertCost, null, prob);
-            alglib.minlmresultsbuf(state, ref x, rep);
-            if (rep.terminationtype != 2)
-                Logging.Debug("MechJeb Lambert Transfer minlmoptimize termination code: " + rep.terminationtype);
+            Vector2d minParam;
+            int iter = AmoebaOptimizer.Optimize(new DelegateFunction2(prob.LambertCost), new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out minParam);
 
-            Logging.Debug("DeltaVAndTimeForBiImpulsiveTransfer: x[0] = " + x[0] + " x[1] = " + x[1]);
+            Logging.Debug($"DeltaVAndTimeForBiImpulsiveTransfer: UT = {minParam.x} T = {minParam.y} iter = {iter}");
 
-            double burnUT = UT + x[0];
-            Vector3d dV = DeltaVToInterceptAtTime(o, burnUT, target, burnUT + x[1], 0, shortway);
+            double burnUT = UT + minParam.x;
+            Vector3d dV = DeltaVToInterceptAtTime(o, burnUT, target, burnUT + minParam.y, 0);
 
             return o.DeltaVToNode(burnUT, dV);
         }
@@ -315,7 +309,6 @@ namespace kOSMainframe.Orbital {
             double bestTT = 0;
             double bestCost = Double.MaxValue;
             double currentCost = Double.MaxValue;
-            bool bestshortway = false;
             System.Random random = new System.Random();
 
             LambertProblem prob = new LambertProblem();
@@ -336,10 +329,10 @@ namespace kOSMainframe.Orbital {
             double a = (Math.Abs(o.semiMajorAxis) + Math.Abs(target.semiMajorAxis)) / 2;
             double maxTT = Math.PI * Math.Sqrt(a * a * a / o.referenceBody.gravParameter);   // FIXME: allow tweaking
 
-            Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
+            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
             if (target.patchEndTransition != Orbit.PatchTransitionType.FINAL && target.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
                 // reset the guess to search for start times out to the end of the target orbit
                 maxUT = target.EndUT - UT;
                 // longest possible transfer time would leave now and arrive at the target patch end
@@ -350,7 +343,7 @@ namespace kOSMainframe.Orbital {
 
             // if our orbit ends, search for start times all the way to the end, but don't violate maxUTplusT if its set
             if (o.patchEndTransition != Orbit.PatchTransitionType.FINAL && o.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
                 maxUT = Math.Min(o.EndUT - UT, maxUTplusT);
             }
 
@@ -360,7 +353,7 @@ namespace kOSMainframe.Orbital {
                 minUT = 0;
             }
 
-            Debug.Log("[MechJeb] DeltaVAndTimeForBiImpulsiveAnnealed Check2: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
+            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed Check2: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
             double currentUT = maxUT / 2;
             double currentTT = maxTT / 2;
@@ -380,15 +373,12 @@ namespace kOSMainframe.Orbital {
                 x[1] = Functions.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
                 x[1] = Math.Min(x[1], maxUTplusT - x[0]);
 
-                // just randomize the shortway
-                prob.shortway = random.NextDouble() > 0.5;
 
-                LambertCost(x, f, prob);
+                f[0] = prob.LambertCost(x[0], x[1]);
 
                 if (f[0] < bestCost) {
                     bestUT = x[0];
                     bestTT = x[1];
-                    bestshortway = prob.shortway;
                     bestCost = f[0];
                     currentUT = bestUT;
                     currentTT = bestTT;
@@ -415,7 +405,7 @@ namespace kOSMainframe.Orbital {
 
             // FIXME: srsly this minUT = UT + minUT / maxUT = UT + maxUT / maxUTplusT = maxUTplusT - bestUT rosetta stone here needs to go
             // and some consistency needs to happen.  this is just breeding bugs.
-            return BiImpulsiveTransfer(o, target, UT + bestUT, bestTT, minUT: UT + minUT, maxUT: UT + maxUT, maxTT: maxTT, maxUTplusT: maxUTplusT - bestUT, intercept_only: intercept_only, shortway: bestshortway);
+            return BiImpulsiveTransfer(o, target, UT + bestUT, bestTT, minUT: UT + minUT, maxUT: UT + maxUT, maxTT: maxTT, maxUTplusT: maxUTplusT - bestUT, intercept_only: intercept_only);
         }
 
         //Like DeltaVAndTimeForHohmannTransfer, but adds an additional step that uses the Lambert
@@ -429,7 +419,7 @@ namespace kOSMainframe.Orbital {
             if (hohmannOrbit.semiMajorAxis > o.semiMajorAxis) apsisTime = hohmannOrbit.NextApoapsisTime(hohmannParams.time);
             else apsisTime = hohmannOrbit.NextPeriapsisTime(hohmannParams.time);
 
-            Debug.Log("hohmann = " + hohmannParams + ", apsisTime = " + apsisTime);
+            Logging.Debug("hohmann = " + hohmannParams + ", apsisTime = " + apsisTime);
 
             Vector3d dV = Vector3d.zero;
             double minCost = 999999;
@@ -440,20 +430,12 @@ namespace kOSMainframe.Orbital {
             for (int i = 0; i < subdivisions; i++) {
                 double interceptUT = minInterceptTime + i * (maxInterceptTime - minInterceptTime) / subdivisions;
 
-                Debug.Log("i + " + i + ", trying for intercept at UT = " + interceptUT);
+                Logging.Debug("i + " + i + ", trying for intercept at UT = " + interceptUT);
 
                 //Try both short and long way
-                Vector3d interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0, true);
+                Vector3d interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0);
                 double cost = (interceptBurn - subtractedProgradeDV).magnitude;
-                Debug.Log("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
-                if (cost < minCost) {
-                    dV = interceptBurn;
-                    minCost = cost;
-                }
-
-                interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0, false);
-                cost = (interceptBurn - subtractedProgradeDV).magnitude;
-                Debug.Log("long way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
+                Logging.Debug("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
                 if (cost < minCost) {
                     dV = interceptBurn;
                     minCost = cost;

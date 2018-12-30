@@ -15,7 +15,8 @@ namespace kOSMainframeTest {
         [Test]
         public void TestMinimize3() {
             TestFunc3 func = new TestFunc3();
-            Vector3d xmin = AmoebaOptimizer.Optimize(func, Vector3d.zero, Vector3d.one, 1e-10, 1000);
+            Vector3d xmin;
+            int iter = AmoebaOptimizer.Optimize(func, Vector3d.zero, Vector3d.one, 1e-10, 1000, out xmin);
 
             Assert.AreEqual(0.5, xmin.x, 1e-3);
             Assert.AreEqual(0.6, xmin.y, 1e-3);

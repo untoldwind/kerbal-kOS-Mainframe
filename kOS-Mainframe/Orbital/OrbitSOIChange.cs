@@ -110,7 +110,7 @@ namespace kOSMainframe.Orbital {
             double vesselOrbitVelocity = OrbitChange.CircularOrbitSpeed(o.referenceBody, o.semiMajorAxis);
             NodeParameters idealParams = OrbitIntercept.HohmannLambertTransfer(planetOrbit, target, UT, vesselOrbitVelocity);
 
-            Debug.Log("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);
+            Logging.Debug("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);
 
             //Compute the actual transfer orbit this ideal burn would lead to.
             Orbit transferOrbit = planetOrbit.PerturbedOrbit(idealParams);
@@ -124,18 +124,18 @@ namespace kOSMainframe.Orbital {
             //just add in (1/2)(sun gravity)*(time to exit soi)^2 ? But how to compute time to exit soi? Or maybe once we
             //have the ejection orbit we should just move the ejection burn back by the time to exit the soi?
             Vector3d soiExitVelocity = idealParams.deltaV;
-            Debug.Log("soiExitVelocity = " + (Vector3)soiExitVelocity);
+            Logging.Debug("soiExitVelocity = " + (Vector3)soiExitVelocity);
 
             //compute the angle by which the trajectory turns between periapsis (where we do the ejection burn)
             //and SOI exit (approximated as radius = infinity)
             double soiExitEnergy = 0.5 * soiExitVelocity.sqrMagnitude - o.referenceBody.gravParameter / o.referenceBody.sphereOfInfluence;
             double ejectionRadius = o.semiMajorAxis; //a guess, good for nearly circular orbits
-            Debug.Log("soiExitEnergy = " + soiExitEnergy);
-            Debug.Log("ejectionRadius = " + ejectionRadius);
+            Logging.Debug("soiExitEnergy = " + soiExitEnergy);
+            Logging.Debug("ejectionRadius = " + ejectionRadius);
 
             double ejectionKineticEnergy = soiExitEnergy + o.referenceBody.gravParameter / ejectionRadius;
             double ejectionSpeed = Math.Sqrt(2 * ejectionKineticEnergy);
-            Debug.Log("ejectionSpeed = " + ejectionSpeed);
+            Logging.Debug("ejectionSpeed = " + ejectionSpeed);
 
             //construct a sample ejection orbit
             Vector3d ejectionOrbitInitialVelocity = ejectionSpeed * (Vector3d)o.referenceBody.transform.right;
@@ -145,14 +145,14 @@ namespace kOSMainframe.Orbital {
             Vector3d ejectionOrbitFinalVelocity = sampleEjectionOrbit.SwappedOrbitalVelocityAtUT(ejectionOrbitDuration);
 
             double turningAngle = Vector3d.Angle(ejectionOrbitInitialVelocity, ejectionOrbitFinalVelocity);
-            Debug.Log("turningAngle = " + turningAngle);
+            Logging.Debug("turningAngle = " + turningAngle);
 
             //sine of the angle between the vessel orbit and the desired SOI exit velocity
             double outOfPlaneAngle = (UtilMath.Deg2Rad) * (90 - Vector3d.Angle(soiExitVelocity, o.SwappedOrbitNormal()));
-            Debug.Log("outOfPlaneAngle (rad) = " + outOfPlaneAngle);
+            Logging.Debug("outOfPlaneAngle (rad) = " + outOfPlaneAngle);
 
             double coneAngle = Math.PI / 2 - (UtilMath.Deg2Rad) * turningAngle;
-            Debug.Log("coneAngle (rad) = " + coneAngle);
+            Logging.Debug("coneAngle (rad) = " + coneAngle);
 
             Vector3d exitNormal = Vector3d.Cross(-soiExitVelocity, o.SwappedOrbitNormal()).normalized;
             Vector3d normal2 = Vector3d.Cross(exitNormal, -soiExitVelocity).normalized;
@@ -163,11 +163,11 @@ namespace kOSMainframe.Orbital {
                                               + Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle) * normal2
                                               - Math.Sqrt(Math.Pow(Math.Sin(coneAngle), 2) - Math.Pow(Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle), 2)) * exitNormal;
 
-            Debug.Log("soiExitVelocity = " + (Vector3)soiExitVelocity);
-            Debug.Log("vessel orbit normal = " + (Vector3)(1000 * o.SwappedOrbitNormal()));
-            Debug.Log("exitNormal = " + (Vector3)(1000 * exitNormal));
-            Debug.Log("normal2 = " + (Vector3)(1000 * normal2));
-            Debug.Log("ejectionPointDirection = " + ejectionPointDirection);
+            Logging.Debug("soiExitVelocity = " + (Vector3)soiExitVelocity);
+            Logging.Debug("vessel orbit normal = " + (Vector3)(1000 * o.SwappedOrbitNormal()));
+            Logging.Debug("exitNormal = " + (Vector3)(1000 * exitNormal));
+            Logging.Debug("normal2 = " + (Vector3)(1000 * normal2));
+            Logging.Debug("ejectionPointDirection = " + ejectionPointDirection);
 
             double ejectionTrueAnomaly = o.TrueAnomalyFromVector(ejectionPointDirection);
             double burnUT = o.TimeOfTrueAnomaly(ejectionTrueAnomaly, idealParams.time - o.period);
@@ -177,9 +177,9 @@ namespace kOSMainframe.Orbital {
             }
 
             Vector3d ejectionOrbitNormal = Vector3d.Cross(ejectionPointDirection, soiExitVelocity).normalized;
-            Debug.Log("ejectionOrbitNormal = " + ejectionOrbitNormal);
+            Logging.Debug("ejectionOrbitNormal = " + ejectionOrbitNormal);
             Vector3d ejectionBurnDirection = Quaternion.AngleAxis(-(float)(turningAngle), ejectionOrbitNormal) * soiExitVelocity.normalized;
-            Debug.Log("ejectionBurnDirection = " + ejectionBurnDirection);
+            Logging.Debug("ejectionBurnDirection = " + ejectionBurnDirection);
             Vector3d ejectionVelocity = ejectionSpeed * ejectionBurnDirection;
 
             Vector3d preEjectionVelocity = o.SwappedOrbitalVelocityAtUT(burnUT);

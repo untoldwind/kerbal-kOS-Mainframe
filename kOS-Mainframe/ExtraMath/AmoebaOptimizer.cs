@@ -5,13 +5,13 @@ namespace kOSMainframe.ExtraMath {
     public class AmoebaOptimizer {
         private const double TINY = 1.0e-20;
 
-        public static Vector2d Optimize(Function2 func, Vector2d guess, Vector2d perturbation, double tolerance, int maxIterations) {
+        public static int Optimize(Function2 func, Vector2d guess, Vector2d perturbation, double tolerance, int maxIterations, out Vector2d minPoint) {
             Vector2d[] p = { guess, guess + new Vector2d(perturbation.x,0.0), guess + new Vector2d(0.0, perturbation.y) };
 
-            return Optimize(func, p, tolerance, maxIterations);
+            return Optimize(func, p, tolerance, maxIterations, out minPoint);
         }
 
-        public static Vector2d Optimize(Function2 func, Vector2d[] p, double tolerance, int maxIterations) {
+        public static int Optimize(Function2 func, Vector2d[] p, double tolerance, int maxIterations, out Vector2d minPoint) {
             int npts = p.Length;
             int nfunc = 0;
             Vector2d psum = new Vector2d(0.0, 0.0);
@@ -40,7 +40,8 @@ namespace kOSMainframe.ExtraMath {
                 }
                 double rtol = 2.0 * Math.Abs(y[ihi] - y[ilo]) / (Math.Abs(y[ihi]) + Math.Abs(y[ilo]) + TINY);
                 if (rtol < tolerance) {
-                    return psum / npts;
+                    minPoint = psum / npts;
+                    return nfunc;
                 }
                 if (nfunc >= maxIterations) {
                     throw new Exception("AmoebaOptimizer reached iteration limit of " + maxIterations + " on " + func.ToString());
@@ -71,13 +72,13 @@ namespace kOSMainframe.ExtraMath {
             }
         }
 
-        public static Vector3d Optimize(Function3 func, Vector3d guess, Vector3d perturbation, double tolerance, int maxIterations) {
+        public static int Optimize(Function3 func, Vector3d guess, Vector3d perturbation, double tolerance, int maxIterations, out Vector3d minPoint) {
             Vector3d[] p = { guess, guess + new Vector3d(perturbation.x, 0.0, 0.0), guess + new Vector3d(0.0, perturbation.y, 0.0), guess + new Vector3d(0.0, 0.0, perturbation.z) };
 
-            return Optimize(func, p, tolerance, maxIterations);
+            return Optimize(func, p, tolerance, maxIterations, out minPoint);
         }
 
-        public static Vector3d Optimize(Function3 func, Vector3d[] p, double tolerance, int maxIterations) {
+        public static int Optimize(Function3 func, Vector3d[] p, double tolerance, int maxIterations, out Vector3d minPoint) {
             int npts = p.Length;
             int nfunc = 0;
             Vector3d psum = new Vector3d(0.0, 0.0, 0.0);
@@ -106,7 +107,8 @@ namespace kOSMainframe.ExtraMath {
                 }
                 double rtol = 2.0 * Math.Abs(y[ihi] - y[ilo]) / (Math.Abs(y[ihi]) + Math.Abs(y[ilo]) + TINY);
                 if (rtol < tolerance) {
-                    return psum / npts;
+                    minPoint =  psum / npts;
+                    return nfunc;
                 }
                 if (nfunc >= maxIterations) {
                     throw new Exception("AmoebaOptimizer reached iteration limit of " + maxIterations + " on " + func.ToString());

@@ -30,4 +30,17 @@ namespace kOSMainframe.ExtraMath {
             return func(x);
         }
     }
+
+    public class DelegateFunction2 : Function2 {
+        public delegate double delegate_func(double x, double y);
+        private delegate_func func;
+
+        public DelegateFunction2(delegate_func func) {
+            this.func = func;
+        }
+
+        public double Evaluate(Vector2d x) {
+            return func(x.x, x.y);
+        }
+    }
 }
