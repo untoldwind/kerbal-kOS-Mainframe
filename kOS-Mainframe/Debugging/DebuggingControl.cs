@@ -27,7 +27,7 @@ namespace kOSMainframe.Debugging {
                 new Param2Action("Start Landing Sim", 0, 0, StartLandingSim),
                 new Button("Stop Landing Sim", StopLandingSim),
                 new Button("Biinjective transfer", BiinjectiveTransfer),
-                new Button("Interplanetary", Interplanetary),
+                new Param1Action("Interplanetary", 7200000, Interplanetary),
                 new Button("Dump Orbit", DumpOrbit),
             };
         }
@@ -81,11 +81,11 @@ namespace kOSMainframe.Debugging {
             CleanAndAddNode(nodeParams);
         }
 
-        private void Interplanetary() {
+        private void Interplanetary(double maxUT) {
             var target = Vessel.targetObject;
             if (target == null) return;
 
-            var nodeParams = OrbitSOIChange.InterplanetaryLambertTransferEjection(Vessel.orbit, Planetarium.GetUniversalTime() + 2000, target.GetOrbit());
+            var nodeParams = OrbitSOIChange.InterplanetaryBiImpulsiveEjection(Vessel.orbit, Planetarium.GetUniversalTime() + 2000, target.GetOrbit(), maxUT);
 
             CleanAndAddNode(nodeParams);
         }

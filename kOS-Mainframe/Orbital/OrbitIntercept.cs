@@ -299,12 +299,10 @@ namespace kOSMainframe.Orbital {
         // FIXME: there's some very confusing nomenclature between DeltaVAndTimeForBiImpulsiveTransfer and this
         //        the minUT/maxUT values here are zero-centered on this methods UT.  the minUT/maxUT parameters to
         //        the other method are proper UT times and not zero centered at all.
-        public static NodeParameters BiImpulsiveAnnealed(Orbit o, Orbit target, double UT, double minUT = 0.0, double maxUT = Double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
+        public static NodeParameters BiImpulsiveAnnealed(Orbit o, Orbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
             double coolingRate = 0.003;
-            double[] f = new double[1];
-            double[] x = new double[2];
             double bestUT = 0;
             double bestTT = 0;
             double bestCost = Double.MaxValue;
@@ -322,7 +320,7 @@ namespace kOSMainframe.Orbital {
             // min transfer time must be > 0 (no teleportation)
             double minTT = 1e-15;
 
-            if (maxUT == Double.PositiveInfinity)
+            if (double.IsPositiveInfinity(maxUT))
                 maxUT = 1.5 * o.SynodicPeriod(target);
 
             // figure the max transfer time of a Hohmann orbit using the SMAs of the two orbits instead of the radius (as a guess), multiplied by 2
@@ -369,24 +367,23 @@ namespace kOSMainframe.Orbital {
                 double windowTT = temp / MAXTEMP * maxTT / 4;
 
                 // compute the neighbor
-                x[0] = Functions.Clamp(random.NextGaussian(currentUT, windowUT), minUT, maxUT);
-                x[1] = Functions.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
-                x[1] = Math.Min(x[1], maxUTplusT - x[0]);
+                double ut = Functions.Clamp(random.NextGaussian(currentUT, windowUT), minUT, maxUT);
+                double tt = Functions.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
+                tt = Math.Min(tt, maxUTplusT - ut);
 
+                double cost = prob.LambertCost(ut, tt);
 
-                f[0] = prob.LambertCost(x[0], x[1]);
-
-                if (f[0] < bestCost) {
-                    bestUT = x[0];
-                    bestTT = x[1];
-                    bestCost = f[0];
+                if (cost < bestCost) {
+                    bestUT = ut;
+                    bestTT = tt;
+                    bestCost = cost;
                     currentUT = bestUT;
                     currentTT = bestTT;
                     currentCost = bestCost;
-                } else if (acceptanceProbabilityForBiImpulsive(currentCost, f[0], temp) > random.NextDouble()) {
-                    currentUT = x[0];
-                    currentTT = x[1];
-                    currentCost = f[0];
+                } else if (acceptanceProbabilityForBiImpulsive(currentCost, cost, temp) > random.NextDouble()) {
+                    currentUT = ut;
+                    currentTT = tt;
+                    currentCost = cost;
                 }
 
                 temp *= 1 - coolingRate;

@@ -51,6 +51,7 @@ namespace kOSMainframe {
             AddSuffix("RETURN_FROM_MOON", new OneArgsSuffix<Node, ScalarValue>(ReturnFromMoon));
             AddSuffix("INTERPLANETARY", new TwoArgsSuffix<Node, Orbitable, BooleanValue>(InterplanetaryTransfer));
             AddSuffix("INTERPLANETARY_LAMBERT", new OneArgsSuffix<Node, Orbitable>(InterplanetaryLambertTransfer));
+            AddSuffix("INTERPLANETARY_BIIMPULSIVE", new TwoArgsSuffix<Node, Orbitable, ScalarValue>(InterplanetaryBiImpulsiveTransfer));
         }
 
         private TimeSpan GetMinTime() {
@@ -158,6 +159,10 @@ namespace kOSMainframe {
 
         private Node InterplanetaryLambertTransfer(Orbitable target) {
             return OrbitSOIChange.InterplanetaryLambertTransferEjection(orbit, minUT, target.Orbit).ToKOS(Shared);
+        }
+
+        private Node InterplanetaryBiImpulsiveTransfer(Orbitable target, ScalarValue maxUT) {
+            return OrbitSOIChange.InterplanetaryBiImpulsiveEjection(orbit, minUT, target.Orbit, maxUT).ToKOS(Shared);
         }
     }
 }

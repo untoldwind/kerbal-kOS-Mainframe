@@ -112,10 +112,82 @@ namespace kOSMainframe.Orbital {
 
             Logging.Debug("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);
 
-            //Compute the actual transfer orbit this ideal burn would lead to.
-            Orbit transferOrbit = planetOrbit.PerturbedOrbit(idealParams);
+            //Assume we want to exit the SOI with the same velocity as the ideal transfer orbit at idealUT -- i.e., immediately
+            //after the "ideal" burn we used to compute the transfer orbit. This isn't quite right.
+            //We intend to eject from our planet at idealUT and only several hours later will we exit the SOI. Meanwhile
+            //the transfer orbit will have acquired a slightly different velocity, which we should correct for. Maybe
+            //just add in (1/2)(sun gravity)*(time to exit soi)^2 ? But how to compute time to exit soi? Or maybe once we
+            //have the ejection orbit we should just move the ejection burn back by the time to exit the soi?
+            Vector3d soiExitVelocity = idealParams.deltaV;
+            Logging.Debug("soiExitVelocity = " + (Vector3)soiExitVelocity);
 
-            //Now figure out how to approximately eject from our current orbit into the Hohmann orbit we just computed.
+            //compute the angle by which the trajectory turns between periapsis (where we do the ejection burn)
+            //and SOI exit (approximated as radius = infinity)
+            double soiExitEnergy = 0.5 * soiExitVelocity.sqrMagnitude - o.referenceBody.gravParameter / o.referenceBody.sphereOfInfluence;
+            double ejectionRadius = o.semiMajorAxis; //a guess, good for nearly circular orbits
+            Logging.Debug("soiExitEnergy = " + soiExitEnergy);
+            Logging.Debug("ejectionRadius = " + ejectionRadius);
+
+            double ejectionKineticEnergy = soiExitEnergy + o.referenceBody.gravParameter / ejectionRadius;
+            double ejectionSpeed = Math.Sqrt(2 * ejectionKineticEnergy);
+            Logging.Debug("ejectionSpeed = " + ejectionSpeed);
+
+            //construct a sample ejection orbit
+            Vector3d ejectionOrbitInitialVelocity = ejectionSpeed * (Vector3d)o.referenceBody.transform.right;
+            Vector3d ejectionOrbitInitialPosition = o.referenceBody.position + ejectionRadius * (Vector3d)o.referenceBody.transform.up;
+            Orbit sampleEjectionOrbit = Helper.OrbitFromStateVectors(ejectionOrbitInitialPosition, ejectionOrbitInitialVelocity, o.referenceBody, 0);
+            double ejectionOrbitDuration = sampleEjectionOrbit.NextTimeOfRadius(0, o.referenceBody.sphereOfInfluence);
+            Vector3d ejectionOrbitFinalVelocity = sampleEjectionOrbit.SwappedOrbitalVelocityAtUT(ejectionOrbitDuration);
+
+            double turningAngle = Vector3d.Angle(ejectionOrbitInitialVelocity, ejectionOrbitFinalVelocity);
+            Logging.Debug("turningAngle = " + turningAngle);
+
+            //sine of the angle between the vessel orbit and the desired SOI exit velocity
+            double outOfPlaneAngle = (UtilMath.Deg2Rad) * (90 - Vector3d.Angle(soiExitVelocity, o.SwappedOrbitNormal()));
+            Logging.Debug("outOfPlaneAngle (rad) = " + outOfPlaneAngle);
+
+            double coneAngle = Math.PI / 2 - (UtilMath.Deg2Rad) * turningAngle;
+            Logging.Debug("coneAngle (rad) = " + coneAngle);
+
+            Vector3d exitNormal = Vector3d.Cross(-soiExitVelocity, o.SwappedOrbitNormal()).normalized;
+            Vector3d normal2 = Vector3d.Cross(exitNormal, -soiExitVelocity).normalized;
+
+            //unit vector pointing to the spot on our orbit where we will burn.
+            //fails if outOfPlaneAngle > coneAngle.
+            Vector3d ejectionPointDirection = Math.Cos(coneAngle) * (-soiExitVelocity.normalized)
+                                              + Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle) * normal2
+                                              - Math.Sqrt(Math.Pow(Math.Sin(coneAngle), 2) - Math.Pow(Math.Cos(coneAngle) * Math.Tan(outOfPlaneAngle), 2)) * exitNormal;
+
+            Logging.Debug("soiExitVelocity = " + (Vector3)soiExitVelocity);
+            Logging.Debug("vessel orbit normal = " + (Vector3)(1000 * o.SwappedOrbitNormal()));
+            Logging.Debug("exitNormal = " + (Vector3)(1000 * exitNormal));
+            Logging.Debug("normal2 = " + (Vector3)(1000 * normal2));
+            Logging.Debug("ejectionPointDirection = " + ejectionPointDirection);
+
+            double ejectionTrueAnomaly = o.TrueAnomalyFromVector(ejectionPointDirection);
+            double burnUT = o.TimeOfTrueAnomaly(ejectionTrueAnomaly, idealParams.time - o.period);
+
+            if ((idealParams.time - burnUT > o.period / 2) || (burnUT < UT)) {
+                burnUT += o.period;
+            }
+
+            Vector3d ejectionOrbitNormal = Vector3d.Cross(ejectionPointDirection, soiExitVelocity).normalized;
+            Logging.Debug("ejectionOrbitNormal = " + ejectionOrbitNormal);
+            Vector3d ejectionBurnDirection = Quaternion.AngleAxis(-(float)(turningAngle), ejectionOrbitNormal) * soiExitVelocity.normalized;
+            Logging.Debug("ejectionBurnDirection = " + ejectionBurnDirection);
+            Vector3d ejectionVelocity = ejectionSpeed * ejectionBurnDirection;
+
+            Vector3d preEjectionVelocity = o.SwappedOrbitalVelocityAtUT(burnUT);
+
+            return o.DeltaVToNode(burnUT, ejectionVelocity - preEjectionVelocity);
+        }
+
+        public static NodeParameters InterplanetaryBiImpulsiveEjection(Orbit o, double UT, Orbit target, double maxUT = double.PositiveInfinity) {
+            Orbit planetOrbit = o.referenceBody.orbit;
+
+            NodeParameters idealParams = OrbitIntercept.BiImpulsiveAnnealed(planetOrbit, target, UT, maxUT: maxUT);
+
+            Logging.Debug("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);
 
             //Assume we want to exit the SOI with the same velocity as the ideal transfer orbit at idealUT -- i.e., immediately
             //after the "ideal" burn we used to compute the transfer orbit. This isn't quite right.
