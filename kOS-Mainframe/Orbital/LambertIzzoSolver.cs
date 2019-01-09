@@ -38,7 +38,7 @@ namespace kOSMainframe.Orbital {
         /// <param name="r2">Sirst cartesian position.</param>
         /// <param name="tof">time of flight.</param>
         /// <param name="mu">gravity parameter.</param>
-        /// <param name="shortway">Find shortway/longway solution (prograde/retrograde)</param>
+        /// <param name="clockwise">Clockwise / Counter-Clockwise solution (prograde/retrograde)</param>
         /// <param name="v1">Velocity at r1.</param>
         /// <param name="v2">Velocity at r2.</param>
         public static int Solve(Vector3d r1, Vector3d r2, double tof, double mu, bool clockwise, out Vector3d v1, out Vector3d v2) {

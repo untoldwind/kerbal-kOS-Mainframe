@@ -131,7 +131,7 @@ namespace kOSMainframeTest {
                 Vector3d actualV1;
                 Vector3d actualV2;
 
-                LambertSolver.Solve(testSet.R1, testSet.R2, testSet.dt, testSet.mu, testSet.shortway, out actualV1, out actualV2);
+                LambertBattinSolver.Solve(testSet.R1, testSet.R2, testSet.dt, testSet.mu, testSet.shortway, out actualV1, out actualV2);
 
                 Assert.AreEqual(0.0, (testSet.V1 - actualV1).magnitude, 1e-6);
                 Assert.AreEqual(0.0, (testSet.V2 - actualV2).magnitude, 1e-7);
@@ -166,7 +166,7 @@ namespace kOSMainframeTest {
                     Vector3d V1;
                     Vector3d V2;
 
-                    LambertSolver.Solve(R1, R2, tt, BodyTestRef.Kerbol.mu, true, out V1, out V2);
+                    LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbol.mu, true, out V1, out V2);
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbol, R1, V1, UT);
 
@@ -220,7 +220,7 @@ namespace kOSMainframeTest {
                     Vector3d V1;
                     Vector3d V2;
 
-                    LambertSolver.Solve(R1, R2, tt, BodyTestRef.Kerbin.mu, true, out V1, out V2);
+                    LambertBattinSolver.Solve(R1, R2, tt, BodyTestRef.Kerbin.mu, true, out V1, out V2);
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbin, R1, V1, UT);
 
