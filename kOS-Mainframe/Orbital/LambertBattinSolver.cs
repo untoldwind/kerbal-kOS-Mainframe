@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     ///////////////////////////////////////////////////////////

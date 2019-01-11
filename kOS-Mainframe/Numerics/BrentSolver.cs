@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class BrentSolver {
         private const double EPS = 1e-15;
 

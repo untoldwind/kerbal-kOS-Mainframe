@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public class RegulaFalsiSolver {
         /// <summary>
         /// Regula-Falsi root finding method.

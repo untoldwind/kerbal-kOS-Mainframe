@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public interface DerivativeFunction : Function {
         double Derivative(double x);
     }

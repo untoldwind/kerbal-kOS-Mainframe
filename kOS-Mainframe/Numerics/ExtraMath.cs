@@ -1,6 +1,6 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
-    public static class Functions {
+namespace kOSMainframe.Numerics {
+    public static class ExtraMath {
         //For some reason, Math doesn't have the inverse hyperbolic trigonometric functions:
         //asinh(x) = log(x + sqrt(x^2 + 1))
         public static double Asinh(double x) {

@@ -2,7 +2,7 @@
 using UnityEngine;
 using kOSMainframe.UnityToolbag;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class LineMinOptimizer {
         public static Vector2d Optimize(Function2 func, Vector2d p, Vector2d xi, double tolerance, int maxIterations, out double fmin) {
             var lineFunc = LineFunction2.pool.Borrow();

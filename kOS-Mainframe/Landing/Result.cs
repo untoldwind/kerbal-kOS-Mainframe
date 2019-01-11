@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using kOSMainframe.Orbital;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using kOSMainframe.Simulation;
 using kOSMainframe.UnityToolbag;
 using UnityEngine;

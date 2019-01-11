@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitIntercept {
@@ -165,7 +165,7 @@ namespace kOSMainframe.Orbital {
                 apsisPhaseAngle = meanAnomalyOffset;
             }
 
-            apsisPhaseAngle = Functions.ClampDegrees180(apsisPhaseAngle);
+            apsisPhaseAngle = ExtraMath.ClampDegrees180(apsisPhaseAngle);
 
             return dV;
         }
@@ -367,8 +367,8 @@ namespace kOSMainframe.Orbital {
                 double windowTT = temp / MAXTEMP * maxTT / 4;
 
                 // compute the neighbor
-                double ut = Functions.Clamp(random.NextGaussian(currentUT, windowUT), minUT, maxUT);
-                double tt = Functions.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
+                double ut = ExtraMath.Clamp(random.NextGaussian(currentUT, windowUT), minUT, maxUT);
+                double tt = ExtraMath.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
                 tt = Math.Min(tt, maxUTplusT - ut);
 
                 double cost = prob.LambertCost(ut, tt);

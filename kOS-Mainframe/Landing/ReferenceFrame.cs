@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Landing {
     //A ReferenceFrame is a scheme for converting Vector3d positions and velocities into AbsoluteVectors, and vice versa
@@ -26,7 +26,7 @@ namespace kOSMainframe.Landing {
 
             double longitude = UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(vector3d.normalized, lat0lon90AtStart), Vector3d.Dot(vector3d.normalized, lat0lon0AtStart));
             longitude -= 360 * (UT - epoch) / referenceBody.rotationPeriod;
-            absolute.longitude = Functions.ClampDegrees180(longitude);
+            absolute.longitude = ExtraMath.ClampDegrees180(longitude);
 
             absolute.radius = vector3d.magnitude;
 
@@ -51,7 +51,7 @@ namespace kOSMainframe.Landing {
         //in world coordinates.
         public Vector3d WorldVelocityAtCurrentTime(AbsoluteVector absolute) {
             double now = Planetarium.GetUniversalTime();
-            double unrotatedLongitude = Functions.ClampDegrees360(absolute.longitude - 360 * (now - absolute.UT) / referenceBody.rotationPeriod);
+            double unrotatedLongitude = ExtraMath.ClampDegrees360(absolute.longitude - 360 * (now - absolute.UT) / referenceBody.rotationPeriod);
             return absolute.radius * referenceBody.GetSurfaceNVector(absolute.latitude, unrotatedLongitude);
         }
 

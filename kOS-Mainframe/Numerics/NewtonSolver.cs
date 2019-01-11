@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     //A simple root-finder. We really ought to use some existing root-finder that someone else has put a
     //lot of time and effort into, but this one seems to work
     public static class NewtonSolver {

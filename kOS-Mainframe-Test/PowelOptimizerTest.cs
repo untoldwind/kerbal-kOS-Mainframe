@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using UnityEngine;
 
 namespace kOSMainframeTest {

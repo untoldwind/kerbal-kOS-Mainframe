@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     //Represents a polynomial function of one variable, and can evaluate its own
     //derivative exactly.
     public class PolynomialFunction : DerivativeFunction {

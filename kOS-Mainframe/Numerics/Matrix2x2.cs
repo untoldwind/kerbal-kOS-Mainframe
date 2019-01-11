@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     //Represents a 2x2 matrix
     public class Matrix2x2 {
         double a, b, c, d;

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class PowelOpimizer {
         private const double TINY = 1.0e-25;
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using UnityEngine;
 
 namespace kOSMainframe.Orbital {
@@ -44,7 +44,7 @@ namespace kOSMainframe.Orbital {
             double lat_b_rad = UtilMath.Deg2Rad * lat_b;
             double long_diff_rad = UtilMath.Deg2Rad * (long_b - long_a);
 
-            return Functions.ClampDegrees360(180.0 / Math.PI * Math.Atan2(
+            return ExtraMath.ClampDegrees360(180.0 / Math.PI * Math.Atan2(
                                                  Math.Sin(long_diff_rad),
                                                  Math.Cos(lat_a_rad) * Math.Tan(lat_b_rad) - Math.Sin(lat_a_rad) * Math.Cos(long_diff_rad)));
         }
@@ -67,21 +67,21 @@ namespace kOSMainframe.Orbital {
                     // DN is closer than AN
                     // Burning for the AN would entail flipping the orbit around, and would be very expensive
                     // therefore, burn for the corresponding Longitude of the Descending Node
-                    target_longitude = Functions.ClampDegrees360(newLAN + 180.0);
+                    target_longitude = ExtraMath.ClampDegrees360(newLAN + 180.0);
                 } else {
                     // DN is closer than AN
-                    target_longitude = Functions.ClampDegrees360(newLAN);
+                    target_longitude = ExtraMath.ClampDegrees360(newLAN);
                 }
             } else if (o.AscendingNodeEquatorialExists() && !o.DescendingNodeEquatorialExists()) {
                 // No DN
-                target_longitude = Functions.ClampDegrees360(newLAN);
+                target_longitude = ExtraMath.ClampDegrees360(newLAN);
             } else if (!o.AscendingNodeEquatorialExists() && o.DescendingNodeEquatorialExists()) {
                 // No AN
-                target_longitude = Functions.ClampDegrees360(newLAN + 180.0);
+                target_longitude = ExtraMath.ClampDegrees360(newLAN + 180.0);
             } else {
                 throw new ArgumentException("OrbitalManeuverCalculator.DeltaVToShiftLAN: No Equatorial Nodes");
             }
-            double desiredHeading = Functions.ClampDegrees360(Heading(burn_latitude, burn_longitude, target_latitude, target_longitude));
+            double desiredHeading = ExtraMath.ClampDegrees360(Heading(burn_latitude, burn_longitude, target_latitude, target_longitude));
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));
             Vector3d eastComponent = actualHorizontalVelocity.magnitude * Math.Sin(UtilMath.Deg2Rad * desiredHeading) * o.East(UT);
             Vector3d northComponent = actualHorizontalVelocity.magnitude * Math.Cos(UtilMath.Deg2Rad * desiredHeading) * o.North(UT);

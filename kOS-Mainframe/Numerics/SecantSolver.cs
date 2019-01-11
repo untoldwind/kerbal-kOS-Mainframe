@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class SecantSolver {
         public static double Solve(Function p, double x1, double x2, double tolerance, int maxIterations) {
             double rts, t;

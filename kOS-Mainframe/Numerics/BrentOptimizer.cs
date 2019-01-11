@@ -1,5 +1,5 @@
 ﻿using System;
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public class BrentOptimizer {
         private const double GOLD = 1.618034;
         private const double GLIMIT = 100.0;

@@ -8,7 +8,7 @@ using kOSMainframe.Orbital;
 using kOSMainframe.VesselExtra;
 using kOSMainframe.Simulation;
 using kOSMainframe.UnityToolbag;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = System.Random;

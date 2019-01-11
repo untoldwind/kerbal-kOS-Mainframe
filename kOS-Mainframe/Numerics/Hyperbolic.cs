@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class Hyperbolic {
         //asinh(x) = log(x + sqrt(x^2 + 1))
         public static double Asinh(double x) {

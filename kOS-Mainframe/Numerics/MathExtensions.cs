@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public static class MathExtensions {
         // +/- infinity is not a finite number (not finite)
         // NaN is also not a finite number (not a number)

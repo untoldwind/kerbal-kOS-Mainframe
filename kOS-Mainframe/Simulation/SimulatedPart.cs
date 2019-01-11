@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using kOSMainframe.UnityToolbag;
 
 namespace kOSMainframe.Simulation {

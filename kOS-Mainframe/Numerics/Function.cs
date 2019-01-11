@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace kOSMainframe.ExtraMath {
+namespace kOSMainframe.Numerics {
     public interface Function {
         double Evaluate(double x);
     }

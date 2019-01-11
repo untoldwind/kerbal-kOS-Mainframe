@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using System;
 using System.Collections.Generic;
 

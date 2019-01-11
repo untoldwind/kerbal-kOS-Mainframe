@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitChange {
@@ -21,7 +21,7 @@ namespace kOSMainframe.Orbital {
             double radius = o.Radius(UT);
 
             //sanitize inputs
-            newPeR = Functions.Clamp(newPeR, 0 + 1, radius - 1);
+            newPeR = ExtraMath.Clamp(newPeR, 0 + 1, radius - 1);
             newApR = Math.Max(newApR, radius + 1);
 
             double GM = o.referenceBody.gravParameter;
@@ -47,7 +47,7 @@ namespace kOSMainframe.Orbital {
             double radius = o.Radius(UT);
 
             //sanitize input
-            newPeR = Functions.Clamp(newPeR, 0 + 1, radius - 1);
+            newPeR = ExtraMath.Clamp(newPeR, 0 + 1, radius - 1);
 
             //are we raising or lowering the periapsis?
             bool raising = (newPeR > o.PeR);
@@ -153,7 +153,7 @@ namespace kOSMainframe.Orbital {
             Vector3d eastComponent = actualHorizontalVelocity.magnitude * Math.Sin(UtilMath.Deg2Rad * desiredHeading) * o.East(UT);
             Vector3d northComponent = actualHorizontalVelocity.magnitude * Math.Cos(UtilMath.Deg2Rad * desiredHeading) * o.North(UT);
             if (Vector3d.Dot(actualHorizontalVelocity, northComponent) < 0) northComponent *= -1;
-            if (Functions.ClampDegrees180(newInclination) < 0) northComponent *= -1;
+            if (ExtraMath.ClampDegrees180(newInclination) < 0) northComponent *= -1;
             Vector3d desiredHorizontalVelocity = eastComponent + northComponent;
             return o.DeltaVToNode(UT, desiredHorizontalVelocity - actualHorizontalVelocity);
         }

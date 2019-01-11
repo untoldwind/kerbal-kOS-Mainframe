@@ -27,7 +27,7 @@
  *****************************************************************************/
 
 using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class LambertIzzoSolver {
@@ -185,8 +185,8 @@ namespace kOSMainframe.Orbital {
                 if (lambda < 0.0) beta = -beta;
                 return ((a * Math.Sqrt(a) * ((alfa - Math.Sin(alfa)) - (beta - Math.Sin(beta)) + 2.0 * Math.PI * N)) / 2.0);
             } else {
-                double alfa = 2.0 * Functions.Acosh(x);
-                double beta = 2.0 * Functions.Asinh(Math.Sqrt(-lambda * lambda / a));
+                double alfa = 2.0 * ExtraMath.Acosh(x);
+                double beta = 2.0 * ExtraMath.Asinh(Math.Sqrt(-lambda * lambda / a));
                 if (lambda < 0.0) beta = -beta;
                 return (-a * Math.Sqrt(-a) * ((beta - Math.Sinh(beta)) - (alfa - Math.Sinh(alfa))) / 2.0);
             }

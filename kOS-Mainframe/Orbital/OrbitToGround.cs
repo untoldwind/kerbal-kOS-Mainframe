@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using kOSMainframe.VesselExtra;
 
 namespace kOSMainframe.Orbital {
@@ -17,14 +17,14 @@ namespace kOSMainframe.Orbital {
             double cosDesiredSurfaceAngle = Math.Cos(inclinationDegrees * UtilMath.Deg2Rad) / Math.Cos(latitudeDegrees * UtilMath.Deg2Rad);
             if (Math.Abs(cosDesiredSurfaceAngle) > 1.0) {
                 //If inclination < latitude, we get this case: the desired inclination is impossible
-                if (Math.Abs(Functions.ClampDegrees180(inclinationDegrees)) < 90) return 90;
+                if (Math.Abs(ExtraMath.ClampDegrees180(inclinationDegrees)) < 90) return 90;
                 else return 270;
             } else {
                 double angleFromEast = (UtilMath.Rad2Deg) * Math.Acos(cosDesiredSurfaceAngle); //an angle between 0 and 180
                 if (inclinationDegrees < 0) angleFromEast *= -1;
                 //now angleFromEast is between -180 and 180
 
-                return Functions.ClampDegrees360(90 - angleFromEast);
+                return ExtraMath.ClampDegrees360(90 - angleFromEast);
             }
         }
 
@@ -84,10 +84,10 @@ namespace kOSMainframe.Orbital {
             // fall back to tracking desiredHorizontalVelocity
             if (Vector3d.Dot(desiredHorizontalVelocity.normalized, deltaHorizontalVelocity.normalized) < 0.90) {
                 // it is important that we do NOT do the fracReserveDV math here, we want to ignore the deltaHV entirely at ths point
-                return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(desiredHorizontalVelocity, east), Vector3d.Dot(desiredHorizontalVelocity, north)));
+                return ExtraMath.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(desiredHorizontalVelocity, east), Vector3d.Dot(desiredHorizontalVelocity, north)));
             }
 
-            return Functions.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(deltaHorizontalVelocity, east), Vector3d.Dot(deltaHorizontalVelocity, north)));
+            return ExtraMath.ClampDegrees360(UtilMath.Rad2Deg * Math.Atan2(Vector3d.Dot(deltaHorizontalVelocity, east), Vector3d.Dot(deltaHorizontalVelocity, north)));
         }
     }
 }

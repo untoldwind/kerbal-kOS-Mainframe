@@ -1,5 +1,5 @@
 ﻿using System;
-using kOSMainframe.ExtraMath;
+using kOSMainframe.Numerics;
 using UnityEngine;
 
 namespace kOSMainframe.Orbital {
@@ -133,8 +133,8 @@ namespace kOSMainframe.Orbital {
                         closestApproachTime = t;
                     }
                 }
-                minTime = Functions.Clamp(closestApproachTime - dt, UT, UT + interval);
-                maxTime = Functions.Clamp(closestApproachTime + dt, UT, UT + interval);
+                minTime = ExtraMath.Clamp(closestApproachTime - dt, UT, UT + interval);
+                maxTime = ExtraMath.Clamp(closestApproachTime + dt, UT, UT + interval);
             }
 
             return closestApproachTime;
@@ -153,7 +153,7 @@ namespace kOSMainframe.Orbital {
         //past the true anomaly of the asymptote) then an ArgumentException is thrown
         public static double GetEccentricAnomalyAtTrueAnomaly(this Orbit o, double trueAnomaly) {
             double e = o.eccentricity;
-            trueAnomaly = Functions.ClampDegrees360(trueAnomaly);
+            trueAnomaly = ExtraMath.ClampDegrees360(trueAnomaly);
             trueAnomaly = trueAnomaly * (UtilMath.Deg2Rad);
 
             if (e < 1) { //elliptical orbits
@@ -161,12 +161,12 @@ namespace kOSMainframe.Orbital {
                 double sinE = Math.Sqrt(1 - (cosE * cosE));
                 if (trueAnomaly > Math.PI) sinE *= -1;
 
-                return Functions.ClampRadiansTwoPi(Math.Atan2(sinE, cosE));
+                return ExtraMath.ClampRadiansTwoPi(Math.Atan2(sinE, cosE));
             } else { //hyperbolic orbits
                 double coshE = (e + Math.Cos(trueAnomaly)) / (1 + e * Math.Cos(trueAnomaly));
                 if (coshE < 1) throw new ArgumentException("OrbitExtensions.GetEccentricAnomalyAtTrueAnomaly: True anomaly of " + trueAnomaly + " radians is not attained by orbit with eccentricity " + o.eccentricity);
 
-                double E = Functions.Acosh(coshE);
+                double E = ExtraMath.Acosh(coshE);
                 if (trueAnomaly > Math.PI) E *= -1;
 
                 return E;
@@ -180,7 +180,7 @@ namespace kOSMainframe.Orbital {
         public static double GetMeanAnomalyAtEccentricAnomaly(this Orbit o, double E) {
             double e = o.eccentricity;
             if (e < 1) { //elliptical orbits
-                return Functions.ClampRadiansTwoPi(E - (e * Math.Sin(E)));
+                return ExtraMath.ClampRadiansTwoPi(E - (e * Math.Sin(E)));
             } else { //hyperbolic orbits
                 return (e * Math.Sinh(E)) - E;
             }
@@ -201,7 +201,7 @@ namespace kOSMainframe.Orbital {
             // We use ObtAtEpoch and not meanAnomalyAtEpoch because somehow meanAnomalyAtEpoch
             // can be wrong when using the RealSolarSystem mod. ObtAtEpoch is always correct.
             double ret = (o.ObTAtEpoch + (UT - o.epoch)) * o.MeanMotion();
-            if (o.eccentricity < 1) ret = Functions.ClampRadiansTwoPi(ret);
+            if (o.eccentricity < 1) ret = ExtraMath.ClampRadiansTwoPi(ret);
             return ret;
         }
 
@@ -212,7 +212,7 @@ namespace kOSMainframe.Orbital {
         public static double UTAtMeanAnomaly(this Orbit o, double meanAnomaly, double UT) {
             double currentMeanAnomaly = o.MeanAnomalyAtUT(UT);
             double meanDifference = meanAnomaly - currentMeanAnomaly;
-            if (o.eccentricity < 1) meanDifference = Functions.ClampRadiansTwoPi(meanDifference);
+            if (o.eccentricity < 1) meanDifference = ExtraMath.ClampRadiansTwoPi(meanDifference);
             return UT + meanDifference / o.MeanMotion();
         }
 
@@ -297,7 +297,7 @@ namespace kOSMainframe.Orbital {
         //with b's orbit.
         //The returned value is always between 0 and 360.
         public static double DescendingNodeTrueAnomaly(this Orbit a, Orbit b) {
-            return Functions.ClampDegrees360(a.AscendingNodeTrueAnomaly(b) + 180);
+            return ExtraMath.ClampDegrees360(a.AscendingNodeTrueAnomaly(b) + 180);
         }
 
         //Gives the true anomaly at which o crosses the equator going northwards, if o is east-moving,
@@ -312,7 +312,7 @@ namespace kOSMainframe.Orbital {
         //or northwards, if o is west-moving.
         //The returned value is always between 0 and 360.
         public static double DescendingNodeEquatorialTrueAnomaly(this Orbit o) {
-            return Functions.ClampDegrees360(o.AscendingNodeEquatorialTrueAnomaly() + 180);
+            return ExtraMath.ClampDegrees360(o.AscendingNodeEquatorialTrueAnomaly() + 180);
         }
 
         //For hyperbolic orbits, the true anomaly only takes on values in the range
@@ -326,28 +326,28 @@ namespace kOSMainframe.Orbital {
         //if a is hyperbolic and the would-be ascending node is within the opening
         //angle of the hyperbola.
         public static bool AscendingNodeExists(this Orbit a, Orbit b) {
-            return Math.Abs(Functions.ClampDegrees180(a.AscendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
+            return Math.Abs(ExtraMath.ClampDegrees180(a.AscendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
         }
 
         //Returns whether a has a descending node with b. This can be false
         //if a is hyperbolic and the would-be descending node is within the opening
         //angle of the hyperbola.
         public static bool DescendingNodeExists(this Orbit a, Orbit b) {
-            return Math.Abs(Functions.ClampDegrees180(a.DescendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
+            return Math.Abs(ExtraMath.ClampDegrees180(a.DescendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
         }
 
         //Returns whether o has an ascending node with the equator. This can be false
         //if o is hyperbolic and the would-be ascending node is within the opening
         //angle of the hyperbola.
         public static bool AscendingNodeEquatorialExists(this Orbit o) {
-            return Math.Abs(Functions.ClampDegrees180(o.AscendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
+            return Math.Abs(ExtraMath.ClampDegrees180(o.AscendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
         }
 
         //Returns whether o has a descending node with the equator. This can be false
         //if o is hyperbolic and the would-be descending node is within the opening
         //angle of the hyperbola.
         public static bool DescendingNodeEquatorialExists(this Orbit o) {
-            return Math.Abs(Functions.ClampDegrees180(o.DescendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
+            return Math.Abs(ExtraMath.ClampDegrees180(o.DescendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
         }
 
         //TODO 1.1 changed trueAnomaly to rad but MJ ext stil uses deg. Should change for consistency
