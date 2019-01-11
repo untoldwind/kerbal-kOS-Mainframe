@@ -278,7 +278,7 @@ namespace kOSMainframe.Orbital {
             prob.intercept_only = intercept_only;
 
             Vector2d minParam;
-            int iter = AmoebaOptimizer.Optimize(new DelegateFunction2(prob.LambertCost), new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out minParam);
+            int iter = AmoebaOptimizer.Optimize(prob.LambertCost, new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out minParam);
 
             Logging.Debug($"DeltaVAndTimeForBiImpulsiveTransfer: UT = {minParam.x} T = {minParam.y} iter = {iter}");
 

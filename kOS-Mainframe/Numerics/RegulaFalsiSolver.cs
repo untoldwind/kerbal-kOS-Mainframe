@@ -10,16 +10,16 @@ namespace kOSMainframe.Numerics {
         /// <param name="b">The second x value.</param>
         /// <param name="tolerance">Tolerance.</param>
         /// <param name="maxIterations">Max iterations.</param>
-        public static double Solve(Function F, double a, double b, double tolerance, int maxIterations) {
+        public static double Solve(Func1 F, double a, double b, double tolerance, int maxIterations) {
             double c = a;
-            double Fa = F.Evaluate(a);
-            double Fb = F.Evaluate(b);
+            double Fa = F(a);
+            double Fb = F(b);
             double Fc = Fa;
 
             for (int j = 0; j < maxIterations; j++) {
                 if (Math.Abs(Fc) < tolerance) break;
                 c = (a * Fb - b * Fa) / (Fb - Fa);
-                Fc = F.Evaluate(c);
+                Fc = F(c);
                 a = b;
                 Fa = Fb;
                 b = c;

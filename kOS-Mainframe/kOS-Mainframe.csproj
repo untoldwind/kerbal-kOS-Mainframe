@@ -61,7 +61,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="kOSMainFrameAddon.cs" />
     <Compile Include="Orbital\LambertBattinSolver.cs" />
-    <Compile Include="Numerics\Hyperbolic.cs" />
     <Compile Include="Numerics\PolynomialFunction.cs" />
     <Compile Include="Numerics\Function.cs" />
     <Compile Include="Numerics\DerivativeFunction.cs" />

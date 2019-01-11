@@ -123,8 +123,8 @@ namespace kOSMainframe.Orbital {
                 //double alphaH = 2*asinh.value(Math.Sqrt(s/(-2*a)));
                 //double betaH = 2*asinh.value(Math.Sqrt((s-c)/(-2*a)));
                 //Porting Arrowstar's above three lines to: -The_Duck
-                double alphaH = 2 * Hyperbolic.Asinh(Math.Sqrt(s / (-2 * a)));
-                double betaH = 2 * Hyperbolic.Asinh(Math.Sqrt((s - c) / (-2 * a)));
+                double alphaH = 2 * ExtraMath.Asinh(Math.Sqrt(s / (-2 * a)));
+                double betaH = 2 * ExtraMath.Asinh(Math.Sqrt((s - c) / (-2 * a)));
 
                 double deltaH = alphaH - betaH;
 

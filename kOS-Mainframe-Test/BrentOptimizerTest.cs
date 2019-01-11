@@ -15,7 +15,7 @@ namespace kOSMainframeTest {
                 double ax = i;
                 double bx = i + 1;
                 double fmin;
-                double xmin = BrentOptimizer.Optimize(new DelegateFunction(Bessel.J0), ax, bx, 1e-6, 1000, out fmin);
+                double xmin = BrentOptimizer.Optimize(Bessel.J0, ax, bx, 1e-6, 1000, out fmin);
 
                 if (mins.FindIndex(min => Math.Abs(xmin - min) < EQL) < 0) {
                     mins.Add(xmin);

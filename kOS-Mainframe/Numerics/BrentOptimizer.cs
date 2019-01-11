@@ -7,7 +7,7 @@ namespace kOSMainframe.Numerics {
         private const double CGOLD = 0.3819660;
         private const double ZEPS = 1e-18;
 
-        public static double Optimize(Function func, double a, double b, double tollerance, int maxIterations, out double fmin) {
+        public static double Optimize(Func1 func, double a, double b, double tollerance, int maxIterations, out double fmin) {
             double ax, bx, cx, fa, fb, fc;
 
             Bracket(func, a, b, out ax, out bx, out cx, out fa, out fb, out fc);
@@ -50,7 +50,7 @@ namespace kOSMainframe.Numerics {
                     d = CGOLD * e;
                 }
                 u = (Math.Abs(d) >= tol1 ? x + d : (d < 0.0 ? x - tol1 : x + tol1));
-                fu = func.Evaluate(u);
+                fu = func(u);
                 if(fu <= fx) {
                     if (u >= x) {
                         a = x;
@@ -83,11 +83,11 @@ namespace kOSMainframe.Numerics {
             throw new Exception("BrentOptimizer reached iteration limit of " + maxIterations + " on " + func.ToString());
         }
 
-        static void Bracket(Function func, double a, double b, out double ax, out double bx, out double cx, out double fa, out double fb, out double fc) {
+        static void Bracket(Func1 func, double a, double b, out double ax, out double bx, out double cx, out double fa, out double fb, out double fc) {
             ax = a;
             bx = b;
-            fa = func.Evaluate(ax);
-            fb = func.Evaluate(bx);
+            fa = func(ax);
+            fb = func(bx);
             if ( fb > fa ) {
                 double temp;
 
@@ -99,7 +99,7 @@ namespace kOSMainframe.Numerics {
                 fb = temp;
             }
             cx = bx + GOLD * (bx - ax);
-            fc = func.Evaluate(cx);
+            fc = func(cx);
             while(fb > fc) {
                 double r = (bx - ax) * (fb - fc);
                 double q = (bx - cx) * (fb - fa);
@@ -109,7 +109,7 @@ namespace kOSMainframe.Numerics {
                 double fu;
 
                 if((bx -u)*(u-cx) >0.0) {
-                    fu = func.Evaluate(u);
+                    fu = func(u);
                     if(fu < fc) {
                         ax = bx;
                         bx = u;
@@ -122,23 +122,23 @@ namespace kOSMainframe.Numerics {
                         return;
                     }
                     u = cx + GOLD * (cx - bx);
-                    fu = func.Evaluate(u);
+                    fu = func(u);
                 } else if ((cx-u)*(u-ulim) > 0.0) {
-                    fu = func.Evaluate(u);
+                    fu = func(u);
                     if(fu < fc) {
                         bx = cx;
                         cx = u;
                         u = u + GOLD * (u - cx);
                         fb = fc;
                         fc = fu;
-                        fu = func.Evaluate(u);
+                        fu = func(u);
                     }
                 } else if((u-ulim)*(ulim-cx) >= 0.0) {
                     u = ulim;
-                    fu = func.Evaluate(u);
+                    fu = func(u);
                 } else {
                     u = cx + GOLD * (cx - bx);
-                    fu = func.Evaluate(u);
+                    fu = func(u);
                 }
                 ax = bx;
                 bx = cx;

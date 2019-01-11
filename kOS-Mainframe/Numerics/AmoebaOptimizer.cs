@@ -5,20 +5,20 @@ namespace kOSMainframe.Numerics {
     public class AmoebaOptimizer {
         private const double TINY = 1.0e-20;
 
-        public static int Optimize(Function2 func, Vector2d guess, Vector2d perturbation, double tolerance, int maxIterations, out Vector2d minPoint) {
+        public static int Optimize(Func2 func, Vector2d guess, Vector2d perturbation, double tolerance, int maxIterations, out Vector2d minPoint) {
             Vector2d[] p = { guess, guess + new Vector2d(perturbation.x,0.0), guess + new Vector2d(0.0, perturbation.y) };
 
             return Optimize(func, p, tolerance, maxIterations, out minPoint);
         }
 
-        public static int Optimize(Function2 func, Vector2d[] p, double tolerance, int maxIterations, out Vector2d minPoint) {
+        public static int Optimize(Func2 func, Vector2d[] p, double tolerance, int maxIterations, out Vector2d minPoint) {
             int npts = p.Length;
             int nfunc = 0;
             Vector2d psum = new Vector2d(0.0, 0.0);
             double[] y = new double[npts];
 
             for (int i = 0; i < npts; i++) {
-                y[i] = func.Evaluate(p[i]);
+                y[i] = func(p[i].x, p[i].y);
                 psum += p[i];
             }
 
@@ -57,7 +57,7 @@ namespace kOSMainframe.Numerics {
                         for (int i = 0; i < npts; i++) {
                             psum = 0.5 * (p[i] + p[ilo]);
                             p[i] = psum;
-                            y[i] = func.Evaluate(psum);
+                            y[i] = func(psum.x, psum.y);
                         }
                         nfunc += 2;
                         psum.x = 0;
@@ -72,20 +72,20 @@ namespace kOSMainframe.Numerics {
             }
         }
 
-        public static int Optimize(Function3 func, Vector3d guess, Vector3d perturbation, double tolerance, int maxIterations, out Vector3d minPoint) {
+        public static int Optimize(Func3 func, Vector3d guess, Vector3d perturbation, double tolerance, int maxIterations, out Vector3d minPoint) {
             Vector3d[] p = { guess, guess + new Vector3d(perturbation.x, 0.0, 0.0), guess + new Vector3d(0.0, perturbation.y, 0.0), guess + new Vector3d(0.0, 0.0, perturbation.z) };
 
             return Optimize(func, p, tolerance, maxIterations, out minPoint);
         }
 
-        public static int Optimize(Function3 func, Vector3d[] p, double tolerance, int maxIterations, out Vector3d minPoint) {
+        public static int Optimize(Func3 func, Vector3d[] p, double tolerance, int maxIterations, out Vector3d minPoint) {
             int npts = p.Length;
             int nfunc = 0;
             Vector3d psum = new Vector3d(0.0, 0.0, 0.0);
             double[] y = new double[npts];
 
             for (int i = 0; i < npts; i++) {
-                y[i] = func.Evaluate(p[i]);
+                y[i] = func(p[i].x, p[i].y, p[i].z);
                 psum += p[i];
             }
 
@@ -124,7 +124,7 @@ namespace kOSMainframe.Numerics {
                         for (int i = 0; i < npts; i++) {
                             psum = 0.5 * (p[i] + p[ilo]);
                             p[i] = psum;
-                            y[i] = func.Evaluate(psum);
+                            y[i] = func(psum.x, psum.y, psum.z);
                         }
                         nfunc += 3;
                         psum.x = 0;
@@ -140,11 +140,11 @@ namespace kOSMainframe.Numerics {
             }
         }
 
-        private static double Amotry(Vector2d[] p, double[] y, ref Vector2d psum, Function2 func, int ihi, double fac) {
+        private static double Amotry(Vector2d[] p, double[] y, ref Vector2d psum, Func2 func, int ihi, double fac) {
             double fac1 = (1.0 - fac) / 2;
             double fac2 = fac1 - fac;
             Vector2d ptry = psum * fac1 - p[ihi] * fac2;
-            double ytry = func.Evaluate(ptry);
+            double ytry = func(ptry.x, ptry.y);
             if (ytry < y[ihi]) {
                 y[ihi] = ytry;
                 psum += ptry - p[ihi];
@@ -153,11 +153,11 @@ namespace kOSMainframe.Numerics {
             return ytry;
         }
 
-        private static double Amotry(Vector3d[] p, double[] y, ref Vector3d psum, Function3 func, int ihi, double fac) {
+        private static double Amotry(Vector3d[] p, double[] y, ref Vector3d psum, Func3 func, int ihi, double fac) {
             double fac1 = (1.0 - fac) / 3;
             double fac2 = fac1 - fac;
             Vector3d ptry = psum * fac1 - p[ihi] * fac2;
-            double ytry = func.Evaluate(ptry);
+            double ytry = func(ptry.x, ptry.y, ptry.z);
             if (ytry < y[ihi]) {
                 y[ihi] = ytry;
                 psum += ptry - p[ihi];

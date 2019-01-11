@@ -5,9 +5,9 @@ namespace kOSMainframe.Numerics {
     public static class PowelOpimizer {
         private const double TINY = 1.0e-25;
 
-        public static Vector2d Optimize(Function2 func, Vector2d p, double tolerance, int maxIterations, out double fmin) {
+        public static Vector2d Optimize(Func2 func, Vector2d p, double tolerance, int maxIterations, out double fmin) {
             Vector2d[] ximat = { new Vector2d(1.0, 0.0), new Vector2d(0.0, 1.0) };
-            double fret = func.Evaluate(p);
+            double fret = func(p.x, p.y);
             double fptt;
             Vector2d pt = p, ptt;
 
@@ -31,7 +31,7 @@ namespace kOSMainframe.Numerics {
                 ptt = 2.0 * p - pt;
                 Vector2d xi = p - pt;
                 pt = p;
-                fptt = func.Evaluate(ptt);
+                fptt = func(ptt.x, ptt.y);
                 if(fptt < fp) {
                     double t = 2.0 * (fp - 2.0 * fret + fptt) * (fp - fret - del) * (fp - fret - del) - del * (fp - fptt) * (fp - fptt);
                     if (t < 0.0) {
@@ -46,9 +46,9 @@ namespace kOSMainframe.Numerics {
             throw new Exception("PowelOpimizer reached iteration limit of " + maxIterations + " on " + func.ToString());
         }
 
-        public static Vector3d Optimize(Function3 func, Vector3d p, double tolerance, int maxIterations, out double fmin) {
+        public static Vector3d Optimize(Func3 func, Vector3d p, double tolerance, int maxIterations, out double fmin) {
             Vector3d[] ximat = { new Vector3d(1.0, 0.0, 0.0), new Vector3d(0.0, 1.0, 0.0), new Vector3d(0.0, 0.0, 1.0) };
-            double fret = func.Evaluate(p);
+            double fret = func(p.x, p.y, p.z);
             double fptt;
             Vector3d pt = p, ptt;
 
@@ -72,7 +72,7 @@ namespace kOSMainframe.Numerics {
                 ptt = 2.0 * p - pt;
                 Vector3d xi = p - pt;
                 pt = p;
-                fptt = func.Evaluate(ptt);
+                fptt = func(ptt.x, ptt.y, ptt.z);
                 if (fptt < fp) {
                     double t = 2.0 * (fp - 2.0 * fret + fptt) * (fp - fret - del) * (fp - fret - del) - del * (fp - fptt) * (fp - fptt);
                     if (t < 0.0 ) {

@@ -3,11 +3,11 @@ namespace kOSMainframe.Numerics {
     public static class BrentSolver {
         private const double EPS = 1e-15;
 
-        public static double Solve(Function f, double x1, double x2, double tolerance, int maxIterations) {
+        public static double Solve(Func1 f, double x1, double x2, double tolerance, int maxIterations) {
             double a = x1;
             double b = x2;
-            double fa = f.Evaluate(a);
-            double fb = f.Evaluate(b);
+            double fa = f(a);
+            double fb = f(b);
             double c = b;
             double fc = fb;
             double d = b-a;
@@ -69,7 +69,7 @@ namespace kOSMainframe.Numerics {
                     b += d;
                 } else {
                     b += (xm < 0.0 ? -tol1 : tol1);
-                    fb = f.Evaluate(b);
+                    fb = f(b);
                 }
             }
             throw new Exception("BrentSolver reached iteration limit of " + maxIterations + " on " + f.ToString());
