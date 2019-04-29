@@ -26,22 +26,19 @@ namespace kOSMainframe {
     }
 
     [kOS.Safe.Utilities.KOSNomenclature("VesselExtendedInfo")]
-    public class VesselExtendedInfo : Structure, IHasSharedObjects  {
-        public SharedObjects Shared {
-            get;
-            set;
-        }
+    public class VesselExtendedInfo : Structure  {
+        protected readonly SharedObjects shared;
 
         private readonly Vessel vessel;
 
         public VesselExtendedInfo(SharedObjects sharedObjs) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = sharedObjs.Vessel;
             InitializeSuffixes();
         }
 
         public VesselExtendedInfo(SharedObjects sharedObjs, VesselTarget vessel) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = vessel.Vessel;
             InitializeSuffixes();
         }
@@ -54,7 +51,7 @@ namespace kOSMainframe {
 
         private ListValue GetStageStatsVac() {
             var list = new ListValue();
-            var sim = new FuelFlowSimulation(Shared);
+            var sim = new FuelFlowSimulation(this.shared);
 
             sim.Init(vessel.parts, true);
 
@@ -67,7 +64,7 @@ namespace kOSMainframe {
 
         private ListValue GetStageStatsAtm() {
             var list = new ListValue();
-            var sim = new FuelFlowSimulation(Shared);
+            var sim = new FuelFlowSimulation(this.shared);
 
             sim.Init(vessel.parts, true);
 
@@ -83,7 +80,7 @@ namespace kOSMainframe {
         }
 
         private BurnTime CalculateBurnTimeWithLimit(ScalarValue deltaV, ScalarValue stageDelay, ScalarValue throttleLimit) {
-            var sim = new FuelFlowSimulation(Shared);
+            var sim = new FuelFlowSimulation(this.shared);
 
             sim.Init(vessel.parts, true);
 

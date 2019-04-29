@@ -10,7 +10,8 @@ using kOS.Safe.Encapsulation.Suffixes;
 namespace kOSMainframe.VesselExtra {
     //A Stats struct describes the result of the simulation over a certain interval of time (e.g., one stage)
     [kOS.Safe.Utilities.KOSNomenclature("StageStats")]
-    public class StageStats : Structure, IHasSharedObjects {
+    public class StageStats : Structure {
+        protected readonly SharedObjects shared;
         public double startMass;
         public double endMass;
         public double startThrust;
@@ -31,13 +32,8 @@ namespace kOSMainframe.VesselExtra {
 
         public List<Part> parts;
 
-        public SharedObjects Shared {
-            get;
-            set;
-        }
-
         public StageStats(SharedObjects sharedObj) {
-            Shared = sharedObj;
+            this.shared = sharedObj;
             InitializeSuffixes();
         }
 
@@ -52,7 +48,7 @@ namespace kOSMainframe.VesselExtra {
 
         //Append joins two Stats describing adjacent intervals of time into one describing the combined interval
         public StageStats Append(StageStats s) {
-            return new StageStats(Shared) {
+            return new StageStats(this.shared) {
                 startMass = this.startMass,
                 endMass = s.endMass,
                 resourceMass = startMass - s.endMass,
@@ -79,7 +75,7 @@ namespace kOSMainframe.VesselExtra {
         }
 
         private ListValue GetEngines() {
-            return PartValueFactory.Construct(parts.Where(part => part.IsEngine()), Shared);
+            return PartValueFactory.Construct(parts.Where(part => part.IsEngine()), this.shared);
         }
 
         public override String ToString() {

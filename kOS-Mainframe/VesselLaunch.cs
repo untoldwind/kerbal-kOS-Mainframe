@@ -8,21 +8,19 @@ using kOSMainframe.Orbital;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("VesselLaunch")]
-    public class VesselLaunch : Structure, IHasSharedObjects {
-        public SharedObjects Shared {
-            get;
-            set;
-        }
+    public class VesselLaunch : Structure {
+        protected readonly SharedObjects shared;
+
         private readonly Vessel vessel;
 
         public VesselLaunch(SharedObjects sharedObjs) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = sharedObjs.Vessel;
             InitializeSuffixes();
         }
 
         public VesselLaunch(SharedObjects sharedObjs, VesselTarget vessel) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = vessel.Vessel;
             InitializeSuffixes();
         }

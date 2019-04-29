@@ -9,23 +9,21 @@ using System.Reflection;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("Maneuvers")]
-    public class Maneuvers : Structure, IHasSharedObjects {
-        public SharedObjects Shared {
-            get;
-            set;
-        }
+    public class Maneuvers : Structure {
+        protected readonly SharedObjects shared;
+
         private readonly Orbit orbit;
         private double minUT;
 
         public Maneuvers(SharedObjects sharedObjs) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.orbit = sharedObjs.Vessel.orbit;
             this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
 
         public Maneuvers(SharedObjects sharedObjs, Orbitable orbitable) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.orbit = orbitable.Orbit;
             this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
@@ -69,27 +67,27 @@ namespace kOSMainframe {
             } else {
                 UT = orbit.NextPeriapsisTime(UT);
             }
-            return OrbitChange.Circularize(orbit, UT).ToKOS(Shared);
+            return OrbitChange.Circularize(orbit, UT).ToKOS(this.shared);
         }
 
         private Node CircularizeOrbitAt(TimeSpan time) {
-            return OrbitChange.Circularize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(Shared);
+            return OrbitChange.Circularize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(this.shared);
         }
 
         private Node EllipticizeOrbit(TimeSpan time, ScalarValue newPeR, ScalarValue newApR) {
-            return OrbitChange.Ellipticize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(Shared);
+            return OrbitChange.Ellipticize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(this.shared);
         }
 
         private Node ChangePeriapsis(TimeSpan time, ScalarValue newPeR) {
-            return OrbitChange.ChangePeriapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR).ToKOS(Shared);
+            return OrbitChange.ChangePeriapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR).ToKOS(this.shared);
         }
 
         private Node ChangeApoapsis(TimeSpan time, ScalarValue newApR) {
-            return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(Shared);
+            return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(this.shared);
         }
 
         private Node ChangeInclination(TimeSpan time, ScalarValue newInc) {
-            return OrbitChange.ChangeInclination(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newInc).ToKOS(Shared);
+            return OrbitChange.ChangeInclination(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newInc).ToKOS(this.shared);
         }
 
         private Node MatchPlanes(Orbitable orbitable) {
@@ -102,67 +100,67 @@ namespace kOSMainframe {
             if(!anExists && !dnExists) {
                 throw new KOSException("neither ascending nor descending node with target exists.");
             } else if(!dnExists || anNode.time < dnNode.time) {
-                return anNode.ToKOS(Shared);
+                return anNode.ToKOS(this.shared);
             } else {
-                return dnNode.ToKOS(Shared);
+                return dnNode.ToKOS(this.shared);
             }
         }
 
         private Node Hohmann(Orbitable orbitable) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.HohmannTransfer(orbit, target, minUT).ToKOS(Shared);
+            return OrbitIntercept.HohmannTransfer(orbit, target, minUT).ToKOS(this.shared);
         }
 
         private Node HohmannLambert(Orbitable orbitable, ScalarValue subtractProgradeDV) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.HohmannLambertTransfer(orbit, target, minUT, subtractProgradeDV).ToKOS(Shared);
+            return OrbitIntercept.HohmannLambertTransfer(orbit, target, minUT, subtractProgradeDV).ToKOS(this.shared);
         }
 
         private Node BiImpulsive(Orbitable orbitable) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(Shared);
+            return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(this.shared);
         }
 
         private Node CourseCorrection(Orbitable orbitable) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.CourseCorrection(orbit, minUT, target).ToKOS(Shared);
+            return OrbitIntercept.CourseCorrection(orbit, minUT, target).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrection(Orbitable orbitable) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target).ToKOS(Shared);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrectionBody(BodyTarget body, ScalarValue finalPeR) {
-            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR).ToKOS(Shared);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrectionDist(Orbitable orbitable, ScalarValue caDistance) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target, caDistance).ToKOS(Shared);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target, caDistance).ToKOS(this.shared);
         }
 
         private Node MatchVelocities(Orbitable orbitable) {
             var target = orbitable.Orbit;
             double collisionUT = orbit.NextClosestApproachTime(target, minUT);
 
-            return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(Shared);
+            return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(this.shared);
         }
 
         private Node ReturnFromMoon(ScalarValue targetPrimaryRadius) {
-            return OrbitSOIChange.MoonReturnEjection(orbit, minUT, targetPrimaryRadius).ToKOS(Shared);
+            return OrbitSOIChange.MoonReturnEjection(orbit, minUT, targetPrimaryRadius).ToKOS(this.shared);
         }
 
         private Node InterplanetaryTransfer(Orbitable target, BooleanValue syncPhaseAngle) {
-            return OrbitSOIChange.InterplanetaryTransferEjection(orbit, minUT, target.Orbit, syncPhaseAngle).ToKOS(Shared);
+            return OrbitSOIChange.InterplanetaryTransferEjection(orbit, minUT, target.Orbit, syncPhaseAngle).ToKOS(this.shared);
         }
 
         private Node InterplanetaryLambertTransfer(Orbitable target) {
-            return OrbitSOIChange.InterplanetaryLambertTransferEjection(orbit, minUT, target.Orbit).ToKOS(Shared);
+            return OrbitSOIChange.InterplanetaryLambertTransferEjection(orbit, minUT, target.Orbit).ToKOS(this.shared);
         }
 
         private Node InterplanetaryBiImpulsiveTransfer(Orbitable target, ScalarValue maxUT) {
-            return OrbitSOIChange.InterplanetaryBiImpulsiveEjection(orbit, minUT, target.Orbit, maxUT).ToKOS(Shared);
+            return OrbitSOIChange.InterplanetaryBiImpulsiveEjection(orbit, minUT, target.Orbit, maxUT).ToKOS(this.shared);
         }
     }
 }

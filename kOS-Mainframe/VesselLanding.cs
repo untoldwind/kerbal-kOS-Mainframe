@@ -9,21 +9,18 @@ using kOSMainframe.Orbital;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("VesselLanding")]
-    public class VesselLanding : Structure, IHasSharedObjects {
-        public SharedObjects Shared {
-            get;
-            set;
-        }
+    public class VesselLanding : Structure {
+        protected readonly SharedObjects shared;
         private readonly Vessel vessel;
 
         public VesselLanding(SharedObjects sharedObjs) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = sharedObjs.Vessel;
             InitializeSuffixes();
         }
 
         public VesselLanding(SharedObjects sharedObjs, VesselTarget vessel) {
-            Shared = sharedObjs;
+            this.shared = sharedObjs;
             this.vessel = vessel.Vessel;
             InitializeSuffixes();
         }
@@ -98,7 +95,7 @@ namespace kOSMainframe {
             var result = LandingSimulation.Current?.result;
             if (result == null && result.outcome != Outcome.LANDED) throw new KOSException("No prediction");
 
-            return new GeoCoordinates(Shared, result.endPosition.latitude, result.endPosition.longitude);
+            return new GeoCoordinates(this.shared, result.endPosition.latitude, result.endPosition.longitude);
         }
 
         private TimeSpan GetDeaccelerationTime() {
@@ -118,7 +115,7 @@ namespace kOSMainframe {
         private Node CourseCorrection(TimeSpan time, BooleanValue allowPrograde) {
             var deltaV = LandingSimulation.Current?.ComputeCourseCorrection(time.ToUnixStyleTime(), allowPrograde);
             if (deltaV.HasValue)
-                return vessel.orbit.DeltaVToNode(time.ToUnixStyleTime(), deltaV.Value).ToKOS(Shared);
+                return vessel.orbit.DeltaVToNode(time.ToUnixStyleTime(), deltaV.Value).ToKOS(this.shared);
             throw new KOSException("Course correction not available");
         }
 
