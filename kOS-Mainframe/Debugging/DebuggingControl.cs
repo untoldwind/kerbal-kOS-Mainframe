@@ -17,6 +17,7 @@ namespace kOSMainframe.Debugging {
         }
 
         public static void Start() {
+            Logging.Debug("Start Debugging controls");
             UIDrawer.Instance.AddDrawable(new DebuggingControl());
         }
 

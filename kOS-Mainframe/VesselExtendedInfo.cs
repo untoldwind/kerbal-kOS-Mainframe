@@ -2,29 +2,10 @@
 using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
 using kOS.Suffixed;
-using kOS.Serialization;
 using kOSMainframe.VesselExtra;
 using Math = System.Math;
 
 namespace kOSMainframe {
-    [kOS.Safe.Utilities.KOSNomenclature("BurnTime")]
-    public class BurnTime : Structure {
-        public readonly TimeSpan full;
-        public readonly TimeSpan half;
-
-        public BurnTime(double fullUT, double halfUT) {
-            full = new TimeSpan(fullUT);
-            half = new TimeSpan(halfUT);
-
-            InitializeSuffixes();
-        }
-
-        private void InitializeSuffixes() {
-            AddSuffix("FULL", new Suffix<TimeSpan>(() => full));
-            AddSuffix("HALF", new Suffix<TimeSpan>(() => half));
-        }
-    }
-
     [kOS.Safe.Utilities.KOSNomenclature("VesselExtendedInfo")]
     public class VesselExtendedInfo : Structure  {
         protected readonly SharedObjects shared;
@@ -44,31 +25,17 @@ namespace kOSMainframe {
         }
 
         private void InitializeSuffixes() {
-            AddSuffix("STAGES", new Suffix<ListValue>(GetStageStatsVac, "Get stages information for vacuum"));
-            AddSuffix("STAGES_ATM", new Suffix<ListValue>(GetStageStatsAtm, "Get stages information in atmosphere at current height"));
+            AddSuffix("STAGES", new Suffix<ListValue>(() => GetStageStats(DeltaVSituationOptions.Altitude), "Get stages information for ths current altitude/situtation"));
+            AddSuffix("STAGES_ASL", new Suffix<ListValue>(() => GetStageStats(DeltaVSituationOptions.SeaLevel), "Get stages information in sea level (of the current body)"));
+            AddSuffix("STAGES_VAC", new Suffix<ListValue>(() => GetStageStats(DeltaVSituationOptions.Vaccum), "Get stages information in vaccum"));
             AddSuffix("BURN_TIME", new TwoArgsSuffix<BurnTime, ScalarValue, ScalarValue>(CalculateBurnTime, "Calculate burn time for (deltaV, stageDelay)"));
+            AddSuffix("BURN_TIME_LIMIT", new ThreeArgsSuffix<BurnTime, ScalarValue, ScalarValue, ScalarValue>(CalculateBurnTimeWithLimit, "Calculate burn time for (deltaV, stageDelay, thrustLimit)"));
         }
 
-        private ListValue GetStageStatsVac() {
+        private ListValue GetStageStats(DeltaVSituationOptions situation) {
             var list = new ListValue();
-            var sim = new FuelFlowSimulation(this.shared);
 
-            sim.Init(vessel.parts, true);
-
-            foreach (StageStats stats in sim.SimulateAllStages(1.0f, 0.0, 0.0, vessel.mach)) {
-                list.Add(stats);
-            }
-
-            return list;
-        }
-
-        private ListValue GetStageStatsAtm() {
-            var list = new ListValue();
-            var sim = new FuelFlowSimulation(this.shared);
-
-            sim.Init(vessel.parts, true);
-
-            foreach (StageStats stats in sim.SimulateAllStages(1.0f, vessel.staticPressurekPa, vessel.atmDensity / 1.225, vessel.mach)) {
+            foreach(var stats in CollectStageStats(situation)) {
                 list.Add(stats);
             }
 
@@ -80,11 +47,7 @@ namespace kOSMainframe {
         }
 
         private BurnTime CalculateBurnTimeWithLimit(ScalarValue deltaV, ScalarValue stageDelay, ScalarValue throttleLimit) {
-            var sim = new FuelFlowSimulation(this.shared);
-
-            sim.Init(vessel.parts, true);
-
-            var vacStats = sim.SimulateAllStages(1.0f, 0.0, 0.0, vessel.mach);
+            var vacStats = CollectStageStats(DeltaVSituationOptions.Vaccum);
 
             double dvLeft = deltaV.GetDoubleValue();
             double halfDvLeft = deltaV.GetDoubleValue() / 2;
@@ -95,7 +58,7 @@ namespace kOSMainframe {
             double lastStageBurnTime = 0;
             for (int i = vacStats.Length - 1; i >= 0 && dvLeft > 0; i--) {
                 var s = vacStats[i];
-                if (s.deltaV <= 0 || s.startThrust <= 0) {
+                if (s.deltaV <= 0 || s.thrust <= 0) {
                     // We staged again before autostagePreDelay is elapsed.
                     // Add the remaining wait time
                     if (burnTime - lastStageBurnTime < stageDelay.GetDoubleValue() && i != vacStats.Length - 1)
@@ -117,7 +80,7 @@ namespace kOSMainframe {
                 //      exp(ln(m0 / m1) * stageBurnFraction) = m0 / m1b
                 //      m1b = m0 / (exp(ln(m0 / m1) * stageBurnFraction))
                 double stageBurnFinalMass = s.startMass / Math.Exp(Math.Log(s.startMass / s.endMass) * stageBurnFraction);
-                double stageAvgAccel = s.startThrust / ((s.startMass + stageBurnFinalMass) / 2d);
+                double stageAvgAccel = s.thrust / ((s.startMass + stageBurnFinalMass) / 2d);
 
                 // Right now, for simplicity, we're ignoring throttle limits for
                 // all but the current stage. This is wrong, but hopefully it's
@@ -143,6 +106,30 @@ namespace kOSMainframe {
             }
 
             return new BurnTime(burnTime, halfBurnTime);
+        }
+
+        private StageStats[] CollectStageStats(DeltaVSituationOptions situation) {
+            var stageStats = new StageStats[this.vessel.currentStage + 1];
+            var vesselDeltaV = this.vessel.VesselDeltaV;
+
+            for(int stage = 0; stage <= vessel.currentStage; stage++) {
+                var stageInfo = vesselDeltaV.GetStage(stage);
+                var stats = new StageStats(this.shared);
+                stageStats[stage] = stats;
+
+                if(stageInfo != null) {
+                    stats.deltaV = stageInfo.GetSituationDeltaV(situation);
+                    stats.stageBurnTime = stageInfo.stageBurnTime;
+                    stats.thrust = stageInfo.GetSituationThrust(situation);
+                    stats.isp = stageInfo.GetSituationISP(situation);
+                    stats.twr = stageInfo.GetSituationTWR(situation);
+                    stats.startMass = stageInfo.startMass;
+                    stats.endMass = stageInfo.endMass;
+                    stats.stageMass = stageInfo.stageMass;
+                    stats.fuelMass = stageInfo.fuelMass;
+                }
+            }
+            return stageStats;
         }
     }
 }

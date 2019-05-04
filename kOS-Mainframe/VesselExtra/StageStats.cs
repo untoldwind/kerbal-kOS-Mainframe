@@ -14,36 +14,21 @@ namespace kOSMainframe.VesselExtra {
         protected readonly SharedObjects shared;
         public double startMass;
         public double endMass;
-        public double startThrust;
-        public double maxAccel;
-        public double deltaTime;
+        public double thrust;
+        public double stageBurnTime;
         public double deltaV;
 
-        public double resourceMass;
+        public double fuelMass;
         public double isp;
-        public double stagedMass;
+        public double twr;
+        public double stageMass;
+        public double currentStageMass;
 
-        public double StartTWR(double geeASL) {
-            return startMass > 0 ? startThrust / (9.80665 * geeASL * startMass) : 0;
-        }
-        public double MaxTWR(double geeASL) {
-            return maxAccel / (9.80665 * geeASL);
-        }
-
-        public List<Part> parts;
+        public List<Part> parts = new List<Part>();
 
         public StageStats(SharedObjects sharedObj) {
             this.shared = sharedObj;
             InitializeSuffixes();
-        }
-
-        //Computes the deltaV from the other fields. Only valid when the thrust is constant over the time interval represented.
-        public void ComputeTimeStepDeltaV() {
-            if (deltaTime > 0 && startMass > endMass && startMass > 0 && endMass > 0) {
-                deltaV = startThrust * deltaTime / (startMass - endMass) * Math.Log(startMass / endMass);
-            } else {
-                deltaV = 0;
-            }
         }
 
         //Append joins two Stats describing adjacent intervals of time into one describing the combined interval
@@ -51,10 +36,9 @@ namespace kOSMainframe.VesselExtra {
             return new StageStats(this.shared) {
                 startMass = this.startMass,
                 endMass = s.endMass,
-                resourceMass = startMass - s.endMass,
-                startThrust = this.startThrust,
-                maxAccel = Math.Max(this.maxAccel, s.maxAccel),
-                deltaTime = this.deltaTime + (s.deltaTime < float.MaxValue && !double.IsInfinity(s.deltaTime) ? s.deltaTime : 0),
+                fuelMass = startMass - s.endMass,
+                thrust = this.thrust,
+                stageBurnTime = this.stageBurnTime + (s.stageBurnTime < float.MaxValue && !double.IsInfinity(s.stageBurnTime) ? s.stageBurnTime : 0),
                 deltaV = this.deltaV + s.deltaV,
                 parts = this.parts,
                 isp = this.startMass == s.endMass ? 0 : (this.deltaV + s.deltaV) / (9.80665f * Math.Log(this.startMass / s.endMass))
@@ -64,29 +48,26 @@ namespace kOSMainframe.VesselExtra {
         private void InitializeSuffixes() {
             AddSuffix("START_MASS", new Suffix<ScalarDoubleValue>(() => startMass));
             AddSuffix("END_MASS", new Suffix<ScalarDoubleValue>(() => endMass));
-            AddSuffix("START_THRUST", new Suffix<ScalarDoubleValue>(() => startThrust));
-            AddSuffix("MAX_ACCEL", new Suffix<ScalarDoubleValue>(() => maxAccel));
-            AddSuffix("DELTA_TIME", new Suffix<ScalarDoubleValue>(() => deltaTime));
+            AddSuffix("THRUST", new Suffix<ScalarDoubleValue>(() => thrust));
+            AddSuffix("STAGE_BURN_TIME", new Suffix<ScalarDoubleValue>(() => stageBurnTime));
             AddSuffix("DELTA_V", new Suffix<ScalarDoubleValue>(() => deltaV));
-            AddSuffix("RESOURCE_MASS", new Suffix<ScalarDoubleValue>(() => resourceMass));
+            AddSuffix("FUEL_MASS", new Suffix<ScalarDoubleValue>(() => fuelMass));
             AddSuffix("ISP", new Suffix<ScalarDoubleValue>(() => isp));
-            AddSuffix("STAGED_MASS", new Suffix<ScalarDoubleValue>(() => stagedMass));
-            AddSuffix("ENGINES", new Suffix<ListValue>(GetEngines));
-        }
-
-        private ListValue GetEngines() {
-            return PartValueFactory.Construct(parts.Where(part => part.IsEngine()), this.shared);
+            AddSuffix("TWR", new Suffix<ScalarDoubleValue>(() => twr));
+            AddSuffix("STAGE_MASS", new Suffix<ScalarDoubleValue>(() => stageMass));
+            AddSuffix("CURRENT_STAGE_MASS", new Suffix<ScalarDoubleValue>(() => stageMass));
         }
 
         public override String ToString() {
             return "StageStats(startMass=" + startMass +
                    ",endMass=" + endMass +
-                   ",startThrust=" + startThrust +
-                   ",deltaTime=" + deltaTime +
+                   ",thrust=" + thrust +
+                   ",stageBurnTime=" + stageBurnTime +
                    ",deltaV=" + deltaV +
-                   ",resourceMass=" + resourceMass +
+                   ",resourceMass=" + fuelMass +
                    ",isp=" + isp +
-                   ",stagedMass=" + stagedMass +
+                   ",twr=" + twr +
+                   ",stageMass=" + stageMass +
                    ",nParts=" + parts.Count() +
                    ")";
         }

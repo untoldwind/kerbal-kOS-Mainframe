@@ -66,24 +66,7 @@
     <Compile Include="Numerics\DerivativeFunction.cs" />
     <Compile Include="Numerics\NewtonSolver.cs" />
     <Compile Include="Orbital\GoodingSolver.cs" />
-    <Compile Include="VesselExtra\VesselInfo.cs" />
-    <Compile Include="VesselExtra\VesselExtensions.cs" />
-    <Compile Include="VesselExtra\PartResourceExtensions.cs" />
-    <Compile Include="VesselExtra\PartExtensions.cs" />
-    <Compile Include="VesselExtra\StageInfo.cs" />
-    <Compile Include="VesselExtra\Simulation.cs" />
-    <Compile Include="VesselExtra\PartSim.cs" />
-    <Compile Include="VesselExtra\AttachNodeSim.cs" />
-    <Compile Include="VesselExtra\ResourceContainer.cs" />
-    <Compile Include="VesselExtra\SimManager.cs" />
-    <Compile Include="VesselExtra\EngineSim.cs" />
-    <Compile Include="VesselExtra\AppliedForce.cs" />
-    <Compile Include="VesselExtra\Units.cs" />
     <Compile Include="VesselExtra\CelestialBodies.cs" />
-    <Compile Include="VesselExtra\RCSSim.cs" />
-    <Compile Include="VesselExtra\ForceAccumulator.cs" />
-    <Compile Include="VesselExtra\WeightedVectorAverager.cs" />
-    <Compile Include="VesselExtra\FuelFlowSimulation.cs" />
     <Compile Include="Utils\DefaultableDictionary.cs" />
     <Compile Include="Utils\KeyableDictionary.cs" />
     <Compile Include="UnityToolbag\Dispatcher.cs" />
@@ -140,6 +123,8 @@
     <Compile Include="Numerics\Matrix2x2.cs" />
     <Compile Include="Orbital\LambertIzzoSolver.cs" />
     <Compile Include="Numerics\RegulaFalsiSolver.cs" />
+    <Compile Include="VesselExtra\BurnTime.cs" />
+    <Compile Include="VesselExtra\VesselExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
