@@ -1,8 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
+using kOSMainframe.Orbital;
 
 namespace kOSMainframeTest {
-    public class OrbitTestRef {
+    public class OrbitTestRef : IOrbit {
         public const double DegToRad = Math.PI / 180.0;
         public const double RadToDeg = 180.0 / Math.PI;
 
@@ -22,18 +23,6 @@ namespace kOSMainframeTest {
         public Vector3d FrameZ;
         public Vector3d ascendingNode;
         public Vector3d eccVec;
-
-        public double periapsisRadius {
-            get {
-                return (1.0 - eccentricity) * semiMajorAxis;
-            }
-        }
-
-        public double apoapsisRadius {
-            get {
-                return (1.0 + eccentricity) * semiMajorAxis;
-            }
-        }
 
         public OrbitTestRef(BodyTestRef body,
                             double inclination,
@@ -130,6 +119,43 @@ namespace kOSMainframeTest {
             }
         }
 
+        public double PeR => (1.0 - eccentricity) * semiMajorAxis;
+
+        public double ApR => (1.0 + eccentricity) * semiMajorAxis;
+
+        public IBody referenceBody => throw new NotImplementedException();
+
+        double IOrbit.eccentricity => eccentricity;
+
+        double IOrbit.semiMajorAxis => semiMajorAxis;
+        public double semiMinorAxis {
+            get {
+                if (eccentricity < 1.0) {
+                    return semiMajorAxis * Math.Sqrt(1.0 - eccentricity * eccentricity);
+                } else {
+                    return semiMajorAxis * Math.Sqrt(eccentricity * eccentricity - 1.0);
+                }
+            }
+        }
+
+        double IOrbit.period => period;
+
+        double IOrbit.epoch => epoch;
+
+        public double ObTAtEpoch => meanAnomalyAtEpoch / meanMotion;
+
+        double IOrbit.LAN => LAN;
+
+        double IOrbit.argumentOfPeriapsis => argumentOfPeriapsis;
+
+        double IOrbit.inclination => inclination;
+
+        double IOrbit.meanAnomalyAtEpoch => meanAnomalyAtEpoch;
+
+        public Vector3d GetOrbitNormal() {
+            return FrameZ;
+        }
+
         public double GetEccentricAnomalyForTrue(double trueAnomaly) {
             double x = Math.Cos(trueAnomaly / 2.0);
             double y = Math.Sin(trueAnomaly / 2.0);
@@ -182,7 +208,7 @@ namespace kOSMainframeTest {
         }
 
 
-        public Vector3d GetRelativePositionAtUT(double UT) {
+        public Vector3d getRelativePositionAtUT(double UT) {
             return GetPositionAtOrbitTime(GetOrbitTimeAtUT(UT));
         }
 
@@ -197,7 +223,11 @@ namespace kOSMainframeTest {
             return r * (FrameX * x + FrameY * y);
         }
 
-        public Vector3d GetOrbitalVelocityAtUT(double UT) {
+        public double RadiusAtTrueAnomaly(double trueAnomaly) {
+            return semiMajorAxis * (1.0 - eccentricity * eccentricity) / (1.0 + eccentricity * Math.Cos(trueAnomaly));
+        }
+
+        public Vector3d getOrbitalVelocityAtUT(double UT) {
             return GetOrbitalVelocityAtOrbitTime(GetOrbitTimeAtUT(UT));
         }
 
@@ -219,6 +249,33 @@ namespace kOSMainframeTest {
             double eccentricAnomaly = GetEccentricAnomalyForMean(meanAnomaly);
             return GetTrueAnomaly(eccentricAnomaly);
         }
+
+        public Vector3d getRelativePositionFromEccAnomaly(double E) {
+            double x;
+            double y;
+            if (eccentricity < 1.0) {
+                x = semiMajorAxis * (Math.Cos(E) - eccentricity);
+                y = semiMajorAxis * Math.Sqrt(1.0 - eccentricity * eccentricity) * Math.Sin(E);
+            } else if (eccentricity > 1.0) {
+                x = (0.0 - semiMajorAxis) * (eccentricity - Math.Cosh(E));
+                y = (0.0 - semiMajorAxis) * Math.Sqrt(eccentricity * eccentricity - 1.0) * Math.Sinh(E);
+            } else {
+                x = 0.0;
+                y = 0.0;
+            }
+            return FrameX * x + FrameY * y;
+        }
+
+        public double TrueAnomalyAtRadius(double r) {
+            double x = Vector3d.Cross(getRelativePositionFromEccAnomaly(0), GetOrbitalVelocityAtOrbitTime(0)).sqrMagnitude / referenceBody.gravParameter;
+            if (eccentricity < 1.0) {
+                r = Math.Min(Math.Max(PeR, r), ApR);
+            } else {
+                r = Math.Max(PeR, r);
+            }
+            return Math.Acos(x / (eccentricity * r) - 1.0 / eccentricity);
+        }
+
 
         public double GetEccentricAnomalyForMean(double meanAnomaly) {
             if (eccentricity < 1.0) {
@@ -278,8 +335,33 @@ namespace kOSMainframeTest {
             }
         }
 
+        public double GetOrbitalStateVectorsAtUT(double UT, out Vector3d pos, out Vector3d vel) {
+            return GetOrbitalStateVectorsAtObT(GetOrbitTimeAtUT(UT), UT, out pos, out vel)
+        }
+
+        public double GetOrbitalStateVectorsAtObT(double ObT, double UT, out Vector3d pos, out Vector3d vel) {
+            return GetOrbitalStateVectorsAtTrueAnomaly(GetTrueAnomalyAtOrbitTime(ObT), UT, out pos, out vel);
+        }
+
+        public double GetOrbitalStateVectorsAtTrueAnomaly(double tA, double UT, out Vector3d pos, out Vector3d vel) {
+            double x = Math.Cos(tA);
+            double y = Math.Sin(tA);
+            double g = semiMajorAxis * (1.0 - eccentricity * eccentricity);
+            double h = Math.Sqrt(referenceBody.gravParameter / g);
+            double vx = -y * h;
+            double vy = (x + eccentricity) * h;
+            vel = FrameX * vx + FrameY * vy;
+            double r = g / (1.0 + eccentricity * x);
+            pos = FrameX * (x * r) + FrameY * (y * r);
+            return r;
+        }
+
         public override string ToString() {
             return $"Orbit: body={body.name} inc={inclination} ecc={eccentricity} sMa={semiMajorAxis} Epoch={epoch} LAN={LAN} ArgPe={argumentOfPeriapsis} meanAtEpoch={meanAnomalyAtEpoch} FrameX={FrameX} FrameY={FrameY} FrameZ={FrameZ}";
+        }
+
+        public void UpdateFromStateVectors(Vector3d pos, Vector3d vel, double UT) {
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,20 +4,20 @@ using kOSMainframe.Numerics;
 namespace kOSMainframe.Orbital {
     public static class OrbitChange {
         //Computes the speed of a circular orbit of a given radius for a given body.
-        public static double CircularOrbitSpeed(CelestialBody body, double radius) {
+        public static double CircularOrbitSpeed(IBody body, double radius) {
             //v = sqrt(GM/r)
             return Math.Sqrt(body.gravParameter / radius);
         }
 
         //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
-        public static NodeParameters Circularize(Orbit o, double UT) {
+        public static NodeParameters Circularize(IOrbit o, double UT) {
             Vector3d desiredVelocity = CircularOrbitSpeed(o.referenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
             return o.DeltaVToNode(UT,  desiredVelocity - actualVelocity);
         }
 
         //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
-        public static NodeParameters Ellipticize(Orbit o, double UT, double newPeR, double newApR) {
+        public static NodeParameters Ellipticize(IOrbit o, double UT, double newPeR, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize inputs
@@ -43,7 +43,7 @@ namespace kOSMainframe.Orbital {
         //Computes the delta-V of the burn required to attain a given periapsis, starting from
         //a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
         //The computed burn is always horizontal, though this may not be strictly optimal.
-        public static NodeParameters ChangePeriapsis(Orbit o, double UT, double newPeR) {
+        public static NodeParameters ChangePeriapsis(IOrbit o, double UT, double newPeR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -92,7 +92,7 @@ namespace kOSMainframe.Orbital {
         //Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
         //The computed burn is always prograde or retrograde, though this may not be strictly optimal.
         //Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
-        public static NodeParameters ChangeApoapsis(Orbit o, double UT, double newApR) {
+        public static NodeParameters ChangeApoapsis(IOrbit o, double UT, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -146,7 +146,7 @@ namespace kOSMainframe.Orbital {
         //   - first, clamp newInclination to the range -180, 180
         //   - if newInclination > 0, do the cheaper burn to set that inclination
         //   - if newInclination < 0, do the more expensive burn to set that inclination
-        public static NodeParameters ChangeInclination(Orbit o, double UT, double newInclination) {
+        public static NodeParameters ChangeInclination(IOrbit o, double UT, double newInclination) {
             double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
             double desiredHeading = OrbitToGround.HeadingForInclination(newInclination, latitude);
             Vector3d actualHorizontalVelocity = Vector3d.Exclude(o.Up(UT), o.SwappedOrbitalVelocityAtUT(UT));

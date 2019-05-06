@@ -4,7 +4,7 @@ using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitIntercept {
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0) {
+        public static Vector3d DeltaVToInterceptAtTime(IOrbit o, double UT, IOrbit target, double interceptUT, double offsetDistance = 0) {
             Vector3d finalVelocity;
             return DeltaVToInterceptAtTime(o, UT, target, interceptUT, out finalVelocity, offsetDistance);
         }
@@ -15,7 +15,7 @@ namespace kOSMainframe.Orbital {
         // offsetDistance: this is used by the Rendezvous Autopilot and is only going to be valid over very short distances
         // shortway: the shortway parameter to feed into the Lambert solver
         //
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0) {
+        public static Vector3d DeltaVToInterceptAtTime(IOrbit o, double initialUT, IOrbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0) {
             Vector3d initialRelPos = o.SwappedRelativePositionAtUT(initialUT);
             Vector3d finalRelPos = target.SwappedRelativePositionAtUT(finalUT);
 
@@ -53,13 +53,13 @@ namespace kOSMainframe.Orbital {
         //that closest approach time to zero.
         //This will likely only return sensible results when the given orbit is already an
         //approximate intercept trajectory.
-        public static NodeParameters CourseCorrection(Orbit o, double UT, Orbit target) {
+        public static NodeParameters CourseCorrection(IOrbit o, double UT, IOrbit target) {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 1); //+1 so that closestApproachTime is definitely > UT
             Vector3d dV = DeltaVToInterceptAtTime(o, UT, target, closestApproachTime);
             return o.DeltaVToNode(UT, dV);
         }
 
-        public static NodeParameters CheapestCourseCorrection(Orbit o, double UT, Orbit target) {
+        public static NodeParameters CheapestCourseCorrection(IOrbit o, double UT, IOrbit target) {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 2); //+2 so that closestApproachTime is definitely > UT
 
             double burnUT = UT;
@@ -79,9 +79,9 @@ namespace kOSMainframe.Orbital {
             return o.DeltaVToNode(burnUT, dV);
         }
 
-        public static NodeParameters CheapestCourseCorrection(Orbit o, double UT, Orbit target, CelestialBody targetBody, double finalPeR) {
+        public static NodeParameters CheapestCourseCorrection(IOrbit o, double UT, IOrbit target, CelestialBody targetBody, double finalPeR) {
             NodeParameters collisionParams = CheapestCourseCorrection(o, UT, target);
-            Orbit collisionOrbit = o.PerturbedOrbit(collisionParams);
+            IOrbit collisionOrbit = o.PerturbedOrbit(collisionParams);
             double collisionUT = collisionOrbit.NextClosestApproachTime(target, collisionParams.time);
             Vector3d collisionPosition = target.SwappedAbsolutePositionAtUT(collisionUT);
             Vector3d collisionRelVel = collisionOrbit.SwappedOrbitalVelocityAtUT(collisionUT) - target.SwappedOrbitalVelocityAtUT(collisionUT);
@@ -111,9 +111,9 @@ namespace kOSMainframe.Orbital {
             }
         }
 
-        public static NodeParameters CheapestCourseCorrection(Orbit o, double UT, Orbit target, double caDistance) {
+        public static NodeParameters CheapestCourseCorrection(IOrbit o, double UT, IOrbit target, double caDistance) {
             NodeParameters collisionParams = CheapestCourseCorrection(o, UT, target);
-            Orbit collisionOrbit = o.PerturbedOrbit(collisionParams);
+            IOrbit collisionOrbit = o.PerturbedOrbit(collisionParams);
             double collisionUT = collisionOrbit.NextClosestApproachTime(target, collisionParams.time);
             Vector3d position = o.SwappedAbsolutePositionAtUT(collisionUT);
             Vector3d targetPos = target.SwappedAbsolutePositionAtUT(collisionUT);
@@ -142,14 +142,14 @@ namespace kOSMainframe.Orbital {
         //of the transfer orbit.
         //Actually, it's not exactly the phase angle. It's a sort of mean anomaly phase angle. The
         //difference is not important for how this function is used by DeltaVAndTimeForHohmannTransfer.
-        private static Vector3d DeltaVAndApsisPhaseAngleOfHohmannTransfer(Orbit o, Orbit target, double UT, out double apsisPhaseAngle) {
+        private static Vector3d DeltaVAndApsisPhaseAngleOfHohmannTransfer(IOrbit o, IOrbit target, double UT, out double apsisPhaseAngle) {
             Vector3d apsisDirection = -o.SwappedRelativePositionAtUT(UT);
             double desiredApsis = target.RadiusAtTrueAnomaly(UtilMath.Deg2Rad * target.TrueAnomalyFromVector(apsisDirection));
 
             Vector3d dV;
             if (desiredApsis > o.ApR) {
                 dV = OrbitChange.ChangeApoapsis(o, UT, desiredApsis).deltaV;
-                Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
+                IOrbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferApTime = transferOrbit.NextApoapsisTime(UT);
                 Vector3d transferApDirection = transferOrbit.SwappedRelativePositionAtApoapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
                 double targetTrueAnomaly = target.TrueAnomalyFromVector(transferApDirection);
@@ -157,7 +157,7 @@ namespace kOSMainframe.Orbital {
                 apsisPhaseAngle = meanAnomalyOffset;
             } else {
                 dV = OrbitChange.ChangePeriapsis(o, UT, desiredApsis).deltaV;
-                Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
+                IOrbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferPeTime = transferOrbit.NextPeriapsisTime(UT);
                 Vector3d transferPeDirection = transferOrbit.SwappedRelativePositionAtPeriapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
                 double targetTrueAnomaly = target.TrueAnomalyFromVector(transferPeDirection);
@@ -175,7 +175,7 @@ namespace kOSMainframe.Orbital {
         //The output burnUT will be the first transfer window found after the given UT.
         //Assumes o and target are in approximately the same plane, and orbiting in the same direction.
         //Also assumes that o is a perfectly circular orbit (though result should be OK for small eccentricity).
-        public static NodeParameters HohmannTransfer(Orbit o, Orbit target, double UT) {
+        public static NodeParameters HohmannTransfer(IOrbit o, IOrbit target, double UT) {
             //We do a binary search for the burn time that zeros out the phase angle between the
             //transferring vessel and the target at the apsis of the transfer orbit.
             double synodicPeriod = o.SynodicPeriod(target);
@@ -238,8 +238,8 @@ namespace kOSMainframe.Orbital {
         }
 
         public struct LambertProblem {
-            public Orbit o;
-            public Orbit target;
+            public IOrbit o;
+            public IOrbit target;
             public bool intercept_only;  // omit the second burn from the cost
             public double zeroUT;
 
@@ -268,7 +268,7 @@ namespace kOSMainframe.Orbital {
         // optimization search.
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
-        public static NodeParameters BiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
+        public static NodeParameters BiImpulsiveTransfer(IOrbit o, IOrbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
             double[] x = { 0, TT };
 
             LambertProblem prob = new LambertProblem();
@@ -299,7 +299,7 @@ namespace kOSMainframe.Orbital {
         // FIXME: there's some very confusing nomenclature between DeltaVAndTimeForBiImpulsiveTransfer and this
         //        the minUT/maxUT values here are zero-centered on this methods UT.  the minUT/maxUT parameters to
         //        the other method are proper UT times and not zero centered at all.
-        public static NodeParameters BiImpulsiveAnnealed(Orbit o, Orbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
+        public static NodeParameters BiImpulsiveAnnealed(IOrbit o, IOrbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
             double coolingRate = 0.003;
@@ -407,11 +407,11 @@ namespace kOSMainframe.Orbital {
 
         //Like DeltaVAndTimeForHohmannTransfer, but adds an additional step that uses the Lambert
         //solver to adjust the initial burn to produce an exact intercept instead of an approximate
-        public static NodeParameters HohmannLambertTransfer(Orbit o, Orbit target, double UT, double subtractProgradeDV = 0) {
+        public static NodeParameters HohmannLambertTransfer(IOrbit o, IOrbit target, double UT, double subtractProgradeDV = 0) {
             NodeParameters hohmannParams = HohmannTransfer(o, target, UT);
             Vector3d subtractedProgradeDV = subtractProgradeDV * hohmannParams.deltaV.normalized;
 
-            Orbit hohmannOrbit = o.PerturbedOrbit(hohmannParams);
+            IOrbit hohmannOrbit = o.PerturbedOrbit(hohmannParams);
             double apsisTime; //approximate target  intercept time
             if (hohmannOrbit.semiMajorAxis > o.semiMajorAxis) apsisTime = hohmannOrbit.NextApoapsisTime(hohmannParams.time);
             else apsisTime = hohmannOrbit.NextPeriapsisTime(hohmannParams.time);

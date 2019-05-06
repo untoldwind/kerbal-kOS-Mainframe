@@ -39,13 +39,13 @@ namespace kOSMainframe.Orbital {
         //If the given latitude is too large, so that an orbit with a given inclination never attains the
         //given latitude, then this function returns either 90 (if -90 < inclination < 90) or 270.
         public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
-            CelestialBody body = vessel.mainBody;
+            IBody body = vessel.mainBody.wrap();
             double latitudeDegrees = vessel.latitude;
             double orbVel = OrbitChange.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
             double headingOne = HeadingForInclination(inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double headingTwo = HeadingForInclination(-inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double now = Planetarium.GetUniversalTime();
-            Orbit o = vessel.orbit;
+            IOrbit o = vessel.orbit.wrap();
 
             Vector3d north = vessel.north;
             Vector3d east = vessel.east;

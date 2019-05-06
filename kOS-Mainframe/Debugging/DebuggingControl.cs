@@ -3,6 +3,7 @@ using UnityEngine;
 using kOSMainframe.Orbital;
 using kOSMainframe.Utils;
 using kOSMainframe.Landing;
+using kOSMainframe.VesselExtra;
 
 namespace kOSMainframe.Debugging {
     public class DebuggingControl : IUIDrawable {
@@ -48,16 +49,16 @@ namespace kOSMainframe.Debugging {
         }
 
         private void Circularize() {
-            CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit, Planetarium.GetUniversalTime() + 20));
+            CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit.wrap(), Planetarium.GetUniversalTime() + 20));
         }
 
         private void ReturnFromMoon(double targetPrimaryPeriapsis) {
-            var nodeParams = OrbitSOIChange.MoonReturnEjection(Vessel.orbit, Planetarium.GetUniversalTime(), targetPrimaryPeriapsis);
+            var nodeParams = OrbitSOIChange.MoonReturnEjection(Vessel.orbit.wrap(), Planetarium.GetUniversalTime(), targetPrimaryPeriapsis);
 
             var node = CleanAndAddNode(nodeParams);
 
-            Logging.DumpOrbit("Current Orbit", Vessel.orbit);
-            var result = Vessel.orbit.PerturbedOrbit(nodeParams.time, nodeParams.deltaV);
+            Logging.DumpOrbit("Current Orbit", Vessel.orbit.wrap());
+            var result = Vessel.orbit.wrap().PerturbedOrbit(nodeParams.time, nodeParams.deltaV);
             Logging.DumpOrbit("Result Orbit", result);
             Logging.DumpOrbit("Next node patch", node.nextPatch);
             Logging.DumpOrbit("Next node patch next", node.nextPatch.nextPatch);
@@ -77,7 +78,7 @@ namespace kOSMainframe.Debugging {
         private void BiinjectiveTransfer() {
             var target = Vessel.targetObject;
             if (target == null) return;
-            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime() + 2000);
+            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit.wrap(), target.GetOrbit().wrap(), Planetarium.GetUniversalTime() + 2000);
 
             CleanAndAddNode(nodeParams);
         }
@@ -86,7 +87,7 @@ namespace kOSMainframe.Debugging {
             var target = Vessel.targetObject;
             if (target == null) return;
 
-            var nodeParams = OrbitSOIChange.InterplanetaryBiImpulsiveEjection(Vessel.orbit, Planetarium.GetUniversalTime() + 2000, target.GetOrbit(), maxUT);
+            var nodeParams = OrbitSOIChange.InterplanetaryBiImpulsiveEjection(Vessel.orbit.wrap(), Planetarium.GetUniversalTime() + 2000, target.GetOrbit(), maxUT);
 
             CleanAndAddNode(nodeParams);
         }
@@ -102,7 +103,7 @@ namespace kOSMainframe.Debugging {
         private void DumpOrbit() {
             double UT = Planetarium.GetUniversalTime();
             var orbit = Vessel.orbit.referenceBody.orbit;
-            Logging.DumpOrbit("Current Orbit", orbit);
+            Logging.DumpOrbit("Current Orbit", orbit.wrap());
             Logging.Debug("Orbit X: {0}", orbit.OrbitFrame.X);
             Logging.Debug("Orbit Y: {0}", orbit.OrbitFrame.Y);
             Logging.Debug("Orbit Z: {0}", orbit.OrbitFrame.Z);

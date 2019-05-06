@@ -130,17 +130,18 @@ namespace kOSMainframe.Utils {
         }
 
         public static void DrawOrbit(Orbit o, Color c) {
+            IOrbit wrapped = o.wrap();
             List<Vector3d> points = new List<Vector3d>();
             if (o.eccentricity < 1) {
                 //elliptical orbits:
                 for (int trueAnomaly = 0; trueAnomaly < 360; trueAnomaly += 1) {
-                    points.Add(o.SwappedAbsolutePositionAtUT(o.TimeOfTrueAnomaly(trueAnomaly, 0)));
+                    points.Add(wrapped.SwappedAbsolutePositionAtUT(wrapped.TimeOfTrueAnomaly(trueAnomaly, 0)));
                 }
                 points.Add(points[0]); //close the loop
             } else {
                 //hyperbolic orbits:
                 for (int meanAnomaly = -1000; meanAnomaly <= 1000; meanAnomaly += 5) {
-                    points.Add(o.SwappedAbsolutePositionAtUT(o.UTAtMeanAnomaly(meanAnomaly * UtilMath.Deg2Rad, 0)));
+                    points.Add(wrapped.SwappedAbsolutePositionAtUT(wrapped.UTAtMeanAnomaly(meanAnomaly * UtilMath.Deg2Rad, 0)));
                 }
             }
 

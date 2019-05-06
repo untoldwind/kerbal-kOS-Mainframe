@@ -5,7 +5,7 @@ using UnityEngine;
 namespace kOSMainframe.Orbital {
     public static class OrbitalManeuverCalculator {
         // Compute the delta-V of the burn at the givent time required to enter an orbit with a period of (resonanceDivider-1)/resonanceDivider of the starting orbit period
-        public static Vector3d DeltaVToResonantOrbit(Orbit o, double UT, double f) {
+        public static Vector3d DeltaVToResonantOrbit(IOrbit o, double UT, double f) {
             double a = o.ApR;
             double p = o.PeR;
 
@@ -50,7 +50,7 @@ namespace kOSMainframe.Orbital {
         }
 
         //Computes the deltaV of the burn needed to set a given LAN at a given UT.
-        public static Vector3d DeltaVToShiftLAN(Orbit o, double UT, double newLAN) {
+        public static Vector3d DeltaVToShiftLAN(IOrbit o, double UT, double newLAN) {
             Vector3d pos = o.SwappedAbsolutePositionAtUT(UT);
             // Burn position in the same reference frame as LAN
             double burn_latitude = o.referenceBody.GetLatitude(pos);
@@ -90,7 +90,7 @@ namespace kOSMainframe.Orbital {
         }
 
 
-        public static Vector3d DeltaVForSemiMajorAxis(Orbit o, double UT, double newSMA) {
+        public static Vector3d DeltaVForSemiMajorAxis(IOrbit o, double UT, double newSMA) {
             bool raising = o.semiMajorAxis < newSMA;
             Vector3d burnDirection = (raising ? 1 : -1) * o.Prograde(UT);
             double minDeltaV = 0;
@@ -125,7 +125,7 @@ namespace kOSMainframe.Orbital {
             return ((maxDeltaV + minDeltaV) / 2) * burnDirection;
         }
 
-        public static Vector3d DeltaVToShiftNodeLongitude(Orbit o, double UT, double newNodeLong) {
+        public static Vector3d DeltaVToShiftNodeLongitude(IOrbit o, double UT, double newNodeLong) {
             // Get the location underneath the burn location at the current moment.
             // Note that this does NOT account for the rotation of the body that will happen between now
             // and when the vessel reaches the apoapsis.

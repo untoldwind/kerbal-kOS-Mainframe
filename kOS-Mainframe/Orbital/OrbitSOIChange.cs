@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitSOIChange {
-        public static NodeParameters MoonReturnEjection(Orbit o, double UT, double targetPrimaryPeriapsis) {
-            CelestialBody moon = o.referenceBody;
-            CelestialBody primary = moon.referenceBody;
+        public static NodeParameters MoonReturnEjection(IOrbit o, double UT, double targetPrimaryPeriapsis) {
+            IBody moon = o.referenceBody;
+            IBody primary = moon.referenceBody;
 
             //construct an orbit at the target radius around the primary, in the same plane as the moon. This is a fake target
-            Orbit primaryOrbit = new Orbit(moon.orbit.inclination, moon.orbit.eccentricity, primary.Radius + targetPrimaryPeriapsis, moon.orbit.LAN, moon.orbit.argumentOfPeriapsis, moon.orbit.meanAnomalyAtEpoch, moon.orbit.epoch, primary);
+            IOrbit primaryOrbit = primary.newOrbit(moon.orbit.inclination, moon.orbit.eccentricity, primary.Radius + targetPrimaryPeriapsis, moon.orbit.LAN, moon.orbit.argumentOfPeriapsis, moon.orbit.meanAnomalyAtEpoch, moon.orbit.epoch);
 
             return InterplanetaryTransferEjection(o, UT, primaryOrbit, false);
         }
@@ -19,8 +19,8 @@ namespace kOSMainframe.Orbital {
         //the target planet has a fairly low relative inclination with respect to the first planet. If the
         //inclination change is nonzero you should also do a mid-course correction burn, as computed by
         //DeltaVForCourseCorrection.
-        public static NodeParameters InterplanetaryTransferEjection(Orbit o, double UT, Orbit target, bool syncPhaseAngle) {
-            Orbit planetOrbit = o.referenceBody.orbit;
+        public static NodeParameters InterplanetaryTransferEjection(IOrbit o, double UT, IOrbit target, bool syncPhaseAngle) {
+            IOrbit planetOrbit = o.referenceBody.orbit;
 
             //Compute the time and dV for a Hohmann transfer where we pretend that we are the planet we are orbiting.
             //This gives us the "ideal" deltaV and UT of the ejection burn, if we didn't have to worry about waiting for the right
@@ -41,7 +41,7 @@ namespace kOSMainframe.Orbital {
             }
 
             //Compute the actual transfer orbit this ideal burn would lead to.
-            Orbit transferOrbit = planetOrbit.PerturbedOrbit(idealBurnUT, idealDeltaV);
+            IOrbit transferOrbit = planetOrbit.PerturbedOrbit(idealBurnUT, idealDeltaV);
 
             //Now figure out how to approximately eject from our current orbit into the Hohmann orbit we just computed.
 
@@ -64,9 +64,9 @@ namespace kOSMainframe.Orbital {
             double ejectionSpeed = Math.Sqrt(2 * ejectionKineticEnergy);
 
             //construct a sample ejection orbit
-            Vector3d ejectionOrbitInitialVelocity = ejectionSpeed * (Vector3d)o.referenceBody.transform.right;
-            Vector3d ejectionOrbitInitialPosition = o.referenceBody.position + ejectionRadius * (Vector3d)o.referenceBody.transform.up;
-            Orbit sampleEjectionOrbit = Helper.OrbitFromStateVectors(ejectionOrbitInitialPosition, ejectionOrbitInitialVelocity, o.referenceBody, 0);
+            Vector3d ejectionOrbitInitialVelocity = ejectionSpeed * o.referenceBody.transformRight;
+            Vector3d ejectionOrbitInitialPosition = o.referenceBody.position + ejectionRadius * (Vector3d)o.referenceBody.transformUp;
+            IOrbit sampleEjectionOrbit = o.referenceBody.OrbitFromStateVectors(ejectionOrbitInitialPosition, ejectionOrbitInitialVelocity, 0);
             double ejectionOrbitDuration = sampleEjectionOrbit.NextTimeOfRadius(0, o.referenceBody.sphereOfInfluence);
             Vector3d ejectionOrbitFinalVelocity = sampleEjectionOrbit.SwappedOrbitalVelocityAtUT(ejectionOrbitDuration);
 
@@ -99,8 +99,8 @@ namespace kOSMainframe.Orbital {
         //the target planet has a fairly low relative inclination with respect to the first planet. If the
         //inclination change is nonzero you should also do a mid-course correction burn, as computed by
         //DeltaVForCourseCorrection.
-        public static NodeParameters InterplanetaryLambertTransferEjection(Orbit o, double UT, Orbit target) {
-            Orbit planetOrbit = o.referenceBody.orbit;
+        public static NodeParameters InterplanetaryLambertTransferEjection(IOrbit o, double UT, Orbit target) {
+            IOrbit planetOrbit = o.referenceBody.orbit;
 
             //Compute the time and dV for a Hohmann transfer where we pretend that we are the planet we are orbiting.
             //This gives us the "ideal" deltaV and UT of the ejection burn, if we didn't have to worry about waiting for the right
@@ -182,7 +182,7 @@ namespace kOSMainframe.Orbital {
             return o.DeltaVToNode(burnUT, ejectionVelocity - preEjectionVelocity);
         }
 
-        public static NodeParameters InterplanetaryBiImpulsiveEjection(Orbit o, double UT, Orbit target, double maxUT = double.PositiveInfinity) {
+        public static NodeParameters InterplanetaryBiImpulsiveEjection(IOrbit o, double UT, IOrbit target, double maxUT = double.PositiveInfinity) {
             Orbit planetOrbit = o.referenceBody.orbit;
 
             NodeParameters idealParams = OrbitIntercept.BiImpulsiveAnnealed(planetOrbit, target, UT, maxUT: maxUT);
@@ -212,7 +212,7 @@ namespace kOSMainframe.Orbital {
             //construct a sample ejection orbit
             Vector3d ejectionOrbitInitialVelocity = ejectionSpeed * (Vector3d)o.referenceBody.transform.right;
             Vector3d ejectionOrbitInitialPosition = o.referenceBody.position + ejectionRadius * (Vector3d)o.referenceBody.transform.up;
-            Orbit sampleEjectionOrbit = Helper.OrbitFromStateVectors(ejectionOrbitInitialPosition, ejectionOrbitInitialVelocity, o.referenceBody, 0);
+            IOrbit sampleEjectionOrbit = Helper.OrbitFromStateVectors(ejectionOrbitInitialPosition, ejectionOrbitInitialVelocity, o.referenceBody, 0);
             double ejectionOrbitDuration = sampleEjectionOrbit.NextTimeOfRadius(0, o.referenceBody.sphereOfInfluence);
             Vector3d ejectionOrbitFinalVelocity = sampleEjectionOrbit.SwappedOrbitalVelocityAtUT(ejectionOrbitDuration);
 

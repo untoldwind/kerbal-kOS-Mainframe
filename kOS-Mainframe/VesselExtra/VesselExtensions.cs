@@ -125,7 +125,7 @@ namespace kOSMainframe.VesselExtra {
         //Computes the angle between two orbital planes. This will be a number between 0 and 180
         //Note that in the convention used two objects orbiting in the same plane but in
         //opposite directions have a relative inclination of 180 degrees.
-        public static double RelativeInclination(this Orbit a, Orbit b) {
+        public static double RelativeInclination(this IOrbit a, IOrbit b) {
             return Math.Abs(Vector3d.Angle(a.SwappedOrbitNormal(), b.SwappedOrbitNormal()));
         }
 
@@ -149,7 +149,7 @@ namespace kOSMainframe.VesselExtra {
         }
 
         //input dV should be in world coordinates
-        public static ManeuverNode PlaceManeuverNode(this Vessel vessel, Orbit patch, Vector3d dV, double UT) {
+        public static ManeuverNode PlaceManeuverNode(this Vessel vessel, IOrbit patch, Vector3d dV, double UT) {
             //placing a maneuver node with bad dV values can really mess up the game, so try to protect against that
             //and log an exception if we get a bad dV vector:
             for (int i = 0; i < 3; i++) {

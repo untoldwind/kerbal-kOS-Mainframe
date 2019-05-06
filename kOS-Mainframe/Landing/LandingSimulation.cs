@@ -144,7 +144,7 @@ namespace kOSMainframe.Landing {
 
             // orbitLandingPosition is the point where our current orbit intersects the planet
             double endRadius = targetBody.Radius + DecelerationEndAltitude() - 100;
-            Orbit orbit = vessel.orbit;
+            IOrbit orbit = vessel.orbit.wrap();
 
             // Seems we are already landed ?
             if (endRadius > orbit.ApR || vessel.LandedOrSplashed)
@@ -168,7 +168,7 @@ namespace kOSMainframe.Landing {
             Vector3d[] deltas = new Vector3d[3];
             for (int i = 0; i < 3; i++) {
                 const double perturbationDeltaV = 1; //warning: hard experience shows that setting this too low leads to bewildering bugs due to finite precision of Orbit functions
-                Orbit perturbedOrbit = orbit.PerturbedOrbit(UT, perturbationDeltaV * perturbationDirections[i]); //compute the perturbed orbit
+                IOrbit perturbedOrbit = orbit.PerturbedOrbit(UT, perturbationDeltaV * perturbationDirections[i]); //compute the perturbed orbit
                 double perturbedLandingTime;
                 if (perturbedOrbit.PeR < endRadius) perturbedLandingTime = perturbedOrbit.NextTimeOfRadius(UT, endRadius);
                 else perturbedLandingTime = perturbedOrbit.NextPeriapsisTime(UT);

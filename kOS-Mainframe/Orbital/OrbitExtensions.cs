@@ -4,96 +4,100 @@ using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitExtensions {
+        public static IOrbit wrap(this Orbit orbit) {
+            return new OrbitWrapper(orbit);
+        }
+
         //
         // These "Swapped" functions translate preexisting Orbit class functions into world
         // space. For some reason, Orbit class functions seem to use a coordinate system
         // in which the Y and Z coordinates are swapped.
         //
-        public static Vector3d SwappedOrbitalVelocityAtUT(this Orbit o, double UT) {
-            return Orbit.Swizzle(o.getOrbitalVelocityAtUT(UT));
+        public static Vector3d SwappedOrbitalVelocityAtUT(this IOrbit o, double UT) {
+            return SwapYZ(o.getOrbitalVelocityAtUT(UT));
         }
 
         //position relative to the primary
-        public static Vector3d SwappedRelativePositionAtUT(this Orbit o, double UT) {
-            return Orbit.Swizzle(o.getRelativePositionAtUT(UT));
+        public static Vector3d SwappedRelativePositionAtUT(this IOrbit o, double UT) {
+            return SwapYZ(o.getRelativePositionAtUT(UT));
         }
 
         //position in world space
-        public static Vector3d SwappedAbsolutePositionAtUT(this Orbit o, double UT) {
+        public static Vector3d SwappedAbsolutePositionAtUT(this IOrbit o, double UT) {
             return o.referenceBody.position + o.SwappedRelativePositionAtUT(UT);
         }
 
         //normalized vector perpendicular to the orbital plane
         //convention: as you look down along the orbit normal, the satellite revolves counterclockwise
-        public static Vector3d SwappedOrbitNormal(this Orbit o) {
-            return -Orbit.Swizzle(o.GetOrbitNormal()).normalized;
+        public static Vector3d SwappedOrbitNormal(this IOrbit o) {
+            return -SwapYZ(o.GetOrbitNormal()).normalized;
         }
 
         //normalized vector pointing radially outward from the planet
-        public static Vector3d Up(this Orbit o, double UT) {
+        public static Vector3d Up(this IOrbit o, double UT) {
             return o.SwappedRelativePositionAtUT(UT).normalized;
         }
 
         //normalized vector pointing radially outward and perpendicular to prograde
-        public static Vector3d RadialPlus(this Orbit o, double UT) {
+        public static Vector3d RadialPlus(this IOrbit o, double UT) {
             return Vector3d.Exclude(o.Prograde(UT), o.Up(UT)).normalized;
         }
 
         //another name for the orbit normal; this form makes it look like the other directions
-        public static Vector3d NormalPlus(this Orbit o, double UT) {
+        public static Vector3d NormalPlus(this IOrbit o, double UT) {
             return o.SwappedOrbitNormal();
         }
 
         //normalized vector along the orbital velocity
-        public static Vector3d Prograde(this Orbit o, double UT) {
+        public static Vector3d Prograde(this IOrbit o, double UT) {
             return o.SwappedOrbitalVelocityAtUT(UT).normalized;
         }
 
         //normalized vector parallel to the planet's surface, and pointing in the same general direction as the orbital velocity
         //(parallel to an ideally spherical planet's surface, anyway)
-        public static Vector3d Horizontal(this Orbit o, double UT) {
+        public static Vector3d Horizontal(this IOrbit o, double UT) {
             return Vector3d.Exclude(o.Up(UT), o.Prograde(UT)).normalized;
         }
 
         //normalized vector parallel to the planet's surface and pointing in the northward direction
-        public static Vector3d North(this Orbit o, double UT) {
-            return Vector3d.Exclude(o.Up(UT), (o.referenceBody.transform.up * (float)o.referenceBody.Radius) - o.SwappedRelativePositionAtUT(UT)).normalized;
+        public static Vector3d North(this IOrbit o, double UT) {
+            return Vector3d.Exclude(o.Up(UT), (o.referenceBody.transformUp * (float)o.referenceBody.Radius) - o.SwappedRelativePositionAtUT(UT)).normalized;
         }
 
         //normalized vector parallel to the planet's surface and pointing in the eastward direction
-        public static Vector3d East(this Orbit o, double UT) {
+        public static Vector3d East(this IOrbit o, double UT) {
             return Vector3d.Cross(o.Up(UT), o.North(UT));
         }
 
         //distance from the center of the planet
-        public static double Radius(this Orbit o, double UT) {
+        public static double Radius(this IOrbit o, double UT) {
             return o.SwappedRelativePositionAtUT(UT).magnitude;
         }
 
         //returns a new Orbit object that represents the result of applying a given dV to o at UT
-        public static Orbit PerturbedOrbit(this Orbit o, double UT, Vector3d dV) {
+        public static IOrbit PerturbedOrbit(this IOrbit o, double UT, Vector3d dV) {
             //should these in fact be swapped?
-            return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(UT), o.SwappedOrbitalVelocityAtUT(UT) + dV, o.referenceBody, UT);
+            return o.referenceBody.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(UT), o.SwappedOrbitalVelocityAtUT(UT) + dV, UT);
         }
 
-        public static Orbit PerturbedOrbit(this Orbit o, NodeParameters nodeParams) {
+        public static IOrbit PerturbedOrbit(this IOrbit o, NodeParameters nodeParams) {
             //should these in fact be swapped?
-            return Helper.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(nodeParams.time), o.SwappedOrbitalVelocityAtUT(nodeParams.time) + nodeParams.deltaV, o.referenceBody, nodeParams.time);
+            return o.referenceBody.OrbitFromStateVectors(o.SwappedAbsolutePositionAtUT(nodeParams.time), o.SwappedOrbitalVelocityAtUT(nodeParams.time) + nodeParams.deltaV, nodeParams.time);
         }
 
         // This does not allocate a new orbit object and the caller should call new Orbit if/when required
-        public static void MutatedOrbit(this Orbit o, double periodOffset = Double.NegativeInfinity) {
+        public static void MutatedOrbit(this IOrbit o, double periodOffset = Double.NegativeInfinity) {
             double UT = Planetarium.GetUniversalTime();
 
             if (periodOffset.IsFinite()) {
                 Vector3d pos, vel;
                 o.GetOrbitalStateVectorsAtUT(UT + o.period * periodOffset, out pos, out vel);
-                o.UpdateFromStateVectors(pos, vel, o.referenceBody, UT);
+                o.UpdateFromStateVectors(pos, vel, UT);
             }
         }
 
         //mean motion is rate of increase of the mean anomaly
-        public static double MeanMotion(this Orbit o) {
+        public static double MeanMotion(this IOrbit o) {
             if (o.eccentricity > 1) {
                 return Math.Sqrt(o.referenceBody.gravParameter / Math.Abs(Math.Pow(o.semiMajorAxis, 3)));
             } else {
@@ -104,7 +108,7 @@ namespace kOSMainframe.Orbital {
         }
 
         //distance between two orbiting objects at a given time
-        public static double Separation(this Orbit a, Orbit b, double UT) {
+        public static double Separation(this IOrbit a, IOrbit b, double UT) {
             return (a.SwappedAbsolutePositionAtUT(UT) - b.SwappedAbsolutePositionAtUT(UT)).magnitude;
         }
 
@@ -112,7 +116,7 @@ namespace kOSMainframe.Orbital {
         //If a is hyperbolic, the examined interval is the next 100 units of mean anomaly.
         //This is quite a large segment of the hyperbolic arc. However, for extremely high
         //hyperbolic eccentricity it may not find the actual closest approach.
-        public static double NextClosestApproachTime(this Orbit a, Orbit b, double UT) {
+        public static double NextClosestApproachTime(this IOrbit a, IOrbit b, double UT) {
             double closestApproachTime = UT;
             double closestApproachDistance = Double.MaxValue;
             double minTime = UT;
@@ -141,7 +145,7 @@ namespace kOSMainframe.Orbital {
         }
 
         //Distance between a and b at the closest approach found by NextClosestApproachTime
-        public static double NextClosestApproachDistance(this Orbit a, Orbit b, double UT) {
+        public static double NextClosestApproachDistance(this IOrbit a, IOrbit b, double UT) {
             return a.Separation(b, a.NextClosestApproachTime(b, UT));
         }
 
@@ -151,7 +155,7 @@ namespace kOSMainframe.Orbital {
         //For hyperbolic orbits the returned value can be any number.
         //NOTE: For a hyperbolic orbit, if a true anomaly is requested that does not exist (a true anomaly
         //past the true anomaly of the asymptote) then an ArgumentException is thrown
-        public static double GetEccentricAnomalyAtTrueAnomaly(this Orbit o, double trueAnomaly) {
+        public static double GetEccentricAnomalyAtTrueAnomaly(this IOrbit o, double trueAnomaly) {
             double e = o.eccentricity;
             trueAnomaly = ExtraMath.ClampDegrees360(trueAnomaly);
             trueAnomaly = trueAnomaly * (UtilMath.Deg2Rad);
@@ -177,7 +181,7 @@ namespace kOSMainframe.Orbital {
         //Converts an eccentric anomaly into a mean anomaly.
         //For an elliptical orbit, the returned value is between 0 and 2pi
         //For a hyperbolic orbit, the returned value is any number
-        public static double GetMeanAnomalyAtEccentricAnomaly(this Orbit o, double E) {
+        public static double GetMeanAnomalyAtEccentricAnomaly(this IOrbit o, double E) {
             double e = o.eccentricity;
             if (e < 1) { //elliptical orbits
                 return ExtraMath.ClampRadiansTwoPi(E - (e * Math.Sin(E)));
@@ -191,13 +195,13 @@ namespace kOSMainframe.Orbital {
         //For hyperbolic orbits, the output can be any number
         //NOTE: For a hyperbolic orbit, if a true anomaly is requested that does not exist (a true anomaly
         //past the true anomaly of the asymptote) then an ArgumentException is thrown
-        public static double GetMeanAnomalyAtTrueAnomaly(this Orbit o, double trueAnomaly) {
+        public static double GetMeanAnomalyAtTrueAnomaly(this IOrbit o, double trueAnomaly) {
             return o.GetMeanAnomalyAtEccentricAnomaly(o.GetEccentricAnomalyAtTrueAnomaly(trueAnomaly));
         }
         //The mean anomaly of the orbit.
         //For elliptical orbits, the value return is always between 0 and 2pi
         //For hyperbolic orbits, the value can be any number.
-        public static double MeanAnomalyAtUT(this Orbit o, double UT) {
+        public static double MeanAnomalyAtUT(this IOrbit o, double UT) {
             // We use ObtAtEpoch and not meanAnomalyAtEpoch because somehow meanAnomalyAtEpoch
             // can be wrong when using the RealSolarSystem mod. ObtAtEpoch is always correct.
             double ret = (o.ObTAtEpoch + (UT - o.epoch)) * o.MeanMotion();
@@ -209,7 +213,7 @@ namespace kOSMainframe.Orbital {
         //For elliptical orbits, this will be a time between UT and UT + o.period
         //For hyperbolic orbits, this can be any time, including a time in the past, if
         //the given mean anomaly occurred in the past
-        public static double UTAtMeanAnomaly(this Orbit o, double meanAnomaly, double UT) {
+        public static double UTAtMeanAnomaly(this IOrbit o, double meanAnomaly, double UT) {
             double currentMeanAnomaly = o.MeanAnomalyAtUT(UT);
             double meanDifference = meanAnomaly - currentMeanAnomaly;
             if (o.eccentricity < 1) meanDifference = ExtraMath.ClampRadiansTwoPi(meanDifference);
@@ -220,7 +224,7 @@ namespace kOSMainframe.Orbital {
         //For elliptical orbits, this will be between UT and UT + o.period.
         //For hyperbolic orbits, this can be any time, including a time in the past,
         //if the periapsis is in the past.
-        public static double NextPeriapsisTime(this Orbit o, double UT) {
+        public static double NextPeriapsisTime(this IOrbit o, double UT) {
             if (o.eccentricity < 1) {
                 return o.TimeOfTrueAnomaly(0, UT);
             } else {
@@ -231,7 +235,7 @@ namespace kOSMainframe.Orbital {
         //Returns the next time at which the orbiting object will be at apoapsis.
         //For elliptical orbits, this is a time between UT and UT + period.
         //For hyperbolic orbits, this throws an ArgumentException.
-        public static double NextApoapsisTime(this Orbit o, double UT) {
+        public static double NextApoapsisTime(this IOrbit o, double UT) {
             if (o.eccentricity < 1) {
                 return o.TimeOfTrueAnomaly(180, UT);
             } else {
@@ -241,7 +245,7 @@ namespace kOSMainframe.Orbital {
 
         //Returns the vector from the primary to the orbiting body at periapsis
         //Better than using Orbit.eccVec because that is zero for circular orbits
-        public static Vector3d SwappedRelativePositionAtPeriapsis(this Orbit o) {
+        public static Vector3d SwappedRelativePositionAtPeriapsis(this IOrbit o) {
             Vector3d vectorToAN = Quaternion.AngleAxis(-(float)o.LAN, Planetarium.up) * Planetarium.right;
             Vector3d vectorToPe = Quaternion.AngleAxis((float)o.argumentOfPeriapsis, o.SwappedOrbitNormal()) * vectorToAN;
             return o.PeR * vectorToPe;
@@ -249,7 +253,7 @@ namespace kOSMainframe.Orbital {
 
         //Returns the vector from the primary to the orbiting body at apoapsis
         //Better than using -Orbit.eccVec because that is zero for circular orbits
-        public static Vector3d SwappedRelativePositionAtApoapsis(this Orbit o) {
+        public static Vector3d SwappedRelativePositionAtApoapsis(this IOrbit o) {
             Vector3d vectorToAN = Quaternion.AngleAxis(-(float)o.LAN, Planetarium.up) * Planetarium.right;
             Vector3d vectorToPe = Quaternion.AngleAxis((float)o.argumentOfPeriapsis, o.SwappedOrbitNormal()) * vectorToAN;
             Vector3d ret = -o.ApR * vectorToPe;
@@ -267,7 +271,7 @@ namespace kOSMainframe.Orbital {
         //The vector is projected into the orbital plane and then the true anomaly is
         //computed as the angle this vector makes with the vector pointing to the periapsis.
         //The returned value is always between 0 and 360.
-        public static double TrueAnomalyFromVector(this Orbit o, Vector3d vec) {
+        public static double TrueAnomalyFromVector(this IOrbit o, Vector3d vec) {
             Vector3d oNormal = o.SwappedOrbitNormal();
             Vector3d projected = Vector3d.Exclude(oNormal, vec);
             Vector3d vectorToPe = o.SwappedRelativePositionAtPeriapsis();
@@ -288,7 +292,7 @@ namespace kOSMainframe.Orbital {
         //Gives the true anomaly (in a's orbit) at which a crosses its ascending node
         //with b's orbit.
         //The returned value is always between 0 and 360.
-        public static double AscendingNodeTrueAnomaly(this Orbit a, Orbit b) {
+        public static double AscendingNodeTrueAnomaly(this IOrbit a, IOrbit b) {
             Vector3d vectorToAN = Vector3d.Cross(a.SwappedOrbitNormal(), b.SwappedOrbitNormal());
             return a.TrueAnomalyFromVector(vectorToAN);
         }
@@ -296,28 +300,28 @@ namespace kOSMainframe.Orbital {
         //Gives the true anomaly (in a's orbit) at which a crosses its descending node
         //with b's orbit.
         //The returned value is always between 0 and 360.
-        public static double DescendingNodeTrueAnomaly(this Orbit a, Orbit b) {
+        public static double DescendingNodeTrueAnomaly(this IOrbit a, IOrbit b) {
             return ExtraMath.ClampDegrees360(a.AscendingNodeTrueAnomaly(b) + 180);
         }
 
         //Gives the true anomaly at which o crosses the equator going northwards, if o is east-moving,
         //or southwards, if o is west-moving.
         //The returned value is always between 0 and 360.
-        public static double AscendingNodeEquatorialTrueAnomaly(this Orbit o) {
-            Vector3d vectorToAN = Vector3d.Cross(o.referenceBody.transform.up, o.SwappedOrbitNormal());
+        public static double AscendingNodeEquatorialTrueAnomaly(this IOrbit o) {
+            Vector3d vectorToAN = Vector3d.Cross(o.referenceBody.transformUp, o.SwappedOrbitNormal());
             return o.TrueAnomalyFromVector(vectorToAN);
         }
 
         //Gives the true anomaly at which o crosses the equator going southwards, if o is east-moving,
         //or northwards, if o is west-moving.
         //The returned value is always between 0 and 360.
-        public static double DescendingNodeEquatorialTrueAnomaly(this Orbit o) {
+        public static double DescendingNodeEquatorialTrueAnomaly(this IOrbit o) {
             return ExtraMath.ClampDegrees360(o.AscendingNodeEquatorialTrueAnomaly() + 180);
         }
 
         //For hyperbolic orbits, the true anomaly only takes on values in the range
         // -M < true anomaly < +M for some M. This function computes M.
-        public static double MaximumTrueAnomaly(this Orbit o) {
+        public static double MaximumTrueAnomaly(this IOrbit o) {
             if (o.eccentricity < 1) return 180;
             else return UtilMath.Rad2Deg * Math.Acos(-1 / o.eccentricity);
         }
@@ -325,28 +329,28 @@ namespace kOSMainframe.Orbital {
         //Returns whether a has an ascending node with b. This can be false
         //if a is hyperbolic and the would-be ascending node is within the opening
         //angle of the hyperbola.
-        public static bool AscendingNodeExists(this Orbit a, Orbit b) {
+        public static bool AscendingNodeExists(this IOrbit a, IOrbit b) {
             return Math.Abs(ExtraMath.ClampDegrees180(a.AscendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
         }
 
         //Returns whether a has a descending node with b. This can be false
         //if a is hyperbolic and the would-be descending node is within the opening
         //angle of the hyperbola.
-        public static bool DescendingNodeExists(this Orbit a, Orbit b) {
+        public static bool DescendingNodeExists(this IOrbit a, IOrbit b) {
             return Math.Abs(ExtraMath.ClampDegrees180(a.DescendingNodeTrueAnomaly(b))) <= a.MaximumTrueAnomaly();
         }
 
         //Returns whether o has an ascending node with the equator. This can be false
         //if o is hyperbolic and the would-be ascending node is within the opening
         //angle of the hyperbola.
-        public static bool AscendingNodeEquatorialExists(this Orbit o) {
+        public static bool AscendingNodeEquatorialExists(this IOrbit o) {
             return Math.Abs(ExtraMath.ClampDegrees180(o.AscendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
         }
 
         //Returns whether o has a descending node with the equator. This can be false
         //if o is hyperbolic and the would-be descending node is within the opening
         //angle of the hyperbola.
-        public static bool DescendingNodeEquatorialExists(this Orbit o) {
+        public static bool DescendingNodeEquatorialExists(this IOrbit o) {
             return Math.Abs(ExtraMath.ClampDegrees180(o.DescendingNodeEquatorialTrueAnomaly())) <= o.MaximumTrueAnomaly();
         }
 
@@ -354,7 +358,7 @@ namespace kOSMainframe.Orbital {
 
         //NOTE: this function can throw an ArgumentException, if o is a hyperbolic orbit with an eccentricity
         //large enough that it never attains the given true anomaly
-        public static double TimeOfTrueAnomaly(this Orbit o, double trueAnomaly, double UT) {
+        public static double TimeOfTrueAnomaly(this IOrbit o, double trueAnomaly, double UT) {
             return o.UTAtMeanAnomaly(o.GetMeanAnomalyAtEccentricAnomaly(o.GetEccentricAnomalyAtTrueAnomaly(trueAnomaly)), UT);
         }
 
@@ -364,7 +368,7 @@ namespace kOSMainframe.Orbital {
         //the ascending node is in the past.
         //NOTE: this function will throw an ArgumentException if a is a hyperbolic orbit and the "ascending node"
         //occurs at a true anomaly that a does not actually ever attain
-        public static double TimeOfAscendingNode(this Orbit a, Orbit b, double UT) {
+        public static double TimeOfAscendingNode(this IOrbit a, IOrbit b, double UT) {
             return a.TimeOfTrueAnomaly(a.AscendingNodeTrueAnomaly(b), UT);
         }
 
@@ -374,7 +378,7 @@ namespace kOSMainframe.Orbital {
         //the descending node is in the past.
         //NOTE: this function will throw an ArgumentException if a is a hyperbolic orbit and the "descending node"
         //occurs at a true anomaly that a does not actually ever attain
-        public static double TimeOfDescendingNode(this Orbit a, Orbit b, double UT) {
+        public static double TimeOfDescendingNode(this IOrbit a, IOrbit b, double UT) {
             return a.TimeOfTrueAnomaly(a.DescendingNodeTrueAnomaly(b), UT);
         }
 
@@ -385,7 +389,7 @@ namespace kOSMainframe.Orbital {
         //ascending node is in the past.
         //NOTE: this function will throw an ArgumentException if o is a hyperbolic orbit and the
         //"ascending node" occurs at a true anomaly that o does not actually ever attain.
-        public static double TimeOfAscendingNodeEquatorial(this Orbit o, double UT) {
+        public static double TimeOfAscendingNodeEquatorial(this IOrbit o, double UT) {
             return o.TimeOfTrueAnomaly(o.AscendingNodeEquatorialTrueAnomaly(), UT);
         }
 
@@ -396,7 +400,7 @@ namespace kOSMainframe.Orbital {
         //descending node is in the past.
         //NOTE: this function will throw an ArgumentException if o is a hyperbolic orbit and the
         //"descending node" occurs at a true anomaly that o does not actually ever attain.
-        public static double TimeOfDescendingNodeEquatorial(this Orbit o, double UT) {
+        public static double TimeOfDescendingNodeEquatorial(this IOrbit o, double UT) {
             return o.TimeOfTrueAnomaly(o.DescendingNodeEquatorialTrueAnomaly(), UT);
         }
 
@@ -405,14 +409,14 @@ namespace kOSMainframe.Orbital {
         //For noncircular orbits the time variation of the phase angle is only "quasiperiodic"
         //and for high eccentricities and/or large relative inclinations, the relative motion is
         //not really periodic at all.
-        public static double SynodicPeriod(this Orbit a, Orbit b) {
+        public static double SynodicPeriod(this IOrbit a, IOrbit b) {
             int sign = (Vector3d.Dot(a.SwappedOrbitNormal(), b.SwappedOrbitNormal()) > 0 ? 1 : -1); //detect relative retrograde motion
             return Math.Abs(1.0 / (1.0 / a.period - sign * 1.0 / b.period)); //period after which the phase angle repeats
         }
 
         //Computes the phase angle between two orbiting objects.
         //This only makes sence if a.referenceBody == b.referenceBody.
-        public static double PhaseAngle(this Orbit a, Orbit b, double UT) {
+        public static double PhaseAngle(this IOrbit a, IOrbit b, double UT) {
             Vector3d normalA = a.SwappedOrbitNormal();
             Vector3d posA = a.SwappedRelativePositionAtUT(UT);
             Vector3d projectedB = Vector3d.Exclude(normalA, b.SwappedRelativePositionAtUT(UT));
@@ -431,7 +435,7 @@ namespace kOSMainframe.Orbital {
         //in the future then the next time at which that radius will be achieved will be returned.
         //If the given radius was only achieved in the past, then there are no guarantees
         //about which of the two times in the past will be returned.
-        public static double NextTimeOfRadius(this Orbit o, double UT, double radius) {
+        public static double NextTimeOfRadius(this IOrbit o, double UT, double radius) {
             if (radius < o.PeR || (o.eccentricity < 1 && radius > o.ApR)) throw new ArgumentException("OrbitExtensions.NextTimeOfRadius: given radius of " + radius + " is never achieved: o.PeR = " + o.PeR + " and o.ApR = " + o.ApR);
 
             double trueAnomaly1 = UtilMath.Rad2Deg * o.TrueAnomalyAtRadius(radius);
@@ -442,12 +446,19 @@ namespace kOSMainframe.Orbital {
             else return time1;
         }
 
-        public static NodeParameters DeltaVToNode(this Orbit o, double UT, Vector3d dV) {
+        public static NodeParameters DeltaVToNode(this IOrbit o, double UT, Vector3d dV) {
             return new NodeParameters(UT,
                                       Vector3d.Dot(o.RadialPlus(UT), dV),
                                       Vector3d.Dot(-o.NormalPlus(UT), dV),
                                       Vector3d.Dot(o.Prograde(UT), dV),
                                       dV);
+        }
+
+        public static Vector3d SwapYZ(Vector3d vec) {
+            double y = vec.y;
+            vec.y = vec.z;
+            vec.z = y;
+            return vec;
         }
     }
 }

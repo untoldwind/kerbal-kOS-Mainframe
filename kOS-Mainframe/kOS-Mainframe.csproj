@@ -74,7 +74,6 @@
     <Compile Include="Orbital\OrbitExtensions.cs" />
     <Compile Include="Numerics\ExtraMath.cs" />
     <Compile Include="Numerics\MathExtensions.cs" />
-    <Compile Include="Orbital\Helper.cs" />
     <Compile Include="VesselExtra\StageStats.cs" />
     <Compile Include="Maneuvers.cs" />
     <Compile Include="Utils\FourArgsSuffix.cs" />
@@ -125,6 +124,10 @@
     <Compile Include="Numerics\RegulaFalsiSolver.cs" />
     <Compile Include="VesselExtra\BurnTime.cs" />
     <Compile Include="VesselExtra\VesselExtensions.cs" />
+    <Compile Include="Orbital\IOrbit.cs" />
+    <Compile Include="Orbital\IBody.cs" />
+    <Compile Include="Orbital\Helper.cs" />
+    <Compile Include="Orbital\BodyExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

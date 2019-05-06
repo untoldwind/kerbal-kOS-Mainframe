@@ -170,10 +170,10 @@ namespace kOSMainframeTest {
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbol, R1, V1, UT);
 
-                    AssertEqualRel(R1, transfer.GetRelativePositionAtUT(UT), 1e-5, $"R1 UT={UT} tt={tt}");
-                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-5, $"V1 UT={UT} tt={tt}");
-                    AssertEqualRel(R2, transfer.GetRelativePositionAtUT(UT + tt), 1e-5, $"R2 UT={UT} tt={tt}");
-                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-5, $"V2 UT={UT} tt={tt}");
+                    AssertEqualRel(R1, transfer.getRelativePositionAtUT(UT), 1e-5, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.getOrbitalVelocityAtUT(UT), 1e-5, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.getRelativePositionAtUT(UT + tt), 1e-5, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.getOrbitalVelocityAtUT(UT + tt), 1e-5, $"V2 UT={UT} tt={tt}");
                 }
             }
         }
@@ -197,10 +197,10 @@ namespace kOSMainframeTest {
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbol, R1, V1, UT);
 
-                    AssertEqualRel(R1, transfer.GetRelativePositionAtUT(UT), 1e-5, $"R1 UT={UT} tt={tt}");
-                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-5, $"V1 UT={UT} tt={tt}");
-                    AssertEqualRel(R2, transfer.GetRelativePositionAtUT(UT + tt), 1e-5, $"R2 UT={UT} tt={tt}");
-                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-5, $"V2 UT={UT} tt={tt}");
+                    AssertEqualRel(R1, transfer.getRelativePositionAtUT(UT), 1e-5, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.getOrbitalVelocityAtUT(UT), 1e-5, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.getRelativePositionAtUT(UT + tt), 1e-5, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.getOrbitalVelocityAtUT(UT + tt), 1e-5, $"V2 UT={UT} tt={tt}");
                 }
             }
         }
@@ -224,10 +224,10 @@ namespace kOSMainframeTest {
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbin, R1, V1, UT);
 
-                    AssertEqualRel(R1, transfer.GetRelativePositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
-                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
-                    AssertEqualRel(R2, transfer.GetRelativePositionAtUT(UT + tt), 1e-4, $"R2 UT={UT} tt={tt}");
-                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
+                    AssertEqualRel(R1, transfer.getRelativePositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.getOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.getRelativePositionAtUT(UT + tt), 1e-4, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.getOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
                 }
             }
         }
@@ -251,10 +251,10 @@ namespace kOSMainframeTest {
 
                     OrbitTestRef transfer = new OrbitTestRef(BodyTestRef.Kerbin, R1, V1, UT);
 
-                    AssertEqualRel(R1, transfer.GetRelativePositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
-                    AssertEqualRel(V1, transfer.GetOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
-                    AssertEqualRel(R2, transfer.GetRelativePositionAtUT(UT + tt), 1e-4, $"R2 UT={UT} tt={tt}");
-                    AssertEqualRel(V2, transfer.GetOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
+                    AssertEqualRel(R1, transfer.getRelativePositionAtUT(UT), 1e-4, $"R1 UT={UT} tt={tt}");
+                    AssertEqualRel(V1, transfer.getOrbitalVelocityAtUT(UT), 1e-4, $"V1 UT={UT} tt={tt}");
+                    AssertEqualRel(R2, transfer.getRelativePositionAtUT(UT + tt), 1e-4, $"R2 UT={UT} tt={tt}");
+                    AssertEqualRel(V2, transfer.getOrbitalVelocityAtUT(UT + tt), 1e-4, $"V2 UT={UT} tt={tt}");
                 }
             }
         }

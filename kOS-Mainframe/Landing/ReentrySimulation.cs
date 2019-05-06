@@ -157,12 +157,12 @@ namespace kOSMainframe.Landing {
             referenceFrame.UpdateAtCurrentTime(_initialOrbit.referenceBody);
             orbitReenters = OrbitReenters(_initialOrbit);
 
-            startX = initialOrbit.SwappedRelativePositionAtUT(startUT);
+            startX = initialOrbit.wrap().SwappedRelativePositionAtUT(startUT);
             // This calls some Unity function so it should be done outside the thread
             if (orbitReenters) {
                 startUT = _UT;
                 t = startUT;
-                AdvanceToFreefallEnd(initialOrbit);
+                AdvanceToFreefallEnd(initialOrbit.wrap());
             }
 
             maxDragGees = 0;
@@ -272,7 +272,7 @@ namespace kOSMainframe.Landing {
         }
 
 
-        void AdvanceToFreefallEnd(Orbit initialOrbit) {
+        void AdvanceToFreefallEnd(IOrbit initialOrbit) {
             t = FindFreefallEndTime(initialOrbit);
 
             x = initialOrbit.SwappedRelativePositionAtUT(t);
@@ -293,7 +293,7 @@ namespace kOSMainframe.Landing {
 
         //This is a convenience function used by the reentry simulation. It does a binary search for the first UT
         //in the interval (lowerUT, upperUT) for which condition(UT, relative position, orbital velocity) is true
-        double FindFreefallEndTime(Orbit initialOrbit) {
+        double FindFreefallEndTime(IOrbit initialOrbit) {
             if (noSKiptoFreefall || FreefallEnded(initialOrbit, t)) {
                 return t;
             }
@@ -315,7 +315,7 @@ namespace kOSMainframe.Landing {
         // - our vertical velocity is negative and either
         //    - we've landed or
         //    - the descent speed policy says to start braking
-        bool FreefallEnded(Orbit initialOrbit, double UT) {
+        bool FreefallEnded(IOrbit initialOrbit, double UT) {
             Vector3d pos = initialOrbit.SwappedRelativePositionAtUT(UT);
             Vector3d surfaceVelocity = SurfaceVelocity(pos, initialOrbit.SwappedOrbitalVelocityAtUT(UT));
 

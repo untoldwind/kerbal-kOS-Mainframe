@@ -2,29 +2,28 @@
 using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
 using kOS.Suffixed;
-using kOS.Serialization;
 using kOS.Safe.Exceptions;
 using kOSMainframe.Orbital;
-using System.Reflection;
+using kOSMainframe.VesselExtra;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("Maneuvers")]
     public class Maneuvers : Structure {
         protected readonly SharedObjects shared;
 
-        private readonly Orbit orbit;
+        private readonly IOrbit orbit;
         private double minUT;
 
         public Maneuvers(SharedObjects sharedObjs) {
             this.shared = sharedObjs;
-            this.orbit = sharedObjs.Vessel.orbit;
+            this.orbit = sharedObjs.Vessel.orbit.wrap();
             this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
 
         public Maneuvers(SharedObjects sharedObjs, Orbitable orbitable) {
             this.shared = sharedObjs;
-            this.orbit = orbitable.Orbit;
+            this.orbit = orbitable.Orbit.wrap();
             this.minUT = Planetarium.GetUniversalTime() + 10;
             InitializeSuffixes();
         }
@@ -91,7 +90,7 @@ namespace kOSMainframe {
         }
 
         private Node MatchPlanes(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             var anExists = orbit.AscendingNodeExists(target);
             var dnExists = orbit.DescendingNodeExists(target);
             var anNode = anExists ? OrbitMatch.MatchPlanesAscending(orbit, target, minUT) : NodeParameters.zero;
@@ -107,41 +106,41 @@ namespace kOSMainframe {
         }
 
         private Node Hohmann(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.HohmannTransfer(orbit, target, minUT).ToKOS(this.shared);
         }
 
         private Node HohmannLambert(Orbitable orbitable, ScalarValue subtractProgradeDV) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.HohmannLambertTransfer(orbit, target, minUT, subtractProgradeDV).ToKOS(this.shared);
         }
 
         private Node BiImpulsive(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(this.shared);
         }
 
         private Node CourseCorrection(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.CourseCorrection(orbit, minUT, target).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrection(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrectionBody(BodyTarget body, ScalarValue finalPeR) {
-            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit, body.Body, finalPeR).ToKOS(this.shared);
+            return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, body.Orbit.wrap(), body.Body, finalPeR).ToKOS(this.shared);
         }
 
         private Node CheapestCourseCorrectionDist(Orbitable orbitable, ScalarValue caDistance) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             return OrbitIntercept.CheapestCourseCorrection(orbit, minUT, target, caDistance).ToKOS(this.shared);
         }
 
         private Node MatchVelocities(Orbitable orbitable) {
-            var target = orbitable.Orbit;
+            var target = orbitable.Orbit.wrap();
             double collisionUT = orbit.NextClosestApproachTime(target, minUT);
 
             return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(this.shared);
@@ -152,7 +151,7 @@ namespace kOSMainframe {
         }
 
         private Node InterplanetaryTransfer(Orbitable target, BooleanValue syncPhaseAngle) {
-            return OrbitSOIChange.InterplanetaryTransferEjection(orbit, minUT, target.Orbit, syncPhaseAngle).ToKOS(this.shared);
+            return OrbitSOIChange.InterplanetaryTransferEjection(orbit, minUT, target.Orbit.wrap(), syncPhaseAngle).ToKOS(this.shared);
         }
 
         private Node InterplanetaryLambertTransfer(Orbitable target) {
@@ -160,7 +159,7 @@ namespace kOSMainframe {
         }
 
         private Node InterplanetaryBiImpulsiveTransfer(Orbitable target, ScalarValue maxUT) {
-            return OrbitSOIChange.InterplanetaryBiImpulsiveEjection(orbit, minUT, target.Orbit, maxUT).ToKOS(this.shared);
+            return OrbitSOIChange.InterplanetaryBiImpulsiveEjection(orbit, minUT, target.Orbit.wrap(), maxUT).ToKOS(this.shared);
         }
     }
 }
