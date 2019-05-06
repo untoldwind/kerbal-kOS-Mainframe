@@ -49,7 +49,7 @@ namespace kOSMainframeTest {
         }
 
         public Vector3d GetPositionAtUT(double UT) {
-            return orbit?.GetPositionAtUT(UT) ?? Vector3d.zero;
+            return orbit?.GetRelativePositionAtUT(UT) ?? Vector3d.zero;
         }
 
         public Vector3d GetOrbitalVelocityAtUT(double UT) {

@@ -182,7 +182,7 @@ namespace kOSMainframeTest {
         }
 
 
-        public Vector3d GetPositionAtUT(double UT) {
+        public Vector3d GetRelativePositionAtUT(double UT) {
             return GetPositionAtOrbitTime(GetOrbitTimeAtUT(UT));
         }
 
