@@ -217,7 +217,7 @@ namespace kOSMainframeTest {
         public double GetTrueAnomalyAtOrbitTime(double orbitTime) {
             double meanAnomaly = orbitTime * meanMotion;
             double eccentricAnomaly = GetEccentricAnomalyForMean(meanAnomaly);
-            return GetTrueAnomaly(eccentricAnomaly);
+            return GetTrueAnomalyForEccentric(eccentricAnomaly);
         }
 
         public double GetEccentricAnomalyForMean(double meanAnomaly) {
@@ -266,14 +266,14 @@ namespace kOSMainframeTest {
             return E;
         }
 
-        public double GetTrueAnomaly(double E) {
+        public double GetTrueAnomalyForEccentric(double eccentricAnomaly) {
             if (eccentricity < 1.0) {
-                double x = Math.Cos(E / 2.0);
-                double y = Math.Sin(E / 2.0);
+                double x = Math.Cos(eccentricAnomaly / 2.0);
+                double y = Math.Sin(eccentricAnomaly / 2.0);
                 return 2.0 * Math.Atan2(Math.Sqrt(1.0 + eccentricity) * y, Math.Sqrt(1.0 - eccentricity) * x);
             } else {
-                double x = Math.Cosh(E / 2.0);
-                double y = Math.Sinh(E / 2.0);
+                double x = Math.Cosh(eccentricAnomaly / 2.0);
+                double y = Math.Sinh(eccentricAnomaly / 2.0);
                 return 2.0 * Math.Atan2(Math.Sqrt(eccentricity + 1.0) * y, Math.Sqrt(eccentricity - 1.0) * x);
             }
         }

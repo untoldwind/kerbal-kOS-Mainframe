@@ -125,6 +125,8 @@
     <Compile Include="Numerics\RegulaFalsiSolver.cs" />
     <Compile Include="VesselExtra\BurnTime.cs" />
     <Compile Include="VesselExtra\VesselExtensions.cs" />
+    <Compile Include="Orbital\IOrbit.cs" />
+    <Compile Include="Orbital\VectorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
