@@ -107,7 +107,7 @@ namespace kOSMainframe.Orbital {
             //ejection angle and if we didn't have to worry about the planet's gravity dragging us back and increasing the required dV.
             //time the ejection burn to intercept the target
             //idealDeltaV = DeltaVAndTimeForHohmannTransfer(planetOrbit, target, UT, out idealBurnUT);
-            double vesselOrbitVelocity = OrbitChange.CircularOrbitSpeed(o.referenceBody, o.semiMajorAxis);
+            double vesselOrbitVelocity = OrbitChange.CircularOrbitSpeed(o.referenceBody.wrap(), o.semiMajorAxis);
             NodeParameters idealParams = OrbitIntercept.HohmannLambertTransfer(planetOrbit, target, UT, vesselOrbitVelocity);
 
             Logging.Debug("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);

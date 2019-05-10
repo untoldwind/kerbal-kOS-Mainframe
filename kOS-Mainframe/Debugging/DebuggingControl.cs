@@ -48,7 +48,7 @@ namespace kOSMainframe.Debugging {
         }
 
         private void Circularize() {
-            CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit, Planetarium.GetUniversalTime() + 20));
+            CleanAndAddNode(OrbitChange.Circularize(Vessel.orbit.wrap(), Planetarium.GetUniversalTime() + 20));
         }
 
         private void ReturnFromMoon(double targetPrimaryPeriapsis) {

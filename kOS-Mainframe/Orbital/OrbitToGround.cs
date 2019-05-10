@@ -41,7 +41,7 @@ namespace kOSMainframe.Orbital {
         public static double HeadingForLaunchInclination(Vessel vessel, double inclinationDegrees) {
             CelestialBody body = vessel.mainBody;
             double latitudeDegrees = vessel.latitude;
-            double orbVel = OrbitChange.CircularOrbitSpeed(body, vessel.GetAltitudeASL() + body.Radius);
+            double orbVel = OrbitChange.CircularOrbitSpeed(body.wrap(), vessel.GetAltitudeASL() + body.Radius);
             double headingOne = HeadingForInclination(inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double headingTwo = HeadingForInclination(-inclinationDegrees, latitudeDegrees) * UtilMath.Deg2Rad;
             double now = Planetarium.GetUniversalTime();

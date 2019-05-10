@@ -1,6 +1,8 @@
 ﻿using System;
+using kOSMainframe.Orbital;
+
 namespace kOSMainframeTest {
-    public class BodyTestRef {
+    public class BodyTestRef : IBody {
         public static BodyTestRef Kerbol = new BodyTestRef("Kerbol", 1.17233279483249E+18);
         public static BodyTestRef Kerbin = new BodyTestRef("Kerbin", Kerbol, 0, 0, 13599840256, 0, 0, 0, 3.14000010490417, 3531600000000, 84159286.4796305);
         public static BodyTestRef Mun = new BodyTestRef("Mun", Kerbin, 0, 0, 12000000, 0, 0, 0, 1.70000004768372, 65138397520.7807, 2429559.11656475);
@@ -47,6 +49,8 @@ namespace kOSMainframeTest {
             this.soiRadius = soiRadius;
             this.orbit = new OrbitTestRef(parent, inclination, eccentricity, semiMajorAxis, LAN, argumentOfPeriapsis, epoch, meanAnomalyAtEpoch);
         }
+
+        public double gravParameter => mu;
 
         public Vector3d GetPositionAtUT(double UT) {
             return orbit?.GetRelativePositionAtUT(UT) ?? Vector3d.zero;

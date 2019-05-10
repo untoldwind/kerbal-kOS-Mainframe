@@ -67,11 +67,11 @@ namespace kOSMainframe {
             } else {
                 UT = orbit.NextPeriapsisTime(UT);
             }
-            return OrbitChange.Circularize(orbit, UT).ToKOS(this.shared);
+            return OrbitChange.Circularize(orbit.wrap(), UT).ToKOS(this.shared);
         }
 
         private Node CircularizeOrbitAt(TimeSpan time) {
-            return OrbitChange.Circularize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(this.shared);
+            return OrbitChange.Circularize(orbit.wrap(), System.Math.Max(time.ToUnixStyleTime(), minUT)).ToKOS(this.shared);
         }
 
         private Node EllipticizeOrbit(TimeSpan time, ScalarValue newPeR, ScalarValue newApR) {

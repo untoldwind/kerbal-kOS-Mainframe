@@ -1,8 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
+using kOSMainframe.Orbital;
 
 namespace kOSMainframeTest {
-    public class OrbitTestRef {
+    public class OrbitTestRef : IOrbit {
         public const double DegToRad = Math.PI / 180.0;
         public const double RadToDeg = 180.0 / Math.PI;
 
@@ -34,6 +35,8 @@ namespace kOSMainframeTest {
                 return (1.0 + eccentricity) * semiMajorAxis;
             }
         }
+
+        public IBody referenceBody => referenceBody;
 
         public OrbitTestRef(BodyTestRef body,
                             double inclination,
@@ -280,6 +283,56 @@ namespace kOSMainframeTest {
 
         public override string ToString() {
             return $"Orbit: body={body.name} inc={inclination} ecc={eccentricity} sMa={semiMajorAxis} Epoch={epoch} LAN={LAN} ArgPe={argumentOfPeriapsis} meanAtEpoch={meanAnomalyAtEpoch} FrameX={FrameX} FrameY={FrameY} FrameZ={FrameZ}";
+        }
+
+        public Vector3d SwappedAbsolutePositionAtUT(double UT) {
+            Vector3d bodyPosition = body.orbit?.SwappedAbsolutePositionAtUT(UT) ?? Vector3d.zero;
+
+            return bodyPosition + SwappedRelativePositionAtUT(UT);
+        }
+
+        public Vector3d SwappedOrbitalVelocityAtUT(double UT) {
+            return GetOrbitalVelocityAtUT(UT).SwapYZ();
+        }
+
+        public Vector3d SwappedRelativePositionAtUT(double UT) {
+            return GetRelativePositionAtUT(UT).SwapYZ();
+        }
+
+        public Vector3d Prograde(double UT) {
+            return SwappedOrbitalVelocityAtUT(UT).normalized;
+        }
+
+        public Vector3d NormalPlus(double UT) {
+            return -FrameZ.SwapYZ();
+        }
+
+        public Vector3d RadialPlus(double UT) {
+            return Vector3d.Exclude(Prograde(UT), Up(UT)).normalized;
+        }
+
+        public Vector3d Up(double UT) {
+            return SwappedRelativePositionAtUT(UT).normalized;
+        }
+
+        public double Radius(double UT) {
+            return SwappedRelativePositionAtUT(UT).magnitude;
+        }
+
+        public Vector3d Horizontal(double UT) {
+            return Vector3d.Exclude(Up(UT), Prograde(UT)).normalized;
+        }
+
+        public IOrbit PerturbedOrbit(double UT, Vector3d dV) {
+            return new OrbitTestRef(body, GetRelativePositionAtUT(UT), GetOrbitalVelocityAtUT(UT) + dV, UT);
+        }
+
+        public NodeParameters DeltaVToNode(double UT, Vector3d dV) {
+            return new NodeParameters(UT,
+                                      Vector3d.Dot(RadialPlus(UT), dV),
+                                      Vector3d.Dot(-NormalPlus(UT), dV),
+                                      Vector3d.Dot(Prograde(UT), dV),
+                                      dV);
         }
     }
 }
