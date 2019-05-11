@@ -3,30 +3,34 @@ using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitChange {
-        //Computes the speed of a circular orbit of a given radius for a given body.
+        /// <summary>
+        /// Computes the speed of a circular orbit of a given radius for a given body.
+        /// </summary>
         public static double CircularOrbitSpeed(IBody body, double radius) {
             //v = sqrt(GM/r)
             return Math.Sqrt(body.gravParameter / radius);
         }
 
-        //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
+        /// <summary>
+        /// Computes the deltaV of the burn needed to circularize an orbit at a given UT.
+        /// </summary>
         public static NodeParameters Circularize(IOrbit o, double UT) {
-            Logging.Debug("Bla2");
             Vector3d desiredVelocity = CircularOrbitSpeed(o.ReferenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
-            Logging.Debug("desiredVelocity={0} actualVelocity={1}", desiredVelocity, actualVelocity);
             return o.DeltaVToNode(UT,  desiredVelocity - actualVelocity);
         }
 
-        //Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
-        public static NodeParameters Ellipticize(Orbit o, double UT, double newPeR, double newApR) {
+        /// <summary>
+        /// Computes the deltaV of the burn needed to set a given PeR and ApR at at a given UT.
+        /// </summary>
+        public static NodeParameters Ellipticize(IOrbit o, double UT, double newPeR, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize inputs
             newPeR = ExtraMath.Clamp(newPeR, 0 + 1, radius - 1);
             newApR = Math.Max(newApR, radius + 1);
 
-            double GM = o.referenceBody.gravParameter;
+            double GM = o.ReferenceBody.gravParameter;
             double E = -GM / (newPeR + newApR); //total energy per unit mass of new orbit
             double L = Math.Sqrt(Math.Abs((Math.Pow(E * (newApR - newPeR), 2) - GM * GM) / (2 * E))); //angular momentum per unit mass of new orbit
             double kineticE = E + GM / radius; //kinetic energy (per unit mass) of new orbit at UT
@@ -42,10 +46,12 @@ namespace kOSMainframe.Orbital {
             return o.DeltaVToNode(UT, desiredVelocity - actualVelocity);
         }
 
-        //Computes the delta-V of the burn required to attain a given periapsis, starting from
-        //a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
-        //The computed burn is always horizontal, though this may not be strictly optimal.
-        public static NodeParameters ChangePeriapsis(Orbit o, double UT, double newPeR) {
+        /// <summary>
+        /// Computes the delta-V of the burn required to attain a given periapsis, starting from
+        /// a given orbit and burning at a given UT. Throws an ArgumentException if given an impossible periapsis.
+        /// The computed burn is always horizontal, though this may not be strictly optimal.
+        /// </summary>
+        public static NodeParameters ChangePeriapsis(IOrbit o, double UT, double newPeR) {
             double radius = o.Radius(UT);
 
             //sanitize input
@@ -91,10 +97,12 @@ namespace kOSMainframe.Orbital {
             return ApR > than;
         }
 
-        //Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
-        //The computed burn is always prograde or retrograde, though this may not be strictly optimal.
-        //Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
-        public static NodeParameters ChangeApoapsis(Orbit o, double UT, double newApR) {
+        /// <summary>
+        /// Computes the delta-V of the burn at a given UT required to change an orbits apoapsis to a given value.
+        /// The computed burn is always prograde or retrograde, though this may not be strictly optimal.
+        /// Note that you can pass in a negative apoapsis if the desired final orbit is hyperbolic
+        /// </summary>
+        public static NodeParameters ChangeApoapsis(IOrbit o, double UT, double newApR) {
             double radius = o.Radius(UT);
 
             //sanitize input

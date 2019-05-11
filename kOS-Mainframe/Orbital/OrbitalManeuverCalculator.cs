@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitalManeuverCalculator {
-        // Compute the delta-V of the burn at the givent time required to enter an orbit with a period of (resonanceDivider-1)/resonanceDivider of the starting orbit period
-        public static Vector3d DeltaVToResonantOrbit(Orbit o, double UT, double f) {
+        /// <summary>
+        /// Compute the delta-V of the burn at the givent time required to enter an orbit with a period of (resonanceDivider-1)/resonanceDivider of the starting orbit period.
+        /// </summary>
+        public static Vector3d DeltaVToResonantOrbit(IOrbit o, double UT, double f) {
             double a = o.ApR;
             double p = o.PeR;
 

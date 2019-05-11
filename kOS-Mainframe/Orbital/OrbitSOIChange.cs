@@ -36,8 +36,8 @@ namespace kOSMainframe.Orbital {
             } else {
                 //don't time the ejection burn to intercept the target; we just care about the final peri/apoapsis
                 idealBurnUT = UT;
-                if (target.semiMajorAxis < planetOrbit.semiMajorAxis) idealDeltaV = OrbitChange.ChangePeriapsis(planetOrbit, idealBurnUT, target.semiMajorAxis).deltaV;
-                else idealDeltaV = OrbitChange.ChangeApoapsis(planetOrbit, idealBurnUT, target.semiMajorAxis).deltaV;
+                if (target.semiMajorAxis < planetOrbit.semiMajorAxis) idealDeltaV = OrbitChange.ChangePeriapsis(planetOrbit.wrap(), idealBurnUT, target.semiMajorAxis).deltaV;
+                else idealDeltaV = OrbitChange.ChangeApoapsis(planetOrbit.wrap(), idealBurnUT, target.semiMajorAxis).deltaV;
             }
 
             //Compute the actual transfer orbit this ideal burn would lead to.

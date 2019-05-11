@@ -468,7 +468,7 @@ namespace kOSMainframe.Landing {
 
                     Orbit postAerobrakeOrbit = Helper.OrbitFromStateVectors(r.WorldAeroBrakePosition(), r.WorldAeroBrakeVelocity(), r.body, r.aeroBrakeUT);
 
-                    Vector3d dV = OrbitChange.ChangeApoapsis(preAerobrakeOrbit, UT, postAerobrakeOrbit.ApR).deltaV;
+                    Vector3d dV = OrbitChange.ChangeApoapsis(preAerobrakeOrbit.wrap(), UT, postAerobrakeOrbit.ApR).deltaV;
 
                     if (aerobrakeNode != null && vessel.patchedConicSolver.maneuverNodes.Contains(aerobrakeNode)) {
                         //update the existing node

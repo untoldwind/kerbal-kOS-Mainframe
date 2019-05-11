@@ -75,15 +75,15 @@ namespace kOSMainframe {
         }
 
         private Node EllipticizeOrbit(TimeSpan time, ScalarValue newPeR, ScalarValue newApR) {
-            return OrbitChange.Ellipticize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(this.shared);
+            return OrbitChange.Ellipticize(orbit.wrap(), System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(this.shared);
         }
 
         private Node ChangePeriapsis(TimeSpan time, ScalarValue newPeR) {
-            return OrbitChange.ChangePeriapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR).ToKOS(this.shared);
+            return OrbitChange.ChangePeriapsis(orbit.wrap(), System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR).ToKOS(this.shared);
         }
 
         private Node ChangeApoapsis(TimeSpan time, ScalarValue newApR) {
-            return OrbitChange.ChangeApoapsis(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(this.shared);
+            return OrbitChange.ChangeApoapsis(orbit.wrap(), System.Math.Max(time.ToUnixStyleTime(), minUT), newApR).ToKOS(this.shared);
         }
 
         private Node ChangeInclination(TimeSpan time, ScalarValue newInc) {

@@ -148,7 +148,7 @@ namespace kOSMainframe.Orbital {
 
             Vector3d dV;
             if (desiredApsis > o.ApR) {
-                dV = OrbitChange.ChangeApoapsis(o, UT, desiredApsis).deltaV;
+                dV = OrbitChange.ChangeApoapsis(o.wrap(), UT, desiredApsis).deltaV;
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferApTime = transferOrbit.NextApoapsisTime(UT);
                 Vector3d transferApDirection = transferOrbit.SwappedRelativePositionAtApoapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
@@ -156,7 +156,7 @@ namespace kOSMainframe.Orbital {
                 double meanAnomalyOffset = 360 * (target.TimeOfTrueAnomaly(targetTrueAnomaly, UT) - transferApTime) / target.period;
                 apsisPhaseAngle = meanAnomalyOffset;
             } else {
-                dV = OrbitChange.ChangePeriapsis(o, UT, desiredApsis).deltaV;
+                dV = OrbitChange.ChangePeriapsis(o.wrap(), UT, desiredApsis).deltaV;
                 Orbit transferOrbit = o.PerturbedOrbit(UT, dV);
                 double transferPeTime = transferOrbit.NextPeriapsisTime(UT);
                 Vector3d transferPeDirection = transferOrbit.SwappedRelativePositionAtPeriapsis();  // getRelativePositionAtUT was returning NaNs! :(((((
