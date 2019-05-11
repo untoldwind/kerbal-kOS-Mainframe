@@ -1,11 +1,9 @@
-﻿using System;
-using kOS.Safe.Encapsulation;
+﻿using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
 using kOS;
 using kOS.AddOns;
 using kOS.Suffixed;
 using UnityEngine;
-using kOSMainframe.VesselExtra;
 
 namespace kOSMainframe {
     [kOSAddon("MainFrame")]

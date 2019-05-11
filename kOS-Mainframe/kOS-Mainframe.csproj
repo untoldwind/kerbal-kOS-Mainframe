@@ -65,7 +65,6 @@
     <Compile Include="Numerics\Function.cs" />
     <Compile Include="Numerics\DerivativeFunction.cs" />
     <Compile Include="Numerics\NewtonSolver.cs" />
-    <Compile Include="Orbital\GoodingSolver.cs" />
     <Compile Include="VesselExtra\CelestialBodies.cs" />
     <Compile Include="Utils\DefaultableDictionary.cs" />
     <Compile Include="Utils\KeyableDictionary.cs" />
@@ -129,6 +128,7 @@
     <Compile Include="Orbital\VectorExtensions.cs" />
     <Compile Include="Orbital\IBody.cs" />
     <Compile Include="Orbital\BodyExtensions.cs" />
+    <Compile Include="UI\AppLauncher.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
@@ -136,6 +136,7 @@
     <Folder Include="Landing\" />
     <Folder Include="Simulation\" />
     <Folder Include="Debugging\" />
+    <Folder Include="UI\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

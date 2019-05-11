@@ -2,10 +2,8 @@
 using kOS.Safe.Encapsulation;
 using kOS.Safe.Encapsulation.Suffixes;
 using kOS.Suffixed;
-using kOS.Serialization;
 using kOS.Safe.Exceptions;
 using kOSMainframe.Orbital;
-using System.Reflection;
 
 namespace kOSMainframe {
     [kOS.Safe.Utilities.KOSNomenclature("Maneuvers")]
@@ -75,7 +73,7 @@ namespace kOSMainframe {
         }
 
         private Node EllipticizeOrbit(TimeSpan time, ScalarValue newPeR, ScalarValue newApR) {
-            return OrbitChange.Ellipticize(orbit, System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(this.shared);
+            return OrbitChange.Ellipticize(orbit.wrap(), System.Math.Max(time.ToUnixStyleTime(), minUT), newPeR, newApR).ToKOS(this.shared);
         }
 
         private Node ChangePeriapsis(TimeSpan time, ScalarValue newPeR) {

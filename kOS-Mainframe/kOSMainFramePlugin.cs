@@ -2,6 +2,7 @@
 using kOSMainframe.UnityToolbag;
 using kOSMainframe.Debugging;
 using UnityEngine;
+using kOSMainframe.UI;
 
 namespace kOSMainframe {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
@@ -26,6 +27,7 @@ namespace kOSMainframe {
         }
 
         void Start() {
+            AppLauncher.Start(this.gameObject);
             Logging.Debug("Mainframe starts");
 
 #if DEBUG
@@ -34,6 +36,7 @@ namespace kOSMainframe {
         }
 
         void OnDestroy() {
+            AppLauncher.OnDestroy(this.gameObject);
             instance = null;
             Object.Destroy(dispatcher);
             Logging.Debug("Mainframe destroy");
