@@ -98,7 +98,7 @@ namespace kOSMainframe.Orbital {
         //mean motion is rate of increase of the mean anomaly
         public static double MeanMotion(this Orbit o) {
             if (o.eccentricity > 1) {
-                return Math.Sqrt(o.referenceBody.gravParameter / Math.Abs(Math.Pow(o.semiMajorAxis, 3)));
+                return Math.Sqrt(o.referenceBody.gravParameter / Math.Abs(o.semiMajorAxis * o.semiMajorAxis * o.semiMajorAxis));
             } else {
                 // The above formula is wrong when using the RealSolarSystem mod, which messes with orbital periods.
                 // This simpler formula should be foolproof for elliptical orbits:

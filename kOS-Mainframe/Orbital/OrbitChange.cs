@@ -12,7 +12,7 @@ namespace kOSMainframe.Orbital {
         //Computes the deltaV of the burn needed to circularize an orbit at a given UT.
         public static NodeParameters Circularize(IOrbit o, double UT) {
             Logging.Debug("Bla2");
-            Vector3d desiredVelocity = CircularOrbitSpeed(o.referenceBody, o.Radius(UT)) * o.Horizontal(UT);
+            Vector3d desiredVelocity = CircularOrbitSpeed(o.ReferenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
             Logging.Debug("desiredVelocity={0} actualVelocity={1}", desiredVelocity, actualVelocity);
             return o.DeltaVToNode(UT,  desiredVelocity - actualVelocity);

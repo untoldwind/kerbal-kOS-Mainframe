@@ -55,6 +55,8 @@
     <Compile Include="OrbitTestRef.cs" />
     <Compile Include="BodyTestRef.cs" />
     <Compile Include="OrbitTestRefTest.cs" />
+    <Compile Include="TestSetup.cs" />
+    <Compile Include="OrbitChangeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

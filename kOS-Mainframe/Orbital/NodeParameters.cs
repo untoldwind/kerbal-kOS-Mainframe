@@ -33,11 +33,7 @@ namespace kOSMainframe.Orbital {
             }
         }
 
-        public Vector3d NodeDeltaV {
-            get {
-                return new Vector3d(radialOut, normal, prograde);
-            }
-        }
+        public Vector3d NodeDeltaV => new Vector3d(radialOut, normal, prograde);
 
         public ManeuverNode AddToVessel(Vessel vessel) {
             if(!Valid) {

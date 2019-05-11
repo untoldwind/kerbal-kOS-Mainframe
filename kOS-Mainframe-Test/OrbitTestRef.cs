@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using kOSMainframe.Orbital;
+using kOSMainframe.Numerics;
 
 namespace kOSMainframeTest {
     public class OrbitTestRef : IOrbit {
@@ -24,19 +25,19 @@ namespace kOSMainframeTest {
         public Vector3d ascendingNode;
         public Vector3d eccVec;
 
-        public double periapsisRadius {
-            get {
-                return (1.0 - eccentricity) * semiMajorAxis;
-            }
-        }
+        public double PeR => (1.0 - eccentricity) * semiMajorAxis;
 
-        public double apoapsisRadius {
-            get {
-                return (1.0 + eccentricity) * semiMajorAxis;
-            }
-        }
+        public double ApR => (1.0 + eccentricity) * semiMajorAxis;
 
-        public IBody referenceBody => referenceBody;
+        public double Inclination => inclination;
+
+        public double Eccentricity => eccentricity;
+
+        double IOrbit.LAN => LAN;
+
+        public IBody ReferenceBody => body;
+
+        public double MeanMotion => meanMotion;
 
         public OrbitTestRef(BodyTestRef body,
                             double inclination,
@@ -324,7 +325,73 @@ namespace kOSMainframeTest {
         }
 
         public IOrbit PerturbedOrbit(double UT, Vector3d dV) {
-            return new OrbitTestRef(body, GetRelativePositionAtUT(UT), GetOrbitalVelocityAtUT(UT) + dV, UT);
+            return new OrbitTestRef(body, GetRelativePositionAtUT(UT), GetOrbitalVelocityAtUT(UT) + dV.SwapYZ(), UT);
+        }
+
+        public double MeanAnomalyAtUT(double UT) {
+            // We use ObtAtEpoch and not meanAnomalyAtEpoch because somehow meanAnomalyAtEpoch
+            // can be wrong when using the RealSolarSystem mod. ObtAtEpoch is always correct.
+            double ret = (orbitTimeAtEpoch + (UT - epoch)) * MeanMotion;
+            if (eccentricity < 1) ret = ExtraMath.ClampRadiansTwoPi(ret);
+            return ret;
+        }
+
+        public double UTAtMeanAnomaly(double meanAnomaly, double UT) {
+            double currentMeanAnomaly = MeanAnomalyAtUT(UT);
+            double meanDifference = meanAnomaly - currentMeanAnomaly;
+            if (eccentricity < 1) meanDifference = ExtraMath.ClampRadiansTwoPi(meanDifference);
+            return UT + meanDifference / MeanMotion;
+        }
+
+        public double GetMeanAnomalyAtEccentricAnomaly(double E) {
+            double e = eccentricity;
+            if (e < 1) { //elliptical orbits
+                return ExtraMath.ClampRadiansTwoPi(E - (e * Math.Sin(E)));
+            } else { //hyperbolic orbits
+                return (e * Math.Sinh(E)) - E;
+            }
+        }
+
+        public double GetEccentricAnomalyAtTrueAnomaly(double trueAnomaly) {
+            double e = eccentricity;
+            trueAnomaly = ExtraMath.ClampDegrees360(trueAnomaly);
+            trueAnomaly = trueAnomaly * (UtilMath.Deg2Rad);
+
+            if (e < 1) { //elliptical orbits
+                double cosE = (e + Math.Cos(trueAnomaly)) / (1 + e * Math.Cos(trueAnomaly));
+                double sinE = Math.Sqrt(1 - (cosE * cosE));
+                if (trueAnomaly > Math.PI) sinE *= -1;
+
+                return ExtraMath.ClampRadiansTwoPi(Math.Atan2(sinE, cosE));
+            } else { //hyperbolic orbits
+                double coshE = (e + Math.Cos(trueAnomaly)) / (1 + e * Math.Cos(trueAnomaly));
+                if (coshE < 1) throw new ArgumentException("OrbitExtensions.GetEccentricAnomalyAtTrueAnomaly: True anomaly of " + trueAnomaly + " radians is not attained by orbit with eccentricity " + eccentricity);
+
+                double E = ExtraMath.Acosh(coshE);
+                if (trueAnomaly > Math.PI) E *= -1;
+
+                return E;
+            }
+        }
+
+        public double TimeOfTrueAnomaly(double trueAnomaly, double UT) {
+            return UTAtMeanAnomaly(GetMeanAnomalyAtEccentricAnomaly(GetEccentricAnomalyAtTrueAnomaly(trueAnomaly)), UT);
+        }
+
+        public double NextPeriapsisTime(double UT) {
+            if (eccentricity < 1) {
+                return TimeOfTrueAnomaly(0, UT);
+            } else {
+                return UT - MeanAnomalyAtUT(UT) / MeanMotion;
+            }
+        }
+
+        public double NextApoapsisTime(double UT) {
+            if (eccentricity < 1) {
+                return TimeOfTrueAnomaly(180, UT);
+            } else {
+                throw new ArgumentException("OrbitExtensions.NextApoapsisTime cannot be called on hyperbolic orbits");
+            }
         }
 
         public NodeParameters DeltaVToNode(double UT, Vector3d dV) {
