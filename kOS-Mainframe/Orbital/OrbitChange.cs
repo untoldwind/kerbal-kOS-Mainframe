@@ -152,14 +152,16 @@ namespace kOSMainframe.Orbital {
             return o.DeltaVToNode(UT, ((maxDeltaV + minDeltaV) / 2) * burnDirection);
         }
 
-        //Computes the delta-V of the burn required to change an orbit's inclination to a given value
-        //at a given UT. If the latitude at that time is too high, so that the desired inclination
-        //cannot be attained, the burn returned will achieve as low an inclination as possible (namely, inclination = latitude).
-        //The input inclination is in degrees.
-        //Note that there are two orbits through each point with a given inclination. The convention used is:
-        //   - first, clamp newInclination to the range -180, 180
-        //   - if newInclination > 0, do the cheaper burn to set that inclination
-        //   - if newInclination < 0, do the more expensive burn to set that inclination
+        /// <summary>
+        /// Computes the delta-V of the burn required to change an orbit's inclination to a given value
+        /// at a given UT. If the latitude at that time is too high, so that the desired inclination
+        /// cannot be attained, the burn returned will achieve as low an inclination as possible (namely, inclination = latitude).
+        /// The input inclination is in degrees.
+        /// Note that there are two orbits through each point with a given inclination. The convention used is:
+        ///    - first, clamp newInclination to the range -180, 180
+        ///    - if newInclination &gt; 0, do the cheaper burn to set that inclination
+        ///    - if newInclination &lt; 0, do the more expensive burn to set that inclination
+        /// </summary>
         public static NodeParameters ChangeInclination(Orbit o, double UT, double newInclination) {
             double latitude = o.referenceBody.GetLatitude(o.SwappedAbsolutePositionAtUT(UT));
             double desiredHeading = OrbitToGround.HeadingForInclination(newInclination, latitude);

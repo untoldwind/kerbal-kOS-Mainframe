@@ -1,6 +1,9 @@
 ﻿using System;
 namespace kOSMainframe.Numerics {
     public static class ExtraMath {
+        public const double DegToRad = Math.PI / 180.0;
+        public const double RadToDeg = 180.0 / Math.PI;
+
         //For some reason, Math doesn't have the inverse hyperbolic trigonometric functions:
         //asinh(x) = log(x + sqrt(x^2 + 1))
         public static double Asinh(double x) {

@@ -53,8 +53,8 @@ namespace kOSMainframe.Debugging {
             CleanAndAddNode(node);
 
             Logging.Debug("NodeParams", node);
-            Logging.DumpOrbit("Current orbit", Vessel.orbit);
-            Logging.DumpOrbit("Next orbit", Vessel.orbit.PerturbedOrbit(UT, node.deltaV));
+            Logging.DumpOrbit("Current orbit", Vessel.orbit.wrap());
+            Logging.DumpOrbit("Next orbit", Vessel.orbit.PerturbedOrbit(UT, node.deltaV).wrap());
         }
 
         private void ReturnFromMoon(double targetPrimaryPeriapsis) {
@@ -62,11 +62,11 @@ namespace kOSMainframe.Debugging {
 
             var node = CleanAndAddNode(nodeParams);
 
-            Logging.DumpOrbit("Current Orbit", Vessel.orbit);
+            Logging.DumpOrbit("Current Orbit", Vessel.orbit.wrap());
             var result = Vessel.orbit.PerturbedOrbit(nodeParams.time, nodeParams.deltaV);
-            Logging.DumpOrbit("Result Orbit", result);
-            Logging.DumpOrbit("Next node patch", node.nextPatch);
-            Logging.DumpOrbit("Next node patch next", node.nextPatch.nextPatch);
+            Logging.DumpOrbit("Result Orbit", result.wrap());
+            Logging.DumpOrbit("Next node patch", node.nextPatch.wrap());
+            Logging.DumpOrbit("Next node patch next", node.nextPatch.nextPatch.wrap());
             var nextTime = result.NextTimeOfRadius(Planetarium.GetUniversalTime(), result.referenceBody.sphereOfInfluence);
             Logging.Debug("NextTimeofRadius {0} {1}", nextTime, result.nextTT);
             Logging.Debug("Next node time {0}", node.nextPatch.nextPatch.StartUT);
@@ -108,7 +108,7 @@ namespace kOSMainframe.Debugging {
         private void DumpOrbit() {
             double UT = Planetarium.GetUniversalTime();
             var orbit = Vessel.orbit.referenceBody.orbit;
-            Logging.DumpOrbit("Current Orbit", orbit);
+            Logging.DumpOrbit("Current Orbit", orbit.wrap());
             Logging.Debug("Orbit X: {0}", orbit.OrbitFrame.X);
             Logging.Debug("Orbit Y: {0}", orbit.OrbitFrame.Y);
             Logging.Debug("Orbit Z: {0}", orbit.OrbitFrame.Z);

@@ -41,6 +41,12 @@ namespace kOSMainframeTest {
 
         public double MeanMotion => meanMotion;
 
+        public double Epoch => epoch;
+
+        public double ArgumentOfPeriapsis => argumentOfPeriapsis;
+
+        public double MeanAnomalyAtEpoch => meanAnomalyAtEpoch;
+
         public double Period => period;
 
         public Vector3d SwappedOrbitNormal => -FrameZ.normalized.SwapYZ();
@@ -223,9 +229,9 @@ namespace kOSMainframeTest {
         public Vector3d GetOrbitalVelocityAtTrueAnomaly(double trueAnomaly) {
             double x = Math.Cos(trueAnomaly);
             double y = Math.Sin(trueAnomaly);
-            double h = Math.Sqrt(body.mu / (semiMajorAxis * (1.0 - eccentricity * eccentricity)));
-            double vx = -y * h;
-            double vy = (x + eccentricity) * h;
+            double mu_over_h = Math.Sqrt(body.mu / (semiMajorAxis * (1.0 - eccentricity * eccentricity)));
+            double vx = -y * mu_over_h;
+            double vy = (x + eccentricity) * mu_over_h;
             return FrameX * vx + FrameY * vy;
         }
 

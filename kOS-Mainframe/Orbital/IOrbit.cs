@@ -53,6 +53,27 @@ namespace kOSMainframe.Orbital {
         }
 
         /// <summary>
+        /// Gets the epoch.
+        /// </summary>
+        double Epoch {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the argument of periapsis.
+        /// </summary>
+        double ArgumentOfPeriapsis {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the mean anomaly at epoch.
+        /// </summary>
+        double MeanAnomalyAtEpoch {
+            get;
+        }
+
+        /// <summary>
         /// Mean motion is rate of increase of the mean anomaly
         /// </summary>
         double MeanMotion {
@@ -155,6 +176,14 @@ namespace kOSMainframe.Orbital {
         double NextApoapsisTime(double UT);
 
         /// <summary>
+        /// Get the true anomaly of a radius.
+        /// If the radius is below the periapsis the true anomaly of the periapsis
+        /// with be returned. If it is above the apoapsis the true anomaly of the
+        /// apoapsis is returned.
+        /// </summary>
+        double TrueAnomalyAtRadius(double radius);
+
+        /// <summary>
         /// Finds the next time at which the orbiting object will achieve a given radius
         /// from the center of the primary.
         /// If the given radius is impossible for this orbit, an ArgumentException is thrown.
@@ -197,6 +226,12 @@ namespace kOSMainframe.Orbital {
         public double Eccentricity => orbit.eccentricity;
 
         public double LAN => orbit.LAN;
+
+        public double Epoch => orbit.epoch;
+
+        public double ArgumentOfPeriapsis => orbit.argumentOfPeriapsis;
+
+        public double MeanAnomalyAtEpoch => orbit.meanAnomalyAtEpoch;
 
         public double Period => orbit.period;
 
@@ -329,6 +364,10 @@ namespace kOSMainframe.Orbital {
         public double SynodicPeriod(IOrbit other) {
             int sign = (Vector3d.Dot(SwappedOrbitNormal, other.SwappedOrbitNormal) > 0 ? 1 : -1); //detect relative retrograde motion
             return Math.Abs(1.0 / (1.0 / Period - sign * 1.0 / other.Period)); //period after which the phase angle repeats
+        }
+
+        public double TrueAnomalyAtRadius(double radius) {
+            return orbit.TrueAnomalyAtRadius(radius);
         }
 
         public double NextTimeOfRadius(double UT, double radius) {

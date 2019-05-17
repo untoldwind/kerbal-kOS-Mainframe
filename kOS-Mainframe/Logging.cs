@@ -1,25 +1,28 @@
-﻿using System;
-
+﻿using kOSMainframe.Orbital;
 namespace kOSMainframe {
+    public interface ILoggingBackend {
+        void Log(string line);
+    }
+
     public static class Logging {
-        public static bool enabled = true;
+        public static ILoggingBackend backend = new UnityLoggingBackend();
 
-        public static void Debug(String message, params object[] args) {
-            if(enabled) {
-                UnityEngine.Debug.Log("kOS-MainFrame [Debug]: " + String.Format(message, args));
-            }
+        public static void Debug(string message, params object[] args) {
+            backend.Log("kOS-MainFrame [Debug]: " + string.Format(message, args));
         }
 
-        public static void Warning(String message, params object[] args) {
-            if(enabled) {
-                UnityEngine.Debug.Log("kOS-MainFrame [Warning]: " + String.Format(message, args));
-            }
+        public static void Warning(string message, params object[] args) {
+            backend.Log("kOS-MainFrame [Warning]: " + string.Format(message, args));
         }
 
-        public static void DumpOrbit(String name, Orbit o) {
-            if(enabled) {
-                Debug($"Orbit {name}: body={o.referenceBody} inc={o.inclination} ecc={o.eccentricity} sMa={o.semiMajorAxis} sma={o.semiMinorAxis} PeR={o.PeR} ApR={o.ApR} Epoch={o.epoch} LAN={o.LAN} ArgPe={o.argumentOfPeriapsis} meanAtEpoch={o.meanAnomalyAtEpoch}");
-            }
+        public static void DumpOrbit(string name, IOrbit o) {
+            Debug($"Orbit {name}: body={o.ReferenceBody.Name} inc={o.Inclination} ecc={o.Eccentricity} sma={o.SemiMajorAxis} PeR={o.PeR} ApR={o.ApR} Epoch={o.Epoch} LAN={o.LAN} ArgPe={o.ArgumentOfPeriapsis} meanAtEpoch={o.MeanAnomalyAtEpoch}");
+        }
+    }
+
+    class UnityLoggingBackend : ILoggingBackend {
+        public void Log(string line) {
+            UnityEngine.Debug.Log(line);
         }
     }
 }

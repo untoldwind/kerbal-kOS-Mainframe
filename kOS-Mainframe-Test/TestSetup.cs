@@ -6,7 +6,13 @@ namespace kOSMainframeTest {
     public class TestSetup {
         [OneTimeSetUp]
         public void DisableLogging() {
-            Logging.enabled = false;
+            Logging.backend = new TestContextLoggingBackend();
+        }
+    }
+
+    class TestContextLoggingBackend : ILoggingBackend {
+        public void Log(string line) {
+            TestContext.WriteLine(line);
         }
     }
 }
