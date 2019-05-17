@@ -1,7 +1,11 @@
 ﻿using System;
 namespace kOSMainframe.Orbital {
     public interface IBody {
-        double gravParameter {
+        double GravParameter {
+            get;
+        }
+
+        double SOIRadius {
             get;
         }
     }
@@ -13,6 +17,8 @@ namespace kOSMainframe.Orbital {
             this.body = body;
         }
 
-        public double gravParameter => body.gravParameter;
+        public double GravParameter => body.gravParameter;
+
+        public double SOIRadius => body.sphereOfInfluence;
     }
 }

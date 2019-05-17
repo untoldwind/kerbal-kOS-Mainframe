@@ -25,6 +25,13 @@ namespace kOSMainframe.Orbital {
         }
 
         /// <summary>
+        /// Gets the semi major axis.
+        /// </summary>
+        double SemiMajorAxis {
+            get;
+        }
+
+        /// <summary>
         /// Inclincation of the orbit (in deg).
         /// </summary>
         double Inclination {
@@ -48,8 +55,26 @@ namespace kOSMainframe.Orbital {
         /// <summary>
         /// Mean motion is rate of increase of the mean anomaly
         /// </summary>
-        /// <value>The mean motion.</value>
         double MeanMotion {
+            get;
+        }
+
+        /// <summary>
+        /// Orbital period.
+        /// </summary>
+        double Period {
+            get;
+        }
+
+        Orbit.PatchTransitionType PatchEndTransition {
+            get;
+        }
+
+        double PatchEndUT {
+            get;
+        }
+
+        Vector3d SwappedOrbitNormal {
             get;
         }
 
@@ -129,6 +154,28 @@ namespace kOSMainframe.Orbital {
         /// </summary>
         double NextApoapsisTime(double UT);
 
+        /// <summary>
+        /// Finds the next time at which the orbiting object will achieve a given radius
+        /// from the center of the primary.
+        /// If the given radius is impossible for this orbit, an ArgumentException is thrown.
+        /// For elliptical orbits this will be a time between UT and UT + period
+        /// For hyperbolic orbits this can be any time. If the given radius will be achieved
+        /// in the future then the next time at which that radius will be achieved will be returned.
+        /// If the given radius was only achieved in the past, then there are no guarantees
+        /// about which of the two times in the past will be returned.
+        /// </summary>
+        double NextTimeOfRadius(double UT, double radius);
+
+        /// <summary>
+        /// Computes the period of the phase angle between orbiting objects a and b.
+        /// This only really makes sense for approximately circular orbits in similar planes.
+        /// For noncircular orbits the time variation of the phase angle is only "quasiperiodic"
+        /// and for high eccentricities and/or large relative inclinations, the relative motion is
+        /// not really periodic at all.
+        /// </summary>
+        double SynodicPeriod(IOrbit other);
+
+
         NodeParameters DeltaVToNode(double UT, Vector3d dV);
     }
 
@@ -143,11 +190,15 @@ namespace kOSMainframe.Orbital {
 
         public double PeR => orbit.PeR;
 
+        public double SemiMajorAxis => orbit.semiMajorAxis;
+
         public double Inclination => orbit.inclination;
 
         public double Eccentricity => orbit.eccentricity;
 
         public double LAN => orbit.LAN;
+
+        public double Period => orbit.period;
 
         public IBody ReferenceBody => orbit.referenceBody.wrap();
 
@@ -162,6 +213,12 @@ namespace kOSMainframe.Orbital {
                 }
             }
         }
+
+        public Vector3d SwappedOrbitNormal => -orbit.GetOrbitNormal().normalized.SwapYZ();
+
+        public Orbit.PatchTransitionType PatchEndTransition => orbit.patchEndTransition;
+
+        public double PatchEndUT => orbit.EndUT;
 
         public Vector3d SwappedAbsolutePositionAtUT(double UT) {
             return orbit.referenceBody.position + SwappedRelativePositionAtUT(UT);
@@ -267,6 +324,22 @@ namespace kOSMainframe.Orbital {
             } else {
                 throw new ArgumentException("OrbitExtensions.NextApoapsisTime cannot be called on hyperbolic orbits");
             }
+        }
+
+        public double SynodicPeriod(IOrbit other) {
+            int sign = (Vector3d.Dot(SwappedOrbitNormal, other.SwappedOrbitNormal) > 0 ? 1 : -1); //detect relative retrograde motion
+            return Math.Abs(1.0 / (1.0 / Period - sign * 1.0 / other.Period)); //period after which the phase angle repeats
+        }
+
+        public double NextTimeOfRadius(double UT, double radius) {
+            if (radius < orbit.PeR || (orbit.eccentricity < 1 && radius > orbit.ApR)) throw new ArgumentException("OrbitExtensions.NextTimeOfRadius: given radius of " + radius + " is never achieved: PeR = " + orbit.PeR + " and ApR = " + orbit.ApR);
+
+            double trueAnomaly1 = UtilMath.Rad2Deg * orbit.TrueAnomalyAtRadius(radius);
+            double trueAnomaly2 = 360 - trueAnomaly1;
+            double time1 = orbit.TimeOfTrueAnomaly(trueAnomaly1, UT);
+            double time2 = orbit.TimeOfTrueAnomaly(trueAnomaly2, UT);
+            if (time2 < time1 && time2 > UT) return time2;
+            else return time1;
         }
 
         public NodeParameters DeltaVToNode(double UT, Vector3d dV) {

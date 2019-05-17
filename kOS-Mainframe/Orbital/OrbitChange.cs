@@ -4,16 +4,20 @@ using kOSMainframe.Numerics;
 namespace kOSMainframe.Orbital {
     public static class OrbitChange {
         /// <summary>
-        /// Computes the speed of a circular orbit of a given radius for a given body.
+        /// Computes the speed of a circular orbit.
         /// </summary>
+        /// <param name="body">The body to circularize</param>
+        /// <param name="radius">Desired radius of the orbit</param>
         public static double CircularOrbitSpeed(IBody body, double radius) {
             //v = sqrt(GM/r)
-            return Math.Sqrt(body.gravParameter / radius);
+            return Math.Sqrt(body.GravParameter / radius);
         }
 
         /// <summary>
         /// Computes the deltaV of the burn needed to circularize an orbit at a given UT.
         /// </summary>
+        /// <param name="o">Current orbit.</param>
+        /// <param name="UT">Universal time of the burn</param>
         public static NodeParameters Circularize(IOrbit o, double UT) {
             Vector3d desiredVelocity = CircularOrbitSpeed(o.ReferenceBody, o.Radius(UT)) * o.Horizontal(UT);
             Vector3d actualVelocity = o.SwappedOrbitalVelocityAtUT(UT);
@@ -30,7 +34,7 @@ namespace kOSMainframe.Orbital {
             newPeR = ExtraMath.Clamp(newPeR, 0 + 1, radius - 1);
             newApR = Math.Max(newApR, radius + 1);
 
-            double GM = o.ReferenceBody.gravParameter;
+            double GM = o.ReferenceBody.GravParameter;
             double E = -GM / (newPeR + newApR); //total energy per unit mass of new orbit
             double L = Math.Sqrt(Math.Abs((Math.Pow(E * (newApR - newPeR), 2) - GM * GM) / (2 * E))); //angular momentum per unit mass of new orbit
             double kineticE = E + GM / radius; //kinetic energy (per unit mass) of new orbit at UT

@@ -118,7 +118,7 @@ namespace kOSMainframe {
 
         private Node BiImpulsive(Orbitable orbitable) {
             var target = orbitable.Orbit;
-            return OrbitIntercept.BiImpulsiveAnnealed(orbit, target, minUT).ToKOS(this.shared);
+            return OrbitIntercept.BiImpulsiveAnnealed(orbit.wrap(), target.wrap(), minUT).ToKOS(this.shared);
         }
 
         private Node CourseCorrection(Orbitable orbitable) {

@@ -4,7 +4,7 @@ using kOSMainframe.Numerics;
 
 namespace kOSMainframe.Orbital {
     public static class OrbitIntercept {
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double UT, Orbit target, double interceptUT, double offsetDistance = 0) {
+        public static Vector3d DeltaVToInterceptAtTime(IOrbit o, double UT, IOrbit target, double interceptUT, double offsetDistance = 0) {
             Vector3d finalVelocity;
             return DeltaVToInterceptAtTime(o, UT, target, interceptUT, out finalVelocity, offsetDistance);
         }
@@ -15,7 +15,7 @@ namespace kOSMainframe.Orbital {
         // offsetDistance: this is used by the Rendezvous Autopilot and is only going to be valid over very short distances
         // shortway: the shortway parameter to feed into the Lambert solver
         //
-        public static Vector3d DeltaVToInterceptAtTime(Orbit o, double initialUT, Orbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0) {
+        public static Vector3d DeltaVToInterceptAtTime(IOrbit o, double initialUT, IOrbit target, double finalUT, out Vector3d secondDV, double offsetDistance = 0) {
             Vector3d initialRelPos = o.SwappedRelativePositionAtUT(initialUT);
             Vector3d finalRelPos = target.SwappedRelativePositionAtUT(finalUT);
 
@@ -31,8 +31,8 @@ namespace kOSMainframe.Orbital {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
             }
 
-            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, true, out transferViClockwise, out transferVfClockwise);
-            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.referenceBody.gravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, true, out transferViClockwise, out transferVfClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
 
             double totalClockwise = (finalVelocity - transferVfClockwise).magnitude + (transferViClockwise - initialVelocity).magnitude;
             double totalCounterClockwise = (finalVelocity - transferVfCounterClockwise).magnitude + (transferViCounterClockwise - initialVelocity).magnitude;
@@ -55,7 +55,7 @@ namespace kOSMainframe.Orbital {
         //approximate intercept trajectory.
         public static NodeParameters CourseCorrection(Orbit o, double UT, Orbit target) {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 1); //+1 so that closestApproachTime is definitely > UT
-            Vector3d dV = DeltaVToInterceptAtTime(o, UT, target, closestApproachTime);
+            Vector3d dV = DeltaVToInterceptAtTime(o.wrap(), UT, target.wrap(), closestApproachTime);
             return o.DeltaVToNode(UT, dV);
         }
 
@@ -63,12 +63,12 @@ namespace kOSMainframe.Orbital {
             double closestApproachTime = o.NextClosestApproachTime(target, UT + 2); //+2 so that closestApproachTime is definitely > UT
 
             double burnUT = UT;
-            Vector3d dV = DeltaVToInterceptAtTime(o, burnUT, target, closestApproachTime);
+            Vector3d dV = DeltaVToInterceptAtTime(o.wrap(), burnUT, target.wrap(), closestApproachTime);
 
             const int fineness = 20;
             for (double step = 0.5; step < fineness; step += 1.0) {
                 double testUT = UT + (closestApproachTime - UT) * step / fineness;
-                Vector3d testDV = DeltaVToInterceptAtTime(o, testUT, target, closestApproachTime);
+                Vector3d testDV = DeltaVToInterceptAtTime(o.wrap(), testUT, target.wrap(), closestApproachTime);
 
                 if (testDV.magnitude < dV.magnitude) {
                     dV = testDV;
@@ -238,8 +238,8 @@ namespace kOSMainframe.Orbital {
         }
 
         public struct LambertProblem {
-            public Orbit o;
-            public Orbit target;
+            public IOrbit o;
+            public IOrbit target;
             public bool intercept_only;  // omit the second burn from the cost
             public double zeroUT;
 
@@ -268,7 +268,7 @@ namespace kOSMainframe.Orbital {
         // optimization search.
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
-        public static NodeParameters BiImpulsiveTransfer(Orbit o, Orbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
+        public static NodeParameters BiImpulsiveTransfer(IOrbit o, IOrbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
             double[] x = { 0, TT };
 
             LambertProblem prob = new LambertProblem();
@@ -299,7 +299,7 @@ namespace kOSMainframe.Orbital {
         // FIXME: there's some very confusing nomenclature between DeltaVAndTimeForBiImpulsiveTransfer and this
         //        the minUT/maxUT values here are zero-centered on this methods UT.  the minUT/maxUT parameters to
         //        the other method are proper UT times and not zero centered at all.
-        public static NodeParameters BiImpulsiveAnnealed(Orbit o, Orbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
+        public static NodeParameters BiImpulsiveAnnealed(IOrbit o, IOrbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
             double coolingRate = 0.003;
@@ -324,25 +324,25 @@ namespace kOSMainframe.Orbital {
                 maxUT = 1.5 * o.SynodicPeriod(target);
 
             // figure the max transfer time of a Hohmann orbit using the SMAs of the two orbits instead of the radius (as a guess), multiplied by 2
-            double a = (Math.Abs(o.semiMajorAxis) + Math.Abs(target.semiMajorAxis)) / 2;
-            double maxTT = Math.PI * Math.Sqrt(a * a * a / o.referenceBody.gravParameter);   // FIXME: allow tweaking
+            double a = (Math.Abs(o.SemiMajorAxis) + Math.Abs(target.SemiMajorAxis)) / 2;
+            double maxTT = Math.PI * Math.Sqrt(a * a * a / o.ReferenceBody.GravParameter);   // FIXME: allow tweaking
 
             Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed Check1: minUT = " + minUT + " maxUT = " + maxUT + " maxTT = " + maxTT + " maxUTplusT = " + maxUTplusT);
 
-            if (target.patchEndTransition != Orbit.PatchTransitionType.FINAL && target.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.patchEndTransition);
+            if (target.PatchEndTransition != Orbit.PatchTransitionType.FINAL && target.PatchEndTransition != Orbit.PatchTransitionType.INITIAL) {
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed target.patchEndTransition = " + target.PatchEndTransition);
                 // reset the guess to search for start times out to the end of the target orbit
-                maxUT = target.EndUT - UT;
+                maxUT = target.PatchEndUT - UT;
                 // longest possible transfer time would leave now and arrive at the target patch end
-                maxTT = Math.Min(maxTT, target.EndUT - UT);
+                maxTT = Math.Min(maxTT, target.PatchEndUT - UT);
                 // constraint on UT + TT <= maxUTplusT to arrive before the target orbit ends
-                maxUTplusT = Math.Min(maxUTplusT, target.EndUT - UT);
+                maxUTplusT = Math.Min(maxUTplusT, target.PatchEndUT - UT);
             }
 
             // if our orbit ends, search for start times all the way to the end, but don't violate maxUTplusT if its set
-            if (o.patchEndTransition != Orbit.PatchTransitionType.FINAL && o.patchEndTransition != Orbit.PatchTransitionType.INITIAL) {
-                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.patchEndTransition);
-                maxUT = Math.Min(o.EndUT - UT, maxUTplusT);
+            if (o.PatchEndTransition != Orbit.PatchTransitionType.FINAL && o.PatchEndTransition != Orbit.PatchTransitionType.INITIAL) {
+                Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed o.patchEndTransition = " + o.PatchEndTransition);
+                maxUT = Math.Min(o.PatchEndUT - UT, maxUTplusT);
             }
 
             // user requested a burn at a specific time
@@ -430,7 +430,7 @@ namespace kOSMainframe.Orbital {
                 Logging.Debug("i + " + i + ", trying for intercept at UT = " + interceptUT);
 
                 //Try both short and long way
-                Vector3d interceptBurn = DeltaVToInterceptAtTime(o, hohmannParams.time, target, interceptUT, 0);
+                Vector3d interceptBurn = DeltaVToInterceptAtTime(o.wrap(), hohmannParams.time, target.wrap(), interceptUT, 0);
                 double cost = (interceptBurn - subtractedProgradeDV).magnitude;
                 Logging.Debug("short way dV = " + interceptBurn.magnitude + "; subtracted cost = " + cost);
                 if (cost < minCost) {

@@ -50,7 +50,9 @@ namespace kOSMainframeTest {
             this.orbit = new OrbitTestRef(parent, inclination, eccentricity, semiMajorAxis, LAN, argumentOfPeriapsis, epoch, meanAnomalyAtEpoch);
         }
 
-        public double gravParameter => mu;
+        public double GravParameter => mu;
+
+        public double SOIRadius => soiRadius;
 
         public Vector3d GetPositionAtUT(double UT) {
             return orbit?.GetRelativePositionAtUT(UT) ?? Vector3d.zero;

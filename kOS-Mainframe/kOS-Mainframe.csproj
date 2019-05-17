@@ -129,6 +129,7 @@
     <Compile Include="Orbital\VectorExtensions.cs" />
     <Compile Include="Orbital\IBody.cs" />
     <Compile Include="Orbital\BodyExtensions.cs" />
+    <Compile Include="Orbital\OrbitEjection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />

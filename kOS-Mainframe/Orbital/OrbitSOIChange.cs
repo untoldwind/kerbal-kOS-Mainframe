@@ -185,7 +185,7 @@ namespace kOSMainframe.Orbital {
         public static NodeParameters InterplanetaryBiImpulsiveEjection(Orbit o, double UT, Orbit target, double maxUT = double.PositiveInfinity) {
             Orbit planetOrbit = o.referenceBody.orbit;
 
-            NodeParameters idealParams = OrbitIntercept.BiImpulsiveAnnealed(planetOrbit, target, UT, maxUT: maxUT);
+            NodeParameters idealParams = OrbitIntercept.BiImpulsiveAnnealed(planetOrbit.wrap(), target.wrap(), UT, maxUT: maxUT);
 
             Logging.Debug("idealBurnUT = " + idealParams.time + ", idealDeltaV = " + idealParams.deltaV);
 

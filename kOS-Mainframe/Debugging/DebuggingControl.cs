@@ -83,7 +83,7 @@ namespace kOSMainframe.Debugging {
         private void BiinjectiveTransfer() {
             var target = Vessel.targetObject;
             if (target == null) return;
-            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit, target.GetOrbit(), Planetarium.GetUniversalTime() + 2000);
+            var nodeParams = OrbitIntercept.BiImpulsiveAnnealed(Vessel.orbit.wrap(), target.GetOrbit().wrap(), Planetarium.GetUniversalTime() + 2000);
 
             CleanAndAddNode(nodeParams);
         }

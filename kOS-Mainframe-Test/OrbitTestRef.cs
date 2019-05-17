@@ -29,6 +29,8 @@ namespace kOSMainframeTest {
 
         public double ApR => (1.0 + eccentricity) * semiMajorAxis;
 
+        public double SemiMajorAxis => semiMajorAxis;
+
         public double Inclination => inclination;
 
         public double Eccentricity => eccentricity;
@@ -38,6 +40,15 @@ namespace kOSMainframeTest {
         public IBody ReferenceBody => body;
 
         public double MeanMotion => meanMotion;
+
+        public double Period => period;
+
+        public Vector3d SwappedOrbitNormal => -FrameZ.normalized.SwapYZ();
+
+        // This is pretty much fake ATM
+        public Orbit.PatchTransitionType PatchEndTransition => Orbit.PatchTransitionType.INITIAL;
+
+        public double PatchEndUT => 0;
 
         public OrbitTestRef(BodyTestRef body,
                             double inclination,
@@ -392,6 +403,31 @@ namespace kOSMainframeTest {
             } else {
                 throw new ArgumentException("OrbitExtensions.NextApoapsisTime cannot be called on hyperbolic orbits");
             }
+        }
+
+        public double TrueAnomalyAtRadius(double radius) {
+            if (eccentricity < 1) {
+                radius = Math.Min(Math.Max(radius, PeR), ApR);
+            } else {
+                radius = Math.Max(radius, PeR);
+            }
+            return Math.Acos((semiMajorAxis * (1.0 - eccentricity * eccentricity) / radius - 1.0) / eccentricity);
+        }
+
+        public double NextTimeOfRadius(double UT, double radius) {
+            if (radius < PeR || (eccentricity < 1 && radius > ApR)) throw new ArgumentException("OrbitExtensions.NextTimeOfRadius: given radius of " + radius + " is never achieved: PeR = " + PeR + " and ApR = " + ApR);
+
+            double trueAnomaly1 = UtilMath.Rad2Deg * TrueAnomalyAtRadius(radius);
+            double trueAnomaly2 = 360 - trueAnomaly1;
+            double time1 = TimeOfTrueAnomaly(trueAnomaly1, UT);
+            double time2 = TimeOfTrueAnomaly(trueAnomaly2, UT);
+            if (time2 < time1 && time2 > UT) return time2;
+            else return time1;
+        }
+
+        public double SynodicPeriod(IOrbit other) {
+            int sign = (Vector3d.Dot(SwappedOrbitNormal, other.SwappedOrbitNormal) > 0 ? 1 : -1); //detect relative retrograde motion
+            return Math.Abs(1.0 / (1.0 / Period - sign * 1.0 / other.Period)); //period after which the phase angle repeats
         }
 
         public NodeParameters DeltaVToNode(double UT, Vector3d dV) {
