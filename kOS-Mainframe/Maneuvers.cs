@@ -62,7 +62,9 @@ namespace kOSMainframe {
 
         private Node CircularizeOrbit() {
             double UT = minUT;
-            if(orbit.eccentricity < 1) {
+            // On eliptical orbits we circularize at the Apoapsis unless it
+            // is outside of the SOI (which might happen for some moons).
+            if(orbit.eccentricity < 1 && orbit.ApR < orbit.referenceBody.sphereOfInfluence) {
                 UT = orbit.NextApoapsisTime(UT);
             } else {
                 UT = orbit.NextPeriapsisTime(UT);
