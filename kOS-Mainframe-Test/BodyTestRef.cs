@@ -35,7 +35,7 @@ namespace kOSMainframeTest {
         }
 
         public BodyTestRef(string name,
-            double radius,
+                           double radius,
                            BodyTestRef parent,
                            double inclination,
                            double eccentricity,

@@ -58,6 +58,7 @@
     <Compile Include="TestSetup.cs" />
     <Compile Include="OrbitChangeTest.cs" />
     <Compile Include="OrbitEjectionTest.cs" />
+    <Compile Include="AnnealingOptimizerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

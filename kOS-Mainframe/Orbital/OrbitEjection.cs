@@ -27,10 +27,10 @@ namespace kOSMainframe.Orbital {
 
         /// <summary>
         /// Calculates the "ideal" ejection orbit for a given exit velocity at
-        /// a given time. 
+        /// a given time.
         /// To get a unique result the periapsis of the ejection orbit and a
-        /// desired orbit normal has to be defined as well. As a rule of thumb: 
-        /// The periapsis should be greater than the radius of the body 
+        /// desired orbit normal has to be defined as well. As a rule of thumb:
+        /// The periapsis should be greater than the radius of the body
         /// (and its atmosphere), but the lower the better.
         /// </summary>
         /// <param name="body">The body to eject from</param>
