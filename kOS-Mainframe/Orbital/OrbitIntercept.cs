@@ -269,8 +269,6 @@ namespace kOSMainframe.Orbital {
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
         public static NodeParameters BiImpulsiveTransfer(IOrbit o, IOrbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
-            double[] x = { 0, TT };
-
             LambertProblem prob = new LambertProblem();
             prob.o = o;
             prob.target = target;
@@ -302,12 +300,6 @@ namespace kOSMainframe.Orbital {
         public static NodeParameters BiImpulsiveAnnealed(IOrbit o, IOrbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
-            double coolingRate = 0.003;
-            double bestUT = 0;
-            double bestTT = 0;
-            double bestCost = Double.MaxValue;
-            double currentCost = Double.MaxValue;
-            System.Random random = new System.Random();
 
             LambertProblem prob = new LambertProblem();
             prob.o = o;
@@ -358,51 +350,22 @@ namespace kOSMainframe.Orbital {
 
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
-            int n = 0;
-
             stopwatch.Start();
-            while (temp > 1) {
-                // shrink the neighborhood based on temp
-                double windowUT = temp / MAXTEMP * maxUT / 4;
-                double windowTT = temp / MAXTEMP * maxTT / 4;
-
-                // compute the neighbor
-                double ut = ExtraMath.Clamp(random.NextGaussian(currentUT, windowUT), minUT, maxUT);
-                double tt = ExtraMath.Clamp(random.NextGaussian(currentTT, windowTT), minTT, maxTT);
-                tt = Math.Min(tt, maxUTplusT - ut);
-
-                double cost = prob.LambertCost(ut, tt);
-
-                if (cost < bestCost) {
-                    bestUT = ut;
-                    bestTT = tt;
-                    bestCost = cost;
-                    currentUT = bestUT;
-                    currentTT = bestTT;
-                    currentCost = bestCost;
-                } else if (acceptanceProbabilityForBiImpulsive(currentCost, cost, temp) > random.NextDouble()) {
-                    currentUT = ut;
-                    currentTT = tt;
-                    currentCost = cost;
-                }
-
-                temp *= 1 - coolingRate;
-
-                n++;
-            }
+            Vector2d best;
+            AnnealingOptimizer.Optimize(prob.LambertCost, new Vector2d(minUT, minTT), new Vector2d(maxUT, maxTT), MAXTEMP, out best);
             stopwatch.Stop();
 
-            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed N = " + n + " time = " + stopwatch.Elapsed);
+            Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed time = " + stopwatch.Elapsed);
 
-            double burnUT = UT + bestUT;
+            double burnUT = UT + best.x;
 
-            Logging.Debug("Annealing results burnUT = " + burnUT + " zero'd burnUT = " + bestUT + " TT = " + bestTT + " Cost = " + bestCost);
+            Logging.Debug("Annealing results burnUT = " + burnUT + " zero'd burnUT = " + best.x + " TT = " + best.y); 
 
             //return DeltaVToInterceptAtTime(o, UT + bestUT, target, UT + bestUT + bestTT, shortway: bestshortway);
 
             // FIXME: srsly this minUT = UT + minUT / maxUT = UT + maxUT / maxUTplusT = maxUTplusT - bestUT rosetta stone here needs to go
             // and some consistency needs to happen.  this is just breeding bugs.
-            return BiImpulsiveTransfer(o, target, UT + bestUT, bestTT, minUT: UT + minUT, maxUT: UT + maxUT, maxTT: maxTT, maxUTplusT: maxUTplusT - bestUT, intercept_only: intercept_only);
+            return BiImpulsiveTransfer(o, target, burnUT, best.y, minUT: UT + minUT, maxUT: UT + maxUT, maxTT: maxTT, maxUTplusT: maxUTplusT - best.x, intercept_only: intercept_only);
         }
 
         //Like DeltaVAndTimeForHohmannTransfer, but adds an additional step that uses the Lambert

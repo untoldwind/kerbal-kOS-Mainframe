@@ -13,8 +13,11 @@ namespace kOSMainframeTest {
         [Test]
         public void TestTwoDimension() {
             Vector2d expected = new Vector2d(4.55, 4.55);
-            Vector2d[] points = AnnealingOptimizer.Optimize(TestFunc2, new Vector2d(-10, -10), new Vector2d(10, 10), 50);
+            Vector2d xmin;
+            Vector2d[] points = AnnealingOptimizer.Optimize(TestFunc2, new Vector2d(-10, -10), new Vector2d(10, 10), 50, out xmin);
 
+            Assert.AreEqual(xmin.x, 4.55, 0.1);
+            Assert.AreEqual(xmin.y, 4.55, 0.1);
             foreach (var point in points) {
                 if((point - expected).magnitude < 0.1) {
                     return;

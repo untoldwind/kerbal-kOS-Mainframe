@@ -14,7 +14,7 @@ namespace kOSMainframe.Numerics {
         /// particles will just erratically jump around, if it is too low chances
         /// are that they just settle down in some local minima.
         /// </summary>
-        public static Vector2d[] Optimize(Func2 func, Vector2d min, Vector2d max, double maxTemp, int iters = 5000, int numParticles = 10, double coolingRate = 0.003) {
+        public static Vector2d[] Optimize(Func2 func, Vector2d min, Vector2d max, double maxTemp, out Vector2d best, int iters = 5000, int numParticles = 10, double coolingRate = 0.003) {
             System.Random random = new System.Random();
             double temp = maxTemp;
             Vector2d range = max - min;
@@ -47,7 +47,7 @@ namespace kOSMainframe.Numerics {
                     particlesF[i] = f;
                 } else {
                     // See if a random another particle want to jump there
-                    i = random.Next() % numParticles;
+                    i = random.Next(1) % numParticles;
                     if (f < particlesF[i] || Math.Exp((particlesF[i] - f) / temp) > P) {
                         particles[i].x = x;
                         particles[i].y = y;
@@ -59,6 +59,14 @@ namespace kOSMainframe.Numerics {
                 temp *= 1 - coolingRate;
             }
 
+            double bestF = particlesF[0];
+            best = particles[0];
+            for(int i = 1; i < numParticles; i++ ) {
+                if(particlesF[i] < bestF) {
+                    bestF = particlesF[i];
+                    best = particles[i];
+                }
+            }
             return particles;
         }
     }
