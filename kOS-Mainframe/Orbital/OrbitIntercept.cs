@@ -22,17 +22,12 @@ namespace kOSMainframe.Orbital {
             Vector3d initialVelocity = o.SwappedOrbitalVelocityAtUT(initialUT);
             Vector3d finalVelocity = target.SwappedOrbitalVelocityAtUT(finalUT);
 
-            Vector3d transferViClockwise, transferVfClockwise;
-            Vector3d transferViCounterClockwise, transferVfCounterClockwise;
-
-            // GoodingSolver.Solve(initialRelPos, initialVelocity, finalRelPos, finalVelocity, finalUT - initialUT, o.referenceBody, 0, out transferVi, out transferVf);
-
             if (offsetDistance != 0) {
                 finalRelPos += offsetDistance * Vector3d.Cross(finalVelocity, finalRelPos).normalized;
             }
 
-            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, true, out transferViClockwise, out transferVfClockwise);
-            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, false, out transferViCounterClockwise, out transferVfCounterClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, true, out Vector3d transferViClockwise, out Vector3d transferVfClockwise);
+            LambertIzzoSolver.Solve(initialRelPos, finalRelPos, finalUT - initialUT, o.ReferenceBody.GravParameter, false, out Vector3d transferViCounterClockwise, out Vector3d transferVfCounterClockwise);
 
             double totalClockwise = (finalVelocity - transferVfClockwise).magnitude + (transferViClockwise - initialVelocity).magnitude;
             double totalCounterClockwise = (finalVelocity - transferVfCounterClockwise).magnitude + (transferViCounterClockwise - initialVelocity).magnitude;
@@ -96,10 +91,8 @@ namespace kOSMainframe.Orbital {
             Vector3d displacementDir = Vector3d.Cross(collisionRelVel, o.SwappedOrbitNormal()).normalized;
             Vector3d interceptTarget = collisionPosition + desiredImpactParameter * displacementDir;
 
-            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
-            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out Vector3d velAfterBurnClockwise, out Vector3d arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out Vector3d velAfterBurnCounterClockwise, out Vector3d arrivalVelCounterClockwise);
 
             Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
             Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
@@ -121,10 +114,8 @@ namespace kOSMainframe.Orbital {
 
             Vector3d interceptTarget = targetPos + target.NormalPlus(collisionUT) * caDistance;
 
-            Vector3d velAfterBurnClockwise, arrivalVelClockwise;
-            Vector3d velAfterBurnCounterClockwise, arrivalVelCounterClockwise;
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out velAfterBurnClockwise, out arrivalVelClockwise);
-            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out velAfterBurnCounterClockwise, out arrivalVelCounterClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, true, out Vector3d velAfterBurnClockwise, out Vector3d arrivalVelClockwise);
+            LambertIzzoSolver.Solve(o.SwappedRelativePositionAtUT(collisionParams.time), interceptTarget - o.referenceBody.position, collisionUT - collisionParams.time, o.referenceBody.gravParameter, false, out Vector3d velAfterBurnCounterClockwise, out Vector3d arrivalVelCounterClockwise);
 
             Vector3d deltaVClockwise = velAfterBurnClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
             Vector3d deltaVCounterClockwise = velAfterBurnCounterClockwise - o.SwappedOrbitalVelocityAtUT(collisionParams.time);
@@ -180,8 +171,7 @@ namespace kOSMainframe.Orbital {
             //transferring vessel and the target at the apsis of the transfer orbit.
             double synodicPeriod = o.SynodicPeriod(target);
 
-            double lastApsisPhaseAngle;
-            Vector3d immediateBurnDV = DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, UT, out lastApsisPhaseAngle);
+            Vector3d immediateBurnDV = DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, UT, out double lastApsisPhaseAngle);
 
             double minTime = UT;
             double maxTime = UT + 1.5 * synodicPeriod;
@@ -220,8 +210,7 @@ namespace kOSMainframe.Orbital {
             while (maxTime - minTime > 0.01) {
                 double testTime = (maxTime + minTime) / 2;
 
-                double testApsisPhaseAngle;
-                DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, testTime, out testApsisPhaseAngle);
+                DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, testTime, out double testApsisPhaseAngle);
 
                 if (Math.Sign(testApsisPhaseAngle) == minTimeApsisPhaseAngleSign) {
                     minTime = testTime;
@@ -231,8 +220,7 @@ namespace kOSMainframe.Orbital {
             }
 
             double burnUT = (minTime + maxTime) / 2;
-            double finalApsisPhaseAngle;
-            Vector3d burnDV = DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, burnUT, out finalApsisPhaseAngle);
+            Vector3d burnDV = DeltaVAndApsisPhaseAngleOfHohmannTransfer(o, target, burnUT, out double finalApsisPhaseAngle);
 
             return o.DeltaVToNode(burnUT, burnDV);
         }
@@ -275,8 +263,7 @@ namespace kOSMainframe.Orbital {
             prob.zeroUT = UT;
             prob.intercept_only = intercept_only;
 
-            Vector2d minParam;
-            int iter = AmoebaOptimizer.Optimize(prob.LambertCost, new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out minParam);
+            int iter = AmoebaOptimizer.Optimize(prob.LambertCost, new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out Vector2d minParam);
 
             Logging.Debug($"DeltaVAndTimeForBiImpulsiveTransfer: UT = {minParam.x} T = {minParam.y} iter = {iter}");
 
@@ -301,11 +288,12 @@ namespace kOSMainframe.Orbital {
             double MAXTEMP = 10000;
             double temp = MAXTEMP;
 
-            LambertProblem prob = new LambertProblem();
-            prob.o = o;
-            prob.target = target;
-            prob.zeroUT = UT;
-            prob.intercept_only = intercept_only;
+            LambertProblem prob = new LambertProblem {
+                o = o,
+                target = target,
+                zeroUT = UT,
+                intercept_only = intercept_only
+            };
 
             double maxUTplusT = Double.PositiveInfinity;
 
@@ -351,8 +339,7 @@ namespace kOSMainframe.Orbital {
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
             stopwatch.Start();
-            Vector2d best;
-            AnnealingOptimizer.Optimize(prob.LambertCost, new Vector2d(minUT, minTT), new Vector2d(maxUT, maxTT), MAXTEMP, out best);
+            AnnealingOptimizer.Optimize(prob.LambertCost, new Vector2d(minUT, minTT), new Vector2d(maxUT, maxTT), MAXTEMP, out Vector2d best);
             stopwatch.Stop();
 
             Logging.Debug("DeltaVAndTimeForBiImpulsiveAnnealed time = " + stopwatch.Elapsed);
