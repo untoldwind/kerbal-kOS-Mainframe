@@ -1,7 +1,7 @@
 ﻿using System;
-using NUnit.Framework;
 using kOSMainframe.Orbital;
 using kOSMainframe.Numerics;
+using UnityEngine;
 
 namespace kOSMainframeTest {
     public class OrbitTestRef : IOrbit {
@@ -434,6 +434,49 @@ namespace kOSMainframeTest {
         public double SynodicPeriod(IOrbit other) {
             int sign = (Vector3d.Dot(SwappedOrbitNormal, other.SwappedOrbitNormal) > 0 ? 1 : -1); //detect relative retrograde motion
             return Math.Abs(1.0 / (1.0 / Period - sign * 1.0 / other.Period)); //period after which the phase angle repeats
+        }
+
+        public Vector3d SwappedRelativePositionAtPeriapsis {
+            get {
+                Vector3d vectorToAN = QuaternionD.AngleAxis(-LAN, Vector3d.up) * Vector3d.right;
+                Vector3d vectorToPe = QuaternionD.AngleAxis(argumentOfPeriapsis, SwappedOrbitNormal) * vectorToAN;
+                return PeR * vectorToPe;
+            }
+        }
+
+        public double TrueAnomalyFromVector(Vector3d vec) {
+            Vector3d oNormal = SwappedOrbitNormal;
+            Vector3d projected = Vector3d.Exclude(oNormal, vec);
+            Vector3d vectorToPe = SwappedRelativePositionAtPeriapsis;
+            double angleFromPe = Vector3d.Angle(vectorToPe, projected);
+
+            //If the vector points to the infalling part of the orbit then we need to do 360 minus the
+            //angle from Pe to get the true anomaly. Test this by taking the the cross product of the
+            //orbit normal and vector to the periapsis. This gives a vector that points to center of the
+            //outgoing side of the orbit. If vectorToAN is more than 90 degrees from this vector, it occurs
+            //during the infalling part of the orbit.
+            if (Math.Abs(Vector3d.Angle(projected, Vector3d.Cross(oNormal, vectorToPe))) < 90) {
+                return angleFromPe;
+            } else {
+                return 360 - angleFromPe;
+            }
+        }
+
+        public double AscendingNodeTrueAnomaly(IOrbit b) {
+            Vector3d vectorToAN = Vector3d.Cross(SwappedOrbitNormal, b.SwappedOrbitNormal);
+            return TrueAnomalyFromVector(vectorToAN);
+        }
+
+        public double DescendingNodeTrueAnomaly(IOrbit b) {
+            return ExtraMath.ClampDegrees360(AscendingNodeTrueAnomaly(b) + 180);
+        }
+
+        public double TimeOfAscendingNode(IOrbit b, double UT) {
+            return TimeOfTrueAnomaly(AscendingNodeTrueAnomaly(b), UT);
+        }
+
+        public double TimeOfDescendingNode(IOrbit b, double UT) {
+            return TimeOfTrueAnomaly(DescendingNodeTrueAnomaly(b), UT);
         }
 
         public NodeParameters DeltaVToNode(double UT, Vector3d dV) {

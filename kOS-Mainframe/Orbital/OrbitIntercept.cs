@@ -257,11 +257,12 @@ namespace kOSMainframe.Orbital {
         //
         // NOTE TO SELF: all UT times here are non-zero centered.
         public static NodeParameters BiImpulsiveTransfer(IOrbit o, IOrbit target, double UT, double TT, double minUT = Double.NegativeInfinity, double maxUT = Double.PositiveInfinity, double maxTT = Double.PositiveInfinity, double maxUTplusT = Double.PositiveInfinity, bool intercept_only = false, double eps = 1e-9, int maxIter = 10000) {
-            LambertProblem prob = new LambertProblem();
-            prob.o = o;
-            prob.target = target;
-            prob.zeroUT = UT;
-            prob.intercept_only = intercept_only;
+            LambertProblem prob = new LambertProblem {
+                o = o,
+                target = target,
+                zeroUT = UT,
+                intercept_only = intercept_only
+            };
 
             int iter = AmoebaOptimizer.Optimize(prob.LambertCost, new Vector2d(0, TT), Vector2d.one, 0.000001, 1000, out Vector2d minParam);
 
@@ -286,7 +287,6 @@ namespace kOSMainframe.Orbital {
         //        the other method are proper UT times and not zero centered at all.
         public static NodeParameters BiImpulsiveAnnealed(IOrbit o, IOrbit target, double UT, double minUT = 0.0, double maxUT = double.PositiveInfinity, bool intercept_only = false, bool fixed_ut = false) {
             double MAXTEMP = 10000;
-            double temp = MAXTEMP;
 
             LambertProblem prob = new LambertProblem {
                 o = o,
@@ -346,7 +346,7 @@ namespace kOSMainframe.Orbital {
 
             double burnUT = UT + best.x;
 
-            Logging.Debug("Annealing results burnUT = " + burnUT + " zero'd burnUT = " + best.x + " TT = " + best.y); 
+            Logging.Debug("Annealing results burnUT = " + burnUT + " zero'd burnUT = " + best.x + " TT = " + best.y);
 
             //return DeltaVToInterceptAtTime(o, UT + bestUT, target, UT + bestUT + bestTT, shortway: bestshortway);
 

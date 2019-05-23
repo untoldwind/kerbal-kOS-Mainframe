@@ -1,5 +1,6 @@
 ﻿using System;
 using kOSMainframe.Numerics;
+using UnityEngine;
 
 namespace kOSMainframe.Orbital {
     /// <summary>
@@ -204,7 +205,60 @@ namespace kOSMainframe.Orbital {
         /// </summary>
         double SynodicPeriod(IOrbit other);
 
+        /// <summary>
+        /// Returns the vector from the primary to the orbiting body at periapsis
+        /// Better than using Orbit.eccVec because that is zero for circular orbits
+        /// </summary>
+        Vector3d SwappedRelativePositionAtPeriapsis {
+            get;
+        }
 
+        /// <summary>
+        /// Converts a direction, specified by a Vector3d, into a true anomaly.
+        /// The vector is projected into the orbital plane and then the true anomaly is
+        /// computed as the angle this vector makes with the vector pointing to the periapsis.
+        /// The returned value is always between 0 and 360.
+        /// </summary>
+        double TrueAnomalyFromVector(Vector3d vec);
+
+        /// <summary>
+        /// Gives the true anomaly (in a's orbit) at which a crosses its ascending node
+        /// with b's orbit.
+        /// The returned value is always between 0 and 360.
+        /// </summary>
+        double AscendingNodeTrueAnomaly(IOrbit b);
+
+        /// <summary>
+        /// Gives the true anomaly (in a's orbit) at which a crosses its descending node
+        /// with b's orbit.
+        /// The returned value is always between 0 and 360.
+        /// </summary>
+        double DescendingNodeTrueAnomaly(IOrbit b);
+
+        /// <summary>
+        /// Returns the next time at which a will cross its ascending node with b.
+        /// For elliptical orbits this is a time between UT and UT + a.period.
+        /// For hyperbolic orbits this can be any time, including a time in the past if
+        /// the ascending node is in the past.
+        /// NOTE: this function will throw an ArgumentException if a is a hyperbolic orbit and the "ascending node"
+        /// occurs at a true anomaly that a does not actually ever attain
+        /// </summary>
+        double TimeOfAscendingNode(IOrbit b, double UT);
+
+        /// <summary>
+        /// Returns the next time at which a will cross its descending node with b.
+        /// For elliptical orbits this is a time between UT and UT + a.period.
+        /// For hyperbolic orbits this can be any time, including a time in the past if
+        /// the descending node is in the past.
+        /// NOTE: this function will throw an ArgumentException if a is a hyperbolic orbit and the "descending node"
+        /// occurs at a true anomaly that a does not actually ever attain
+        /// </summary>
+        double TimeOfDescendingNode(IOrbit b, double UT);
+
+        /// <summary>
+        /// Convert a given delta-V vector to maneuvering node parameters that
+        /// should be applied to this orbit to realize the delta-V.
+        /// </summary>
         NodeParameters DeltaVToNode(double UT, Vector3d dV);
     }
 
@@ -379,6 +433,49 @@ namespace kOSMainframe.Orbital {
             double time2 = orbit.TimeOfTrueAnomaly(trueAnomaly2, UT);
             if (time2 < time1 && time2 > UT) return time2;
             else return time1;
+        }
+
+        public Vector3d SwappedRelativePositionAtPeriapsis {
+            get {
+                Vector3d vectorToAN = QuaternionD.AngleAxis(-orbit.LAN, Planetarium.up) * Planetarium.right;
+                Vector3d vectorToPe = QuaternionD.AngleAxis(orbit.argumentOfPeriapsis, orbit.SwappedOrbitNormal()) * vectorToAN;
+                return PeR * vectorToPe;
+            }
+        }
+
+        public double TrueAnomalyFromVector(Vector3d vec) {
+            Vector3d oNormal = SwappedOrbitNormal;
+            Vector3d projected = Vector3d.Exclude(oNormal, vec);
+            Vector3d vectorToPe = SwappedRelativePositionAtPeriapsis;
+            double angleFromPe = Vector3d.Angle(vectorToPe, projected);
+
+            //If the vector points to the infalling part of the orbit then we need to do 360 minus the
+            //angle from Pe to get the true anomaly. Test this by taking the the cross product of the
+            //orbit normal and vector to the periapsis. This gives a vector that points to center of the
+            //outgoing side of the orbit. If vectorToAN is more than 90 degrees from this vector, it occurs
+            //during the infalling part of the orbit.
+            if (Math.Abs(Vector3d.Angle(projected, Vector3d.Cross(oNormal, vectorToPe))) < 90) {
+                return angleFromPe;
+            } else {
+                return 360 - angleFromPe;
+            }
+        }
+
+        public double AscendingNodeTrueAnomaly(IOrbit b) {
+            Vector3d vectorToAN = Vector3d.Cross(SwappedOrbitNormal, b.SwappedOrbitNormal);
+            return TrueAnomalyFromVector(vectorToAN);
+        }
+
+        public double DescendingNodeTrueAnomaly(IOrbit b) {
+            return ExtraMath.ClampDegrees360(AscendingNodeTrueAnomaly(b) + 180);
+        }
+
+        public double TimeOfAscendingNode(IOrbit b, double UT) {
+            return TimeOfTrueAnomaly(AscendingNodeTrueAnomaly(b), UT);
+        }
+
+        public double TimeOfDescendingNode(IOrbit b, double UT) {
+            return TimeOfTrueAnomaly(DescendingNodeTrueAnomaly(b), UT);
         }
 
         public NodeParameters DeltaVToNode(double UT, Vector3d dV) {

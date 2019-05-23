@@ -96,8 +96,8 @@ namespace kOSMainframe {
             var target = orbitable.Orbit;
             var anExists = orbit.AscendingNodeExists(target);
             var dnExists = orbit.DescendingNodeExists(target);
-            var anNode = anExists ? OrbitMatch.MatchPlanesAscending(orbit, target, minUT) : NodeParameters.zero;
-            var dnNode = dnExists ? OrbitMatch.MatchPlanesDescending(orbit, target, minUT) : NodeParameters.zero;
+            var anNode = anExists ? OrbitMatch.MatchPlanesAscending(orbit.wrap(), target.wrap(), minUT) : NodeParameters.zero;
+            var dnNode = dnExists ? OrbitMatch.MatchPlanesDescending(orbit.wrap(), target.wrap(), minUT) : NodeParameters.zero;
 
             if(!anExists && !dnExists) {
                 throw new KOSException("neither ascending nor descending node with target exists.");
@@ -146,7 +146,7 @@ namespace kOSMainframe {
             var target = orbitable.Orbit;
             double collisionUT = orbit.NextClosestApproachTime(target, minUT);
 
-            return OrbitMatch.MatchVelocities(orbit, collisionUT, target).ToKOS(this.shared);
+            return OrbitMatch.MatchVelocities(orbit.wrap(), collisionUT, target).ToKOS(this.shared);
         }
 
         private Node ReturnFromMoon(ScalarValue targetPrimaryRadius) {

@@ -12,7 +12,7 @@ namespace kOSMainframeTest {
             var ejectionP = ejectionOrbit.SwappedRelativePositionAtUT(exitNode.time);
             var ejectionV = ejectionOrbit.SwappedOrbitalVelocityAtUT(exitNode.time);
 
-            Assert.True(Math.Abs(ejectionOrbit.Inclination) < 5, "Inclination");
+            Assert.True(Math.Abs(ejectionOrbit.Inclination) < 6, "Inclination");
             Assert.AreEqual(exitNode.deltaV.x, ejectionV.x, 1e-5);
             Assert.AreEqual(exitNode.deltaV.y, ejectionV.y, 1e-5);
             Assert.AreEqual(exitNode.deltaV.z, ejectionV.z, 1e-5);

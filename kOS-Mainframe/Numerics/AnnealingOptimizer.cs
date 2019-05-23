@@ -27,9 +27,9 @@ namespace kOSMainframe.Numerics {
                 particlesF[i] = func(particles[i].x, particles[i].y);
             }
 
-            for(int n = 0; n < iters; n++ ) {
-                window.x = temp / maxTemp / 4 * range.x;
-                window.y = temp / maxTemp / 4 * range.y;
+            for(int n = iters - 1; n >= 0; n-- ) {
+                window.x = (0.5 * n) / iters * range.x;
+                window.y = (0.5 * n) / iters * range.y;
 
                 // Randomly choose a particle
                 int i = random.Next() % numParticles;
