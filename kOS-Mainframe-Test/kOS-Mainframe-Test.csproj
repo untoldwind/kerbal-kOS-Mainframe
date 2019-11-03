@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>kOSMainframeTest</RootNamespace>
     <AssemblyName>kOS-Mainframe-Test</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
