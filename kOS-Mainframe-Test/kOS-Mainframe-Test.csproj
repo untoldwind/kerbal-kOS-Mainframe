@@ -41,7 +41,7 @@
       <HintPath>..\..\..\..\KSP\KSP_linux\KSP_Data\Managed\mscorlib.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.11.0\lib\net35\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
